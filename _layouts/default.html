@@ -9,7 +9,7 @@
     <!-- Configure Tailwind for Inter font and a modern color palette -->
     <style>
 
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100900&display=swap');
 
         /* ------------------------------
         COLOR SYSTEM
@@ -148,23 +148,53 @@
 
     <div id="hoverZone" class="fixed top-0 left-0 w-full h-6 z-40"></div>
 
-    <header id="mainHeader" class="fixed top-0 left-0 w-full z-50 transition-transform duration-300 ease-in-out bg-white dark:bg-gray-900">
+    <header id="mainHeader" class="fixed top-0 left-0 w-full z-50 [transition:background-color_0.3s,transform_0.5s] ease-in-out bg-white dark:bg-gray-900">
 
-        <div class="w-full border-b-4 border-gray-500 dark:border-orange-600 p-8">
+
+        <div class="relative w-full border-b-4 border-gray-500 dark:border-orange-600 p-8">
+
+            <div class="absolute top-[43%] left-[10%] -translate-x-1/2 -translate-y-1/2">
+
+                <!-- GO TO BLOG PAGE -->
+                <a href="/_layouts/blog.html">
+
+                    <div class= "w-64 p-4 mt-6 bg-white border-4 rounded-full border-gray-300 text-center shadow-md hover:bg-secondary transition-all duration-300 hover:border-gray-600 hover:shadow-xl hover:-translate-y-1 dark:border-orange-500 dark:text-black">
+                    
+                    <strong>Blog</strong>
+
+                    </div>
+
+                </a>
+                
+                <!-- GO TO MEMBERS PAGE -->
+                <a href="/_layouts/members.html">
+
+                    <div class= "w-64 p-4 mt-6 bg-white border-4 rounded-full border-gray-300 text-center shadow-md hover:bg-secondary transition-all duration-300 hover:border-gray-600 hover:shadow-xl hover:-translate-y-1 dark:border-orange-500 dark:text-black">
+                    
+                    <strong>Members</strong>
+
+                    </div>
+
+                </a>
+                
             
-            <div class="flex justify-center">
+            </div>
+            
+            <div class="flex justify-center translate-x-[10%]">  
 
             <!-- LEFT SIDE (Logo + Title) -->
                 <div class="flex items-center">
-                    <img src="../images/logo.png" class="w-36 h-36 object-cover">
+                    <img src="/images/logo.png" class="w-36 h-36 object-cover transition-colors dark:grayscale">
                     <br>
-                    <h1 class="text-5xl font-extrabold text-gray-900 dark:text-gray-100 whitespace-nowrap ml-[15%]">
-                        ARMI Lab
+                    <h1 class="text-5xl font-extrabold text-gray-900 dark:text-gray-100 whitespace-nowrap ml-[10%] hover:transition-colors hover:duration-300 hover:text-orange-500 dark:hover:transition-colors dark:hover:duration-300 dark:hover:text-orange-500">
+                        
+                        <!-- RETURN TO DEFAULT PAGE -->
+                        <a href="/_layouts/default.html">ARMI Lab</a>
                     </h1>
                 </div>
 
                 <!-- RIGHT SIDE (Abbreviation) -->
-                <div class="text-2xl font-light text-gray-600 dark:text-gray-400 leading-tight ml-[15%]">
+                <div class="text-2xl font-light text-gray-600 dark:text-gray-400 leading-tight ml-[20%]">
                     <div><span class="text-orange-600 font-semibold">A</span>utonomous</div>
                     <div><span class="text-orange-600 font-semibold">R</span>obotics</div>
                     <div><span class="text-orange-600 font-semibold">M</span>achine</div>
@@ -281,9 +311,9 @@
 
         <!-- Digital Twin -->
         <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md flex flex-col h-full">
-            <a href="#" data-video-url="../images/fulls/DT_Unity.mp4"
+            <a href="#" data-video-url="/images/fulls/DT_Unity.mp4"
                class="video-trigger block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="../images/thumbs/digitaltwin.png"
+                <img src="/images/thumbs/digitaltwin.png"
                      class="w-full h-full object-cover transition-all duration-300 hover:opacity-80">
             </a>
 
@@ -310,9 +340,9 @@
 
         <!-- PBVS Dual UR -->
         <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md flex flex-col h-full">
-            <a href="#" data-video-url="../images/fulls/UR_dual.mp4"
+            <a href="#" data-video-url="/images/fulls/UR_dual.mp4"
                class="video-trigger block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="../images/thumbs/PBVS_UR_play.png"
+                <img src="/images/thumbs/PBVS_UR_play.png"
                      class="w-full h-full object-cover transition-all duration-300 hover:opacity-80">
             </a>
 
@@ -328,17 +358,17 @@
                     Joint velocity control enables real-time trajectory tracking using visual feedback.
                 </p>
                 <p class="text-sm mt-auto dark:text-gray-100">
-                    <a href="#" data-video-url="../images/fulls/UR_dual.mp4" class="video-trigger link-icon dark:text-orange-500">Video</a> •
-                    <a href="../images/fulls/PBVS-UR.pdf" class="link-icon dark:text-orange-500">Preprint</a>
+                    <a href="#" data-video-url="/images/fulls/UR_dual.mp4" class="video-trigger link-icon dark:text-orange-500">Video</a> •
+                    <a href="/images/fulls/PBVS-UR.pdf" class="link-icon dark:text-orange-500">Preprint</a>
                 </p>
             </div>
         </article>
 
         <!-- Reactive Motion Control -->
         <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md flex flex-col h-full">
-            <a href="#" data-video-url="../images/fulls/Reactive_motion.mp4"
+            <a href="#" data-video-url="/images/fulls/Reactive_motion.mp4"
                class="video-trigger block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="../images/thumbs/Thumb_Reactive.png"
+                <img src="/images/thumbs/Thumb_Reactive.png"
                      class="w-full h-full object-cover transition-all duration-300 hover:opacity-80">
             </a>
 
@@ -354,16 +384,16 @@
                     while driving the robot toward a target pose.
                 </p>
                 <p class="text-sm mt-auto dark:text-gray-100">
-                    <a href="#" data-video-url="../images/fulls/Reactive_motion.mp4" class="video-trigger link-icon dark:text-orange-500">Video</a>
+                    <a href="#" data-video-url="/images/fulls/Reactive_motion.mp4" class="video-trigger link-icon dark:text-orange-500">Video</a>
                 </p>
             </div>
         </article>
 
         <!-- LiDAR DBSCAN -->
         <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md flex flex-col h-full">
-            <a href="#" data-video-url="../images/fulls/3DLidar.mp4"
+            <a href="#" data-video-url="/images/fulls/3DLidar.mp4"
                class="video-trigger block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="../images/thumbs/Lidar_play.png"
+                <img src="/images/thumbs/Lidar_play.png"
                      class="w-full h-full object-cover transition-all duration-300 hover:opacity-80">
             </a>
 
@@ -379,17 +409,17 @@
                     for real-time object detection in road environments.
                 </p>
                 <p class="text-sm mt-auto dark:text-gray-100">
-                    <a href="#" data-video-url="../images/fulls/3DLidar.mp4" class="video-trigger link-icon dark:text-orange-500">Video</a> •
-                    <a href="../images/fulls/Tri_2023_PrePrint.pdf" class="link-icon dark:text-orange-500">Preprint</a>
+                    <a href="#" data-video-url="/images/fulls/3DLidar.mp4" class="video-trigger link-icon dark:text-orange-500">Video</a> •
+                    <a href="/images/fulls/Tri_2023_PrePrint.pdf" class="link-icon dark:text-orange-500">Preprint</a>
                 </p>
             </div>
         </article>
 
         <!-- Robot Gesture Control -->
         <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md flex flex-col h-full">
-            <a href="#" data-video-url="../images/fulls/Robot_Gesture_Control.mp4"
+            <a href="#" data-video-url="/images/fulls/Robot_Gesture_Control.mp4"
                class="video-trigger block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="../images/thumbs/Robot_gesture_play.png"
+                <img src="/images/thumbs/Robot_gesture_play.png"
                      class="w-full h-full object-cover transition-all duration-300 hover:opacity-80">
             </a>
 
@@ -405,8 +435,8 @@
                     without onboard computing or wearable electronics.
                 </p>
                 <p class="text-sm mt-auto dark:text-gray-100">
-                    <a href="#" data-video-url="../images/fulls/Robot_Gesture_Control.mp4" class="video-trigger link-icon dark:text-orange-500">Video</a> •
-                    <a href="../images/fulls/Robot Gesture Control Using Online Feedback Data with Multi-Tracking Capture System.pdf" class="link-icon dark:text-orange-500">Preprint</a>
+                    <a href="#" data-video-url="/images/fulls/Robot_Gesture_Control.mp4" class="video-trigger link-icon dark:text-orange-500">Video</a> •
+                    <a href="/images/fulls/Robot Gesture Control Using Online Feedback Data with Multi-Tracking Capture System.pdf" class="link-icon dark:text-orange-500">Preprint</a>
                 </p>
             </div>
         </article>
@@ -415,7 +445,7 @@
         <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
             <a href="https://www.youtube.com/watch?v=ZCQJhtsWnWg" target="_blank"
                class="block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="../images/fulls/miniros.gif"
+                <img src="/images/fulls/miniros.gif"
                      class="w-full h-full object-cover transition-all duration-300 hover:opacity-80">
             </a>
 
@@ -434,9 +464,9 @@
 
         <!-- Octocopter -->
         <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
-            <a href="../images/fulls/Octocopter-Testbed.png"
+            <a href="/images/fulls/Octocopter-Testbed.png"
                class="block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="../images/thumbs/octocopter.png"
+                <img src="/images/thumbs/octocopter.png"
                      class="w-full h-full object-cover transition-all duration-300 hover:opacity-80">
             </a>
 
@@ -455,9 +485,9 @@
 
         <!-- Exoskeleton Control -->
         <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
-            <a href="../images/fulls/Upper_robot.png"
+            <a href="/images/fulls/Upper_robot.png"
                class="block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="../images/thumbs/Upper_robot.png"
+                <img src="/images/thumbs/Upper_robot.png"
                      class="w-full h-full object-cover transition-all duration-300 hover:opacity-80">
             </a>
 
@@ -477,9 +507,9 @@
         <!-- Additional Research Publications-->
         <!--
         <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md flex flex-col h-full">
-            <a href="#" data-video-url="../images"
+            <a href="#" data-video-url="/images"
                class="video-trigger block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="../images/"
+                <img src="/images/"
                      class="w-full h-full object-cover transition-all duration-300 hover:opacity-80">
             </a>
 
@@ -494,7 +524,7 @@
                     Content
                 </p>
                 <p class="text-sm mt-auto dark:text-gray-100">
-                    <a href="#" data-video-url="../images/" class="video-trigger link-icon dark:text-orange-500"></a>
+                    <a href="#" data-video-url="/images/" class="video-trigger link-icon dark:text-orange-500"></a>
                 </p>
             </div>
         </article>
@@ -517,8 +547,8 @@
 
         <!-- Project 1: Upper body humanoid robot design -->
         <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
-            <a href="../images/fulls/Upper_full.JPG" class="block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="../images/thumbs/Upper1.JPG"
+            <a href="/images/fulls/Upper_full.JPG" class="block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
+                <img src="/images/thumbs/Upper1.JPG"
                      alt="Upper body humanoid robot design"
                      class="w-full h-full object-cover">
             </a>
@@ -538,7 +568,7 @@
         <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
             <a href="https://youtu.be/kqwAIAZnEu0" target="_blank"
                class="block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700 cursor-pointer">
-                <img src="../images/thumbs/Saviman_thumb.jpg"
+                <img src="/images/thumbs/Saviman_thumb.jpg"
                      alt="Autonomous Service Robot"
                      class="w-full h-full object-cover">
             </a>
@@ -556,9 +586,9 @@
 
         <!-- Project 3: Docking and Locking for Electric Bike -->
         <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
-            <a href="../images/thumbs/Bosch_Docking_Locking_White_3.JPG"
+            <a href="/images/thumbs/Bosch_Docking_Locking_White_3.JPG"
                class="block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="../images/thumbs/Bosch_Docking_Locking_White_3.JPG"
+                <img src="/images/thumbs/Bosch_Docking_Locking_White_3.JPG"
                      alt="Docking and Locking System"
                      class="w-full h-full object-cover">
             </a>
@@ -577,9 +607,9 @@
 
         <!-- Project 4: Ant-like robot -->
         <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
-            <a href="../images/fulls/Ant_full.JPG"
+            <a href="/images/fulls/Ant_full.JPG"
                class="block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="../images/thumbs/Nice_Ant_robot.jpg"
+                <img src="/images/thumbs/Nice_Ant_robot.jpg"
                      alt="Ant-like robot"
                      class="w-full h-full object-cover">
             </a>
@@ -599,7 +629,7 @@
         <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
             <a href="https://youtu.be/RDtGJLPC5hI" target="_blank"
                class="block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700 cursor-pointer">
-                <img src="../images/thumbs/Humanoid0.JPG"
+                <img src="/images/thumbs/Humanoid0.JPG"
                      alt="RC Humanoid Robot 19 DOF"
                      class="w-full h-full object-cover">
             </a>
@@ -682,9 +712,9 @@
         sim-to-real improvement.
     </p>
 
-    <a href="../images/fulls/V_Diagram.webp" 
+    <a href="/images/fulls/V_Diagram.webp" 
        class="block overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition duration-300">
-        <img src="../images/fulls/V_Diagram.webp" 
+        <img src="/images/fulls/V_Diagram.webp" 
              alt="ARMI V-Research Model Diagram"
              class="w-full h-auto object-cover">
     </a>
