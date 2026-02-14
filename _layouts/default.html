@@ -84,6 +84,7 @@
         @apply inline-block ml-2 transition;
         color: var(--primary);
     }
+
     .link-icon:hover {
         color: var(--secondary);
     }
@@ -109,6 +110,7 @@
         width: 100%;
         height: 100%;
     }
+
 </style>
 
    <script>
@@ -138,36 +140,64 @@ tailwind.config = {
     }
 }
 </script>
-
 </head>
 
-<body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 p-4 md:p-10">
+<body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+    
+    <!--<div class="card-container shadow-2xl lg:p-12 transition duration-500 flex items-center">-->
+        
+        <header class="sticky top-0 z-50 bg-white dark:bg-gray-900">
+            <div class="w-full border-b-2 border-t-2 border-gray-800 dark:border-orange-600 p-8">
+                
+                <div class="flex justify-center">
+
+                <!-- LEFT SIDE (Logo + Title) -->
+                    <div class="flex items-center">
+                        <img src="../images/avatar.jpg" class="w-36 h-36 object-cover">
+                        <br>
+                        <h1 class="text-5xl font-extrabold text-gray-900 dark:text-gray-100 whitespace-nowrap ml-[15%]">
+                            ARMI Lab
+                        </h1>
+                    </div>
+
+                    <!-- RIGHT SIDE (Abbreviation) -->
+                    <div class="text-2xl font-light text-gray-600 dark:text-gray-400 leading-tight ml-[15%]">
+                        <div><span class="text-orange-600 font-semibold">A</span>utonomous</div>
+                        <div><span class="text-orange-600 font-semibold">R</span>obotics</div>
+                        <div><span class="text-orange-600 font-semibold">M</span>achine</div>
+                        <div><span class="text-orange-600 font-semibold">I</span>ntelligence</div>
+                        <div class="text-gray-900 dark:text-gray-100">Research Laboratory</div>
+                    </div>
+
+                </div>
+
+            </div>
+        </header>
+    <!--</div>-->
+
+    <br>
 
     <div class="card-container shadow-2xl lg:p-12 transition duration-500">
 
+        <h2 class="text-4xl font-bold mb-8 text-gray-800 dark:text-gray-100 border-l-4 border-secondary pl-4">
+            About Us
+        </h2>
+
         <!-- Header and Lab Identity -->
-        <header class="mb-12 border-b-4 pb-8 border-primary dark:border-primary">
-            <h1 class="text-6xl font-extrabold text-primary mb-2">
-                ARMI Lab
-            </h1>
-            <p class="text-3xl font-light text-gray-600 dark:text-gray-400">
-                <strong>A</strong>utonomous <strong>R</strong>obotics and <strong>M</strong>achine <strong>I</strong>ntelligence Research Laboratory
-            </p>
+        <header class="mb-12 border-b-4 pb-8 border-primary dark:border-gray-200">
             <p class="mt-4 text-xl leading-relaxed text-gray-700 dark:text-gray-300">
-                <strong class="font-semibold text-secondary"> The <strong>ARMI Laboratory</strong> is a research and innovation center in autonomous robots and machine intelligence at the <strong>Mechatronics Engineer Program (MEC)</strong>, Cluster3, <strong>Vietnamese German University</strong> (VGU), Vietnam. ARMI Lab is dedicated to advancing autonomous robotics, digital twin technologies, and machine learning to solve complex, real-world industrial challenges. Our mission is to develop intelligent robotic systems that not only perceive and understand their environment, but also adapt, learn, and optimize their behavior autonomously in an industrial context.
+                <strong class="font-semibold text-secondary"> The <strong class="text-gray-800 dark:text-gray-200">ARMI Laboratory</strong> is a research and innovation center in autonomous robots and machine intelligence at the <strong class="text-gray-800 dark:text-gray-200">Mechatronics Engineer Program (MEC)</strong>, Cluster 3, <strong class="text-gray-800 dark:text-gray-200">Vietnamese German University</strong> (VGU), Vietnam.<br><br><strong class="text-gray-800 dark:text-gray-200">ARMI Lab</strong> is dedicated to advancing autonomous robotics, digital twin technologies, and machine learning to solve complex, real-world industrial challenges. Our mission is to develop intelligent robotic systems that not only perceive and understand their environment, but also adapt, learn, and optimize their behavior autonomously in an industrial context.
             </p>
         </header>
 
         <!-- Core Responsibilities (Adapted from original template section) -->
        <ul class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-5 text-lg text-gray-700 dark:text-gray-300">
 
-   
-
     <!-- Algorithm Development -->
     <li class="flex items-start">
         <span class="text-secondary mr-3 mt-1">&#x25AA;</span>
         <p>
-            <strong class="text-primary">Manipulation Research:</strong>
+            <strong class="text-primary dark:text-gray-500">Manipulation Research:</strong>
             Develop and optimize algorithms for
             <strong>Imitation Learning</strong> (ACT, Diffusion),
             advanced <strong>motion planning</strong> (RRT, trajectory optimization),
@@ -179,7 +209,7 @@ tailwind.config = {
     <li class="flex items-start">
         <span class="text-secondary mr-3 mt-1">&#x25AA;</span>
         <p>
-            <strong class="text-primary">Machine Learning &amp; AI Models:</strong>
+            <strong class="text-primary dark:text-gray-500">Machine Learning &amp; AI Models:</strong>
             Build and deploy machine learning models for predictive maintenance,
             anomaly detection, object recognition, pose estimation, and task automation.
             Utilize modern AI pipelines including deep learning, transformers,
@@ -190,7 +220,7 @@ tailwind.config = {
     <li class="flex items-start">
         <span class="text-secondary mr-3 mt-1">&#x25AA;</span>
         <p>
-            <strong class="text-primary">Simulation &amp; Digital Twin:</strong>
+            <strong class="text-primary dark:text-gray-500">Simulation &amp; Digital Twin:</strong>
             Configure high-fidelity <strong>Digital Twin</strong> environments to validate robotic behaviors,
             system stability, control robustness, and full mission workflows from simulation to deployment.
         </p>
@@ -200,7 +230,7 @@ tailwind.config = {
     <li class="flex items-start">
         <span class="text-secondary mr-3 mt-1">&#x25AA;</span>
         <p>
-            <strong class="text-primary">System Design:</strong>
+            <strong class="text-primary dark:text-gray-500">System Design:</strong>
             Architect robotics software systems using middleware like
             <span class="font-mono bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">ROS/ROS2</span>,
             integrated with simulation tools such as Gazebo, IsaacSim, and high-fidelity Digital Twin pipelines.
@@ -213,7 +243,7 @@ tailwind.config = {
     <li class="flex items-start">
         <span class="text-secondary mr-3 mt-1">&#x25AA;</span>
         <p>
-            <strong class="text-primary">Mobile Robotics:</strong>
+            <strong class="text-primary dark:text-gray-500">Mobile Robotics:</strong>
             Develop autonomous navigation stacks, including mapping, localization,
             obstacle avoidance, and path planning for AMRs, AGVs, and outdoor UGV platforms.
             Integrate sensor suites such as LiDAR, GPS, IMU, and stereo/depth cameras
@@ -225,7 +255,7 @@ tailwind.config = {
     <li class="flex items-start">
         <span class="text-secondary mr-3 mt-1">&#x25AA;</span>
         <p>
-            <strong class="text-primary">Integration:</strong>
+            <strong class="text-primary dark:text-gray-500">Integration:</strong>
             Interface specialized hardware with industrial robots
              UR and key components
             (LiDAR, depth cameras, actuators, embedded systems)
@@ -234,6 +264,7 @@ tailwind.config = {
     </li>
 
 </ul>
+<br>
 
 
         <!-- Research Experiences -->
@@ -246,15 +277,15 @@ tailwind.config = {
     <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-10">
 
         <!-- Digital Twin -->
-        <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
-            <a href="#" data-video-url="images/fulls/DT_Unity.mp4"
+        <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md flex flex-col h-full">
+            <a href="#" data-video-url="../images/fulls/DT_Unity.mp4"
                class="video-trigger block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="images/thumbs/digitaltwin.png"
+                <img src="../images/thumbs/digitaltwin.png"
                      class="w-full h-full object-cover transition-all duration-300 hover:opacity-80">
             </a>
 
-            <div class="p-6 flex-grow">
-                <h3 class="text-xl font-bold text-primary mb-2">
+            <div class="p-6 flex flex-col flex-1">
+                <h3 class="text-xl font-bold text-primary dark:text-orange-400 mb-2">
                     ROS based Digital Twin Framework for Collaboration Robot
                 </h3>
                 <h6 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">
@@ -266,24 +297,24 @@ tailwind.config = {
                     for robot machine-tending based on ISO 23247. The system integrates OPC UA and ROS 
                     for seamless communication between physical and cyber layers.
                 </p>
-                <p class="text-sm">
-                    <a href="https://link.springer.com/chapter/10.1007/978-981-97-1868-9_74" class="link-icon">Springer Link</a> •
-                    <a href="https://www.researchgate.net/publication/382224667_A_Digital_Twin_Implementation_Framework_for_a_Collaborative_Robot_Based_on_Iso_23247" class="link-icon">Preprint</a> •
-                    <a href="https://github.com/TriKnight/unity_universal_robots" class="link-icon">Code</a>
+                <p class="text-sm mt-auto dark:text-gray-100">
+                    <a href="https://link.springer.com/chapter/10.1007/978-981-97-1868-9_74" class="link-icon dark:text-orange-500">Springer Link</a> •
+                    <a href="https://www.researchgate.net/publication/382224667_A_Digital_Twin_Implementation_Framework_for_a_Collaborative_Robot_Based_on_Iso_23247" class="link-icon dark:text-orange-500">Preprint</a> •
+                    <a href="https://github.com/TriKnight/unity_universal_robots" class="link-icon dark:text-orange-500">Code</a>
                 </p>
             </div>
         </article>
 
         <!-- PBVS Dual UR -->
-        <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
-            <a href="#" data-video-url="images/fulls/UR_dual.mp4"
+        <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md flex flex-col h-full">
+            <a href="#" data-video-url="../images/fulls/UR_dual.mp4"
                class="video-trigger block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="images/thumbs/PBVS_UR_play.png"
+                <img src="../images/thumbs/PBVS_UR_play.png"
                      class="w-full h-full object-cover transition-all duration-300 hover:opacity-80">
             </a>
 
-            <div class="p-6 flex-grow">
-                <h3 class="text-xl font-bold text-primary mb-2">
+            <div class="p-6 flex flex-col flex-1">
+                <h3 class="text-xl font-bold text-primary dark:text-orange-400 mb-2">
                     Position-based Visual Servoing with Dual Manipulators
                 </h3>
                 <h6 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">
@@ -293,23 +324,23 @@ tailwind.config = {
                     The PBVS system uses a Realsense D435 camera to track ARTag trajectories from a collaborative UR10e robot. 
                     Joint velocity control enables real-time trajectory tracking using visual feedback.
                 </p>
-                <p class="text-sm">
-                    <a href="#" data-video-url="images/fulls/UR_dual.mp4" class="video-trigger link-icon">Video</a> •
-                    <a href="images/fulls/PBVS-UR.pdf" class="link-icon">Preprint</a>
+                <p class="text-sm mt-auto dark:text-gray-100">
+                    <a href="#" data-video-url="../images/fulls/UR_dual.mp4" class="video-trigger link-icon dark:text-orange-500">Video</a> •
+                    <a href="../images/fulls/PBVS-UR.pdf" class="link-icon dark:text-orange-500">Preprint</a>
                 </p>
             </div>
         </article>
 
         <!-- Reactive Motion Control -->
-        <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
-            <a href="#" data-video-url="images/fulls/Reactive_motion.mp4"
+        <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md flex flex-col h-full">
+            <a href="#" data-video-url="../images/fulls/Reactive_motion.mp4"
                class="video-trigger block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="images/thumbs/Thumb_Reactive.png"
+                <img src="../images/thumbs/Thumb_Reactive.png"
                      class="w-full h-full object-cover transition-all duration-300 hover:opacity-80">
             </a>
 
-            <div class="p-6 flex-grow">
-                <h3 class="text-xl font-bold text-primary mb-2">
+            <div class="p-6 flex flex-col flex-1">
+                <h3 class="text-xl font-bold text-primary dark:text-orange-400 mb-2">
                     Optimisation Algorithm for Reactive Motion Control Manipulator
                 </h3>
                 <h6 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">
@@ -319,22 +350,22 @@ tailwind.config = {
                     Designs a reactive optimization-based controller that avoids static and dynamic obstacles 
                     while driving the robot toward a target pose.
                 </p>
-                <p class="text-sm">
-                    <a href="#" data-video-url="images/fulls/Reactive_motion.mp4" class="video-trigger link-icon">Video</a>
+                <p class="text-sm mt-auto dark:text-gray-100">
+                    <a href="#" data-video-url="../images/fulls/Reactive_motion.mp4" class="video-trigger link-icon dark:text-orange-500">Video</a>
                 </p>
             </div>
         </article>
 
         <!-- LiDAR DBSCAN -->
-        <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
-            <a href="#" data-video-url="images/fulls/3DLidar.mp4"
+        <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md flex flex-col h-full">
+            <a href="#" data-video-url="../images/fulls/3DLidar.mp4"
                class="video-trigger block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="images/thumbs/Lidar_play.png"
+                <img src="../images/thumbs/Lidar_play.png"
                      class="w-full h-full object-cover transition-all duration-300 hover:opacity-80">
             </a>
 
-            <div class="p-6 flex-grow">
-                <h3 class="text-xl font-bold text-primary mb-2">
+            <div class="p-6 flex flex-col flex-1">
+                <h3 class="text-xl font-bold text-primary dark:text-orange-400 mb-2">
                     LiDAR-based Vehicle Detection using DBSCAN
                 </h3>
                 <h6 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">
@@ -344,23 +375,23 @@ tailwind.config = {
                     A LiDAR-based embedded detection system using DBSCAN clustering on Jetson TX2 
                     for real-time object detection in road environments.
                 </p>
-                <p class="text-sm">
-                    <a href="#" data-video-url="images/fulls/3DLidar.mp4" class="video-trigger link-icon">Video</a> •
-                    <a href="images/fulls/Tri_2023_PrePrint.pdf" class="link-icon">Preprint</a>
+                <p class="text-sm mt-auto dark:text-gray-100">
+                    <a href="#" data-video-url="../images/fulls/3DLidar.mp4" class="video-trigger link-icon dark:text-orange-500">Video</a> •
+                    <a href="../images/fulls/Tri_2023_PrePrint.pdf" class="link-icon dark:text-orange-500">Preprint</a>
                 </p>
             </div>
         </article>
 
         <!-- Robot Gesture Control -->
-        <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
-            <a href="#" data-video-url="images/fulls/Robot_Gesture_Control.mp4"
+        <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md flex flex-col h-full">
+            <a href="#" data-video-url="../images/fulls/Robot_Gesture_Control.mp4"
                class="video-trigger block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="images/thumbs/Robot_gesture_play.png"
+                <img src="../images/thumbs/Robot_gesture_play.png"
                      class="w-full h-full object-cover transition-all duration-300 hover:opacity-80">
             </a>
 
-            <div class="p-6 flex-grow">
-                <h3 class="text-xl font-bold text-primary mb-2">
+            <div class="p-6 flex flex-col flex-1s">
+                <h3 class="text-xl font-bold text-primary dark:text-orange-400 mb-2">
                     Robot Gesture Control Using Multi-Tracking System
                 </h3>
                 <h6 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">
@@ -370,9 +401,9 @@ tailwind.config = {
                     A wireless gesture-controlled robot system using Vicon motion capture for real-time control
                     without onboard computing or wearable electronics.
                 </p>
-                <p class="text-sm">
-                    <a href="#" data-video-url="images/fulls/Robot_Gesture_Control.mp4" class="video-trigger link-icon">Video</a> •
-                    <a href="images/fulls/Robot Gesture Control Using Online Feedback Data with Multi-Tracking Capture System.pdf" class="link-icon">Preprint</a>
+                <p class="text-sm mt-auto dark:text-gray-100">
+                    <a href="#" data-video-url="../images/fulls/Robot_Gesture_Control.mp4" class="video-trigger link-icon dark:text-orange-500">Video</a> •
+                    <a href="../images/fulls/Robot Gesture Control Using Online Feedback Data with Multi-Tracking Capture System.pdf" class="link-icon dark:text-orange-500">Preprint</a>
                 </p>
             </div>
         </article>
@@ -381,12 +412,14 @@ tailwind.config = {
         <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
             <a href="https://www.youtube.com/watch?v=ZCQJhtsWnWg" target="_blank"
                class="block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="images/fulls/miniros.gif"
+                <img src="../images/fulls/miniros.gif"
                      class="w-full h-full object-cover transition-all duration-300 hover:opacity-80">
             </a>
 
             <div class="p-6 flex-grow">
-                <h3 class="text-xl font-bold text-primary mb-2">MiniRos: an autonomous UGV robot</h3>
+                <h3 class="text-xl font-bold text-primary dark:text-orange-400 mb-2">
+                    MiniRos: an autonomous UGV robot
+                </h3>
                 <h6 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">
                     Tri Bien Minh*, Hua Thanh Luan, Do Xuan Phu — ICSSE 2021
                 </h6>
@@ -398,14 +431,16 @@ tailwind.config = {
 
         <!-- Octocopter -->
         <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
-            <a href="images/fulls/Octocopter-Testbed.png"
+            <a href="../images/fulls/Octocopter-Testbed.png"
                class="block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="images/thumbs/octocopter.png"
+                <img src="../images/thumbs/octocopter.png"
                      class="w-full h-full object-cover transition-all duration-300 hover:opacity-80">
             </a>
 
             <div class="p-6 flex-grow">
-                <h3 class="text-xl font-bold text-primary mb-2">V-frame Octocopter: Design & Simulation</h3>
+                <h3 class="text-xl font-bold text-primary dark:text-orange-400 mb-2">
+                    V-frame Octocopter: Design & Simulation
+                </h3>
                 <h6 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">
                     Tri Bien Minh*, Hien Vo, Hua Thanh Luan — IJ Intelligent Unmanned Systems, 2023
                 </h6>
@@ -417,14 +452,14 @@ tailwind.config = {
 
         <!-- Exoskeleton Control -->
         <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
-            <a href="images/fulls/Upper_robot.png"
+            <a href="../images/fulls/Upper_robot.png"
                class="block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="images/thumbs/Upper_robot.png"
+                <img src="../images/thumbs/Upper_robot.png"
                      class="w-full h-full object-cover transition-all duration-300 hover:opacity-80">
             </a>
 
             <div class="p-6 flex-grow">
-                <h3 class="text-xl font-bold text-primary mb-2">
+                <h3 class="text-xl font-bold text-primary dark:text-orange-400 mb-2">
                     Adaptive Optimal Control for Upper Exoskeleton
                 </h3>
                 <h6 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">
@@ -435,6 +470,32 @@ tailwind.config = {
                 </p>
             </div>
         </article>
+
+        <!-- Additional Research Publications-->
+        <!--
+        <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md flex flex-col h-full">
+            <a href="#" data-video-url="../images"
+               class="video-trigger block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
+                <img src="../images/"
+                     class="w-full h-full object-cover transition-all duration-300 hover:opacity-80">
+            </a>
+
+            <div class="p-6 flex flex-col flex-1s">
+                <h3 class="text-xl font-bold text-primary dark:text-orange-400 mb-2">
+                    Publication's Name
+                </h3>
+                <h6 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">
+                    Contributors
+                </h6>
+                <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                    Content
+                </p>
+                <p class="text-sm mt-auto dark:text-gray-100">
+                    <a href="#" data-video-url="../images/" class="video-trigger link-icon dark:text-orange-500"></a>
+                </p>
+            </div>
+        </article>
+        -->
 
     </div>
 </section>
@@ -453,19 +514,20 @@ tailwind.config = {
 
         <!-- Project 1: Upper body humanoid robot design -->
         <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
-            <a href="images/fulls/Upper_full.JPG" class="block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="images/thumbs/Upper1.JPG"
+            <a href="../images/fulls/Upper_full.JPG" class="block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
+                <img src="../images/thumbs/Upper1.JPG"
                      alt="Upper body humanoid robot design"
                      class="w-full h-full object-cover">
             </a>
             <div class="p-6 flex-grow">
-                <h3 class="text-xl font-bold mb-2 text-primary">Upper body humanoid robot design (14 DOF)</h3>
+                <h3 class="text-xl font-bold mb-2 text-primary dark:text-orange-400">Upper body humanoid robot design (14 DOF)</h3>
                 <p class="text-sm text-gray-600 dark:text-gray-300">
                     14DOF humanoid upper body robot (6-DOF head + 2× 4-DOF arms), integrated with a depth camera. Designed for 3D printing or laser cutting — for research & education.
                 </p>
             </div>
-            <div class="p-6 pt-0 border-t border-gray-200 dark:border-gray-700">
-                <a href="https://grabcad.com/library/upper-body-humanoid-robot-1" class="link-icon">3D File (GrabCAD)</a>
+            <div class="p-6 pt-0 border-t border-gray-200 dark:border-gray-700 dark:text-gray-100">
+                <br>
+                <a href="https://grabcad.com/library/upper-body-humanoid-robot-1" class="link-icon dark:text-orange-500">3D File (GrabCAD)</a>
             </div>
         </article>
 
@@ -473,57 +535,60 @@ tailwind.config = {
         <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
             <a href="https://youtu.be/kqwAIAZnEu0" target="_blank"
                class="block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700 cursor-pointer">
-                <img src="images/thumbs/Saviman_thumb.jpg"
+                <img src="../images/thumbs/Saviman_thumb.jpg"
                      alt="Autonomous Service Robot"
                      class="w-full h-full object-cover">
             </a>
             <div class="p-6 flex-grow">
-                <h3 class="text-xl font-bold mb-2 text-primary">Autonomous Service Robot</h3>
+                <h3 class="text-xl font-bold mb-2 text-primary dark:text-orange-400">Autonomous Service Robot</h3>
                 <p class="text-sm text-gray-600 dark:text-gray-300">
                     ROS-based service robot using 2D Lidar, embedded computer, and multiple sensors. Supports indoor SLAM and autonomous navigation for restaurants, hotels, and hospitals.
                 </p>
             </div>
-            <div class="p-6 pt-0 border-t border-gray-200 dark:border-gray-700">
-                <a href="https://youtu.be/kqwAIAZnEu0" class="link-icon">Video</a>
+            <div class="p-6 pt-0 border-t border-gray-200 dark:border-gray-700 dark:text-gray-100">
+                <br>
+                <a href="https://youtu.be/kqwAIAZnEu0" class="link-icon dark:text-orange-500">Video</a>
             </div>
         </article>
 
         <!-- Project 3: Docking and Locking for Electric Bike -->
         <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
-            <a href="images/thumbs/Bosch_Docking_Locking_White_3.JPG"
+            <a href="../images/thumbs/Bosch_Docking_Locking_White_3.JPG"
                class="block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="images/thumbs/Bosch_Docking_Locking_White_3.JPG"
+                <img src="../images/thumbs/Bosch_Docking_Locking_White_3.JPG"
                      alt="Docking and Locking System"
                      class="w-full h-full object-cover">
             </a>
             <div class="p-6 flex-grow">
-                <h3 class="text-xl font-bold mb-2 text-primary">Docking & Locking for Electric Bike</h3>
+                <h3 class="text-xl font-bold mb-2 text-primary dark:text-orange-400">Docking & Locking for Electric Bike</h3>
                 <p class="text-sm text-gray-600 dark:text-gray-300">
                     Award-winning charger docking and locking system for electric motorbikes — developed for the Bosch Green Challenge. Recognized for innovation in industrial design.
                 </p>
             </div>
-            <div class="p-6 pt-0 border-t border-gray-200 dark:border-gray-700">
+            <div class="p-6 pt-0 border-t border-gray-200 dark:border-gray-700 dark:text-gray-100">
+                <br>
                 <a href="https://grabcad.com/library/docking-and-locking-pole-for-electric-bike-1"
-                   class="link-icon">3D File (GrabCAD)</a>
+                   class="link-icon dark:text-orange-500">3D File (GrabCAD)</a>
             </div>
         </article>
 
         <!-- Project 4: Ant-like robot -->
         <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
-            <a href="images/fulls/Ant_full.JPG"
+            <a href="../images/fulls/Ant_full.JPG"
                class="block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="images/thumbs/Nice_Ant_robot.jpg"
+                <img src="../images/thumbs/Nice_Ant_robot.jpg"
                      alt="Ant-like robot"
                      class="w-full h-full object-cover">
             </a>
             <div class="p-6 flex-grow">
-                <h3 class="text-xl font-bold mb-2 text-primary">Ant-like Robot (23 DOF)</h3>
+                <h3 class="text-xl font-bold mb-2 text-primary dark:text-orange-400">Ant-like Robot (23 DOF)</h3>
                 <p class="text-sm text-gray-600 dark:text-gray-300">
                     A six-legged, 23-DOF biomimetic robot with 3 DOF per leg. Uses servo motors and a lightweight frame — ideal for STEM education and locomotion research.
                 </p>
             </div>
-            <div class="p-6 pt-0 border-t border-gray-200 dark:border-gray-700">
-                <a href="https://grabcad.com/library/ant-like-robot-1" class="link-icon">3D File (GrabCAD)</a>
+            <div class="p-6 pt-0 border-t border-gray-200 dark:border-gray-700 dark:text-gray-100">
+                <br>
+                <a href="https://grabcad.com/library/ant-like-robot-1" class="link-icon dark:text-orange-500">3D File (GrabCAD)</a>
             </div>
         </article>
 
@@ -531,19 +596,20 @@ tailwind.config = {
         <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
             <a href="https://youtu.be/RDtGJLPC5hI" target="_blank"
                class="block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700 cursor-pointer">
-                <img src="images/thumbs/Humanoid0.JPG"
+                <img src="../images/thumbs/Humanoid0.JPG"
                      alt="RC Humanoid Robot 19 DOF"
                      class="w-full h-full object-cover">
             </a>
             <div class="p-6 flex-grow">
-                <h3 class="text-xl font-bold mb-2 text-primary">RC Humanoid Robot (19 DOF)</h3>
+                <h3 class="text-xl font-bold mb-2 text-primary dark:text-orange-400">RC Humanoid Robot (19 DOF)</h3>
                 <p class="text-sm text-gray-600 dark:text-gray-300">
                     A remote-controlled 19-DOF humanoid built for mechanical engineering and robotics education. Designed to be easy to manufacture via 3D printing or laser cutting.
                 </p>
             </div>
-            <div class="p-6 pt-0 border-t border-gray-200 dark:border-gray-700">
-                <a href="https://grabcad.com/library/humanoid-rc-robot-1" class="link-icon">3D File (GrabCAD)</a>
-                <a href="https://youtu.be/RDtGJLPC5hI" class="link-icon">Video</a>
+            <div class="p-6 pt-0 border-t border-gray-200 dark:border-gray-700 dark:text-gray-100">
+                <br>
+                <a href="https://grabcad.com/library/humanoid-rc-robot-1" class="link-icon dark:text-orange-500">3D File (GrabCAD)</a> • 
+                <a href="https://youtu.be/RDtGJLPC5hI" class="link-icon dark:text-orange-500">Video</a>
             </div>
         </article>
 
@@ -561,10 +627,11 @@ tailwind.config = {
         
         <!-- Programming Skills -->
         <div>
-            <h3 class="text-2xl font-semibold mb-3 text-primary">Programming & Frameworks</h3>
+            <h3 class="text-2xl font-semibold mb-3 text-primary whitespace-nowrap dark:text-orange-400">Programming & Frameworks</h3>
             <p class="text-lg text-gray-700 dark:text-gray-300 mb-4">
                 Core development in low-level and high-level languages for robotics and AI.
-            </p>
+            </p>    
+            <br><br>
             <p align="left">
                 <img src="https://skillicons.dev/icons?i=python,cpp,ros,pytorch,git,latex"
                      alt="Skills: Python, C++, ROS, PyTorch, Git, LaTeX"
@@ -574,7 +641,7 @@ tailwind.config = {
         
         <!-- Lab Tutorials / Teaching -->
         <div>
-            <h3 class="text-2xl font-semibold mb-3 text-primary">Lab Tutorials & Curriculum</h3>
+            <h3 class="text-2xl font-semibold mb-3 text-primary dark:text-orange-400">Lab Tutorials & Curriculum</h3>
             <ul class="space-y-2 text-base text-gray-700 dark:text-gray-300 list-disc pl-5">
                 <li>Robotics and Autonomous Systems (ROS, Pytorch)</li>
                 <li>Embedded Intelligent System (ROS, OpenCV)</li>
@@ -585,7 +652,7 @@ tailwind.config = {
         
         <!-- Hands-on Hardware Experience -->
         <div>
-            <h3 class="text-2xl font-semibold mb-3 text-primary">Hands-on Hardware Experience</h3>
+            <h3 class="text-2xl font-semibold mb-3 text-primary dark:text-orange-400">Hands-on Hardware Experience</h3>
             <ul class="space-y-2 text-base text-gray-700 dark:text-gray-300 list-disc pl-5">
                 <li>Robot Platforms: UR10e, Kuka Youbot, Turtlebot 3, NAO, DJI Drone.</li>
                 <li>Sensors: Velodyne VLP-16, IMU-Xsens Mti-30, Intel Realsense, SICK Lidar.</li>
@@ -598,13 +665,13 @@ tailwind.config = {
     
     <!-- V Research-->
   <div class="mt-10">
-    <h3 class="text-2xl font-semibold mb-3 text-primary">ARMI V-Research Model</h3>
+    <h3 class="text-2xl font-semibold mb-3 text-primary dark:text-orange-400">ARMI V-Research Model</h3>
 
     <p class="text-base text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
         The ARMI V-Research Model is a modern adaptation of the classical V-Model, 
         redesigned for autonomous robotics and machine intelligence workflows. 
-        It aligns <span class="font-semibold text-primary">verification</span> (left side) with 
-        <span class="font-semibold text-secondary">validation</span> (right side), ensuring that 
+        It aligns <span class="font-semibold text-secondary">verification</span> (left side) with 
+        <span class="font-semibold text-blue-500">validation</span> (right side), ensuring that 
         every research activity—from requirements, system design, perception algorithms, ML model pipelines, 
         to field testing—is tested against measurable criteria. 
         This model guides ARMI Lab in developing safe, reliable, and high-performance robotic systems using 
@@ -612,33 +679,33 @@ tailwind.config = {
         sim-to-real improvement.
     </p>
 
-    <a href="images/fulls/V_Diagram.webp" 
+    <a href="../images/fulls/V_Diagram.webp" 
        class="block overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition duration-300">
-        <img src="images/fulls/V_Diagram.webp" 
+        <img src="../images/fulls/V_Diagram.webp" 
              alt="ARMI V-Research Model Diagram"
              class="w-full h-auto object-cover">
     </a>
 
-    <p class="text-base text-gray-700 dark:text-gray-300 mt-6 leading-relaxed">
+    <p class="text-base text-gray-700 dark:text-gray-100 mt-6 leading-relaxed">
         The model emphasizes four key principles:
     </p>
 
     <ul class="list-disc pl-6 text-gray-700 dark:text-gray-300 space-y-2 text-base">
         <li>
-            <span class="font-semibold text-primary">Simulation-first development</span> using digital twins 
+            <span class="font-semibold text-orange-500">Simulation-first development</span> using digital twins 
             (Unity, Isaac Sim, Gazebo) for safe testing, rapid iteration, and synthetic data generation.
         </li>
         <li>
-            <span class="font-semibold text-primary">Integrated ML lifecycle</span> driving perception, 
+            <span class="font-semibold text-orange-500">Integrated ML lifecycle</span> driving perception, 
             planning, and decision-making modules through continuous training, monitoring, and model validation.
         </li>
         <li>
-            <span class="font-semibold text-primary">Hardware-in-the-loop (HIL)</span> and 
-            <span class="text-secondary font-semibold">system-in-the-loop</span> validation to ensure robust 
+            <span class="font-semibold text-orange-500">Hardware-in-the-loop (HIL)</span> and 
+            <span class="text-blue-500 font-semibold dark:text-blue-300">system-in-the-loop</span> validation to ensure robust 
             sim-to-real transfer and safety-critical performance.
         </li>
         <li>
-            <span class="font-semibold text-primary">Full verification & validation alignment</span> so that 
+            <span class="font-semibold text-orange-500">Full verification & validation alignment</span> so that 
             research requirements, algorithms, and system behaviors always map to measurable real-world tests, 
             acceptance KPIs, and field trials.
         </li>
@@ -715,7 +782,7 @@ document.querySelectorAll(".video-trigger").forEach(el => {
 
     <!-- Theme Toggle -->
     <button onclick="document.documentElement.classList.toggle('dark')"
-        class="fixed bottom-4 right-4 bg-primary text-white p-3 rounded-full shadow-lg hover:bg-secondary transition">
+        class="fixed bottom-4 right-4 bg-white text-black p-3 border-4 rounded-full shadow-lg hover:bg-secondary transition dark:bg-gray-800 dark:text-white dark:border-orange-600">
         Toggle Theme
     </button>
 
