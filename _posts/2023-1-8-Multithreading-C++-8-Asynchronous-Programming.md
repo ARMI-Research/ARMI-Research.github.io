@@ -1,6 +1,6 @@
 ---
 layout: post
-category: blog
+category: research
 title: (Multithreading C++) 9. Asynchronous Programming
 snippet: This tutorial in series of Multithreading in C++.
 tags: [Multithreading C++]

@@ -1,6 +1,6 @@
 ---
 layout: post
-category: blog
+category: research
 title: (Multithreading C++) 5. Mutex and Multiple Threads working with Share data (Part 2)
 snippet: This tutorial in series of Mutex and Multiple Threads working with Share data.
 tags: [Multithreading C++]

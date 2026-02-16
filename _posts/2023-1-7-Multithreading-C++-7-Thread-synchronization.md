@@ -1,6 +1,6 @@
 ---
 layout: post
-category: blog
+category: research
 title: (Multithreading C++) 7. Thread Synchronization 
 snippet: This tutorial in series of Multithreading in C++.
 tags: [Multithreading C++]

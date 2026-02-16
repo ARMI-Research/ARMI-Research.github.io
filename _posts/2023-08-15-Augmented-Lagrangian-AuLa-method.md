@@ -1,6 +1,6 @@
 ---
 layout: post
-category: blog
+category: research
 title: Augmented Lagrangian (AuLa) method
 snippet: Explain the Augmented Lagrangian (AuLa) method in Python with visualization.
 tags: [python, math]

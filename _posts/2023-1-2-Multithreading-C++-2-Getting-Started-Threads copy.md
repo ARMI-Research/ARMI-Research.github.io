@@ -1,6 +1,6 @@
 ---
 layout: post
-category: blog
+category: research
 title: (Multithreading C++) 2. Getting Started with Threads
 snippet: This tutorial introduce the Multithreading C+
 tags: [Multithreading C++]

@@ -1,6 +1,6 @@
 ---
 layout: post
-category: blog
+category: research
 title: (Modern C++) 3. Classes in C++
 snippet: This tutorial following the basic C++ course
 tags: [Modern C++]

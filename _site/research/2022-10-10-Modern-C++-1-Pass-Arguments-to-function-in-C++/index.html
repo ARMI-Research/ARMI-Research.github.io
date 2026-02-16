@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>(Modern C++) 1. How to pass arguments to functions in C++ - ARMI Research Laboratory</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+        :root {
+            --primary: #0A1A2F;
+            --secondary: #d46700;
+            --text-dark: #000000;
+            --text-light: #ffffff;
+            --bg-light: #ffffff;
+            --bg-dark: #0d1117;
+            --card-dark: #111827;
+        }
+
+        .dark {
+            color-scheme: dark;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .dark body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+        }
+
+        .card-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--bg-light);
+            border-radius: 2rem;
+            padding: 2.5rem;
+            border: 2px solid var(--primary);
+        }
+
+        .dark .card-container {
+            background-color: var(--card-dark);
+            border-color: var(--secondary);
+        }
+
+        .post-content h2 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+        }
+
+        .dark .post-content h2 {
+            color: var(--text-light);
+        }
+
+        .post-content h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--primary);
+        }
+
+        .dark .post-content h3 {
+            color: var(--text-light);
+        }
+
+        .post-content p {
+            margin-bottom: 1rem;
+            line-height: 1.75;
+        }
+
+        .post-content ul, .post-content ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .post-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .post-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        .post-content table th {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .dark .post-content table th {
+            background-color: var(--secondary);
+        }
+
+        .post-content table td {
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem;
+        }
+
+        .dark .post-content table td {
+            border-color: #374151;
+        }
+
+        .post-content table tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+
+        .dark .post-content table tr:nth-child(even) {
+            background-color: #1f2937;
+        }
+
+        .post-content code {
+            background-color: #f3f4f6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        .dark .post-content code {
+            background-color: #374151;
+        }
+
+        .post-content pre {
+            background-color: #1f2937 !important;
+            color: #f3f4f6 !important;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .post-content pre code {
+            background-color: transparent !important;
+            color: #f3f4f6 !important;
+            padding: 0;
+        }
+
+        .post-content .highlight {
+            background-color: #1f2937 !important;
+        }
+
+        .post-content .highlight pre {
+            background-color: #1f2937 !important;
+        }
+
+        .post-content .highlight code {
+            color: #f3f4f6 !important;
+        }
+
+        .post-content blockquote {
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+            margin: 1rem 0;
+            font-style: italic;
+            color: #6b7280;
+        }
+
+        .dark .post-content blockquote {
+            color: #9ca3af;
+        }
+
+        .post-content hr {
+            border: none;
+            border-top: 2px solid #e5e7eb;
+            margin: 2rem 0;
+        }
+
+        .dark .post-content hr {
+            border-top-color: #374151;
+        }
+
+        .post-content strong {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .dark .post-content strong {
+            color: var(--secondary);
+        }
+
+        .post-content a {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+
+        .post-content a:hover {
+            color: var(--primary);
+        }
+
+        .dark .post-content a:hover {
+            color: var(--text-light);
+        }
+    </style>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0A1A2F',
+                        secondary: '#e97509',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+
+    <div id="hoverZone" class="fixed top-0 left-0 w-full h-6 z-40"></div>
+
+    <header id="mainHeader" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out bg-gradient-to-b from-white to-gray-100 dark:from-gray-900 dark:to-black shadow-md">
+        <div class="relative w-full border-b-4 border-gray-500 dark:border-orange-600">
+            <div class="max-w-7xl mx-auto px-6 py-4 relative flex items-center justify-between">
+                <div class="flex gap-3">
+                    <a href="/lab/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Lab</div>
+                    </a>
+                    <a href="/research/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Research</div>
+                    </a>
+                </div>
+                <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
+                    <img src="/images/logo.png" class="w-16 h-14 object-contain dark:brightness-90">
+                    <a href="/default/">
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-orange-500 hover:text-orange-500 dark:hover:text-orange-400 transition-colors">ARMI Lab</h1>
+                    </a>
+                </div>
+                <div class="text-sm text-gray-700 dark:text-gray-300 leading-tight">
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">A</span>utonomous</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">R</span>obotics</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">M</span>achine</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">I</span>ntelligence</div>
+                    <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">Research Laboratory</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="card-container shadow-2xl lg:p-12 transition duration-500 mt-40">
+
+        <h1 class="text-4xl font-bold mb-4 text-gray-800 dark:text-gray-100">(Modern C++) 1. How to pass arguments to functions in C++</h1>
+
+        <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+            October 10, 2022
+        </div>
+
+        
+        <div class="flex gap-2 mb-6">
+            
+            <a href="/tags/#Modern C++" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-secondary hover:text-white transition-colors">
+                Modern C++
+            </a>
+            
+        </div>
+        
+
+        <hr class="mb-8 border-gray-300 dark:border-gray-700">
+
+        <div style="margin-bottom: 2rem;">
+            <a href="/research/" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #e97509; color: white; text-decoration: none; border-radius: 0.5rem; font-weight: 600; transition: all 0.3s;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Back
+            </a>
+        </div>
+
+        <div class="post-content">
+            <p>In C++, there are several ways to pass arguments to functions, each with its own characteristics and use cases:</p>
+
+<ul>
+  <li>
+    <p><strong>Pass by Value:</strong> When an object or built-in type is passed by value, a local copy of the argument is created within the function. Any modifications made to the copy do not affect the original object. This method is suitable for small objects that are cheap to copy and when the function does not need to modify the original object.</p>
+  </li>
+  <li>
+    <p><strong>Pass by Address:</strong> Also known as pass by pointer, this method involves passing the memory address of the object to the function. The function can then access and modify the object directly. This method is useful when the function needs to modify the original object or when the object is large and copying it would be expensive</p>
+  </li>
+  <li>
+    <p><strong>Pass by Reference:</strong> When an object is passed by reference, the function is given the memory address of the object itself. This saves both memory and CPU cycles, as no new memory is allocated, and no copy of the object is made. Any modifications made to the object within the function will affect the original object. This method is suitable for situations where the function needs to modify the original object and when the object is not too large.</p>
+  </li>
+  <li>
+    <p><strong>Pass by Const Reference:</strong> This method is similar to pass by reference, but the reference is marked as const. This means that the function cannot modify the value being referenced. Pass by const reference offers the same primary benefit as pass by reference (avoiding making a copy of the argument), while also guaranteeing that the function cannot change the value being referenced. This method is suitable when the function does not need to modify the original object, and the object is expensive to copy.</p>
+  </li>
+</ul>
+
+<p><strong><em>Example <code class="language-plaintext highlighter-rouge">pass_arguments.cpp</code> bellow:</em></strong></p>
+
+<p class="filename">pass_arguments.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">passByValue</span><span class="p">(</span><span class="kt">int</span> <span class="n">y</span><span class="p">){</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Address of y is "</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">y</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> 
+    <span class="k">return</span> <span class="n">y</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">passByAddress</span><span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="n">y</span><span class="p">){</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Address of y is "</span> <span class="o">&lt;&lt;</span> <span class="n">y</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="o">*</span><span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="c1">// y pointer variable store the new value</span>
+    <span class="k">return</span> <span class="o">*</span><span class="n">y</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">passByReference</span><span class="p">(</span><span class="kt">int</span> <span class="o">&amp;</span><span class="n">y</span><span class="p">){</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Address of y is "</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">y</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">y</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">passByConstReference</span><span class="p">(</span><span class="k">const</span> <span class="kt">int</span> <span class="o">&amp;</span><span class="n">y</span><span class="p">){</span>
+    <span class="c1">// For read-only access to class objects, passing by const reference </span>
+    <span class="c1">// is usually more efficient than passing by value. </span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Address of y is "</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">y</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="c1">// y = 1; //--&gt; error: assignment of read-only reference ‘y’</span>
+    <span class="k">return</span> <span class="n">y</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+    <span class="c1">// Code for Pass by Value </span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"----Code for Pass by Value---- "</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span><span class="mi">2</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span>  <span class="s">"Address of x is"</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">x</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">z</span> <span class="o">=</span> <span class="n">passByValue</span><span class="p">(</span><span class="n">x</span><span class="p">);</span> <span class="c1">//z will be a copy of func's return value</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Address of z is"</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">z</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"After calling func(), x = "</span> <span class="o">&lt;&lt;</span> <span class="n">x</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"After calling func(), z = "</span> <span class="o">&lt;&lt;</span> <span class="n">z</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="c1">// Output:</span>
+    <span class="c1">// Address of x is0x7ffcd9d89680  --&gt; Differences address</span>
+    <span class="c1">// Address of y is 0x7ffcd9d8966c --&gt; Differences address</span>
+    <span class="c1">// Address of z is0x7ffcd9d89684  --&gt; Differences address</span>
+    <span class="c1">// After calling func(), x = 2</span>
+    <span class="c1">// After calling func(), z = 1</span>
+
+    <span class="c1">// Code for Pass by Address</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"----Code for Pass by Address----"</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span><span class="mi">2</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span>  <span class="s">"Address of a is "</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">a</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">b</span> <span class="o">=</span> <span class="n">passByAddress</span><span class="p">(</span><span class="o">&amp;</span><span class="n">a</span><span class="p">);</span> <span class="c1">//z will be a copy of func's return value</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Address of b is"</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">b</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"After calling func(), a = "</span> <span class="o">&lt;&lt;</span> <span class="n">a</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"After calling func(), b = "</span> <span class="o">&lt;&lt;</span> <span class="n">b</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="c1">// Output:</span>
+    <span class="c1">// Address of a is 0x7ffd8c09d010 --&gt; Same address</span>
+    <span class="c1">// Address of y is 0x7ffd8c09d010 --&gt; Same address</span>
+    <span class="c1">// Address of b is0x7ffd8c09d00c</span>
+    <span class="c1">// After calling func(), a = 1</span>
+    <span class="c1">// After calling func(), b = 1</span>
+
+     <span class="c1">// Code for Pass by Reference</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"----Code for Pass by Reference----"</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span><span class="mi">2</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span>  <span class="s">"Address of i is "</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">passByReference</span><span class="p">(</span><span class="n">i</span><span class="p">);</span> <span class="c1">// j will be a copy of func's return value</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Address of j is"</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">j</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"After calling func(), i = "</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"After calling func(), j = "</span> <span class="o">&lt;&lt;</span> <span class="n">j</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="c1">// Output: </span>
+    <span class="c1">// Address of i is 0x7ffd547364e0 --&gt; Same address</span>
+    <span class="c1">// Address of y is 0x7ffd547364e0 --&gt; Same address</span>
+    <span class="c1">// Address of j is0x7ffd547364e4</span>
+    <span class="c1">// After calling func(), i = 1</span>
+    <span class="c1">// After calling func(), j = 1</span>
+
+     <span class="c1">// Code for Pass by Const Reference</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"----Code for Pass by Const Reference----"</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">k</span> <span class="o">=</span><span class="mi">2</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span>  <span class="s">"Address of k is "</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">k</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">l</span> <span class="o">=</span> <span class="n">passByConstReference</span><span class="p">(</span><span class="n">k</span><span class="p">);</span> <span class="c1">// j will be a copy of func's return value</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Address of l is"</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">l</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"After calling func(), k = "</span> <span class="o">&lt;&lt;</span> <span class="n">k</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"After calling func(), l = "</span> <span class="o">&lt;&lt;</span> <span class="n">l</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="c1">// Output</span>
+    <span class="c1">// Address of k is 0x7ffc52a54700 --&gt; Same address</span>
+    <span class="c1">// Address of y is 0x7ffc52a54700 --&gt; Same address</span>
+    <span class="c1">// Address of l is0x7ffc52a54704</span>
+    <span class="c1">// After calling func(), k = 2</span>
+    <span class="c1">// After calling func(), l = 2</span>
+    <span class="p">}</span>
+
+</code></pre></div></div>
+
+<div class="tip">
+<b>Note:</b> The pointer variable to get the memory address of a variable (used together with the __&amp;__ **reference** operator). However, you can also use the pointer to get the value of the variable, by using the __*__ operator (the **dereference** operator)
+</div>
+
+<h1 id="references">References</h1>
+<ol>
+  <li>https://www.quantstart.com/articles/Passing-By-Reference-To-Const-in-C/</li>
+  <li>https://www.learncpp.com/cpp-tutorial/pass-by-const-lvalue-reference/</li>
+  <li>https://www.ibm.com/docs/en/zos/2.4.0?topic=calls-pass-by-reference-c-only</li>
+</ol>
+
+        </div>
+
+    </div>
+
+    <!-- Header scroll behavior -->
+    <script>
+        const header = document.getElementById("mainHeader");
+        const hoverZone = document.getElementById("hoverZone");
+        let lastScroll = 0;
+
+        window.addEventListener("scroll", () => {
+            const currentScroll = window.pageYOffset;
+
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                header.classList.add("-translate-y-full");
+            } else {
+                header.classList.remove("-translate-y-full");
+            }
+
+            lastScroll = currentScroll;
+        });
+
+        hoverZone.addEventListener("mouseenter", () => {
+            header.classList.remove("-translate-y-full");
+        });
+
+        
+    </script>
+
+    <!-- Theme Toggle -->
+    <button onclick="document.documentElement.classList.toggle('dark')"
+        class="fixed bottom-4 right-4 bg-white text-black p-3 border-4 border-gray-400 rounded-full shadow-lg text-sm font-semibold hover:bg-secondary transition-colors duration-300 dark:bg-gray-800 dark:text-white dark:border-orange-600 dark:hover:bg-secondary">
+        Toggle Theme
+    </button>
+
+</body>
+
+</html>

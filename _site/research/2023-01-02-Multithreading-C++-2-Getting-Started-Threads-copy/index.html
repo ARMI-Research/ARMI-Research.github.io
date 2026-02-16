@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>(Multithreading C++) 2. Getting Started with Threads - ARMI Research Laboratory</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+        :root {
+            --primary: #0A1A2F;
+            --secondary: #d46700;
+            --text-dark: #000000;
+            --text-light: #ffffff;
+            --bg-light: #ffffff;
+            --bg-dark: #0d1117;
+            --card-dark: #111827;
+        }
+
+        .dark {
+            color-scheme: dark;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .dark body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+        }
+
+        .card-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--bg-light);
+            border-radius: 2rem;
+            padding: 2.5rem;
+            border: 2px solid var(--primary);
+        }
+
+        .dark .card-container {
+            background-color: var(--card-dark);
+            border-color: var(--secondary);
+        }
+
+        .post-content h2 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+        }
+
+        .dark .post-content h2 {
+            color: var(--text-light);
+        }
+
+        .post-content h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--primary);
+        }
+
+        .dark .post-content h3 {
+            color: var(--text-light);
+        }
+
+        .post-content p {
+            margin-bottom: 1rem;
+            line-height: 1.75;
+        }
+
+        .post-content ul, .post-content ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .post-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .post-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        .post-content table th {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .dark .post-content table th {
+            background-color: var(--secondary);
+        }
+
+        .post-content table td {
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem;
+        }
+
+        .dark .post-content table td {
+            border-color: #374151;
+        }
+
+        .post-content table tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+
+        .dark .post-content table tr:nth-child(even) {
+            background-color: #1f2937;
+        }
+
+        .post-content code {
+            background-color: #f3f4f6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        .dark .post-content code {
+            background-color: #374151;
+        }
+
+        .post-content pre {
+            background-color: #1f2937 !important;
+            color: #f3f4f6 !important;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .post-content pre code {
+            background-color: transparent !important;
+            color: #f3f4f6 !important;
+            padding: 0;
+        }
+
+        .post-content .highlight {
+            background-color: #1f2937 !important;
+        }
+
+        .post-content .highlight pre {
+            background-color: #1f2937 !important;
+        }
+
+        .post-content .highlight code {
+            color: #f3f4f6 !important;
+        }
+
+        .post-content blockquote {
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+            margin: 1rem 0;
+            font-style: italic;
+            color: #6b7280;
+        }
+
+        .dark .post-content blockquote {
+            color: #9ca3af;
+        }
+
+        .post-content hr {
+            border: none;
+            border-top: 2px solid #e5e7eb;
+            margin: 2rem 0;
+        }
+
+        .dark .post-content hr {
+            border-top-color: #374151;
+        }
+
+        .post-content strong {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .dark .post-content strong {
+            color: var(--secondary);
+        }
+
+        .post-content a {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+
+        .post-content a:hover {
+            color: var(--primary);
+        }
+
+        .dark .post-content a:hover {
+            color: var(--text-light);
+        }
+    </style>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0A1A2F',
+                        secondary: '#e97509',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+
+    <div id="hoverZone" class="fixed top-0 left-0 w-full h-6 z-40"></div>
+
+    <header id="mainHeader" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out bg-gradient-to-b from-white to-gray-100 dark:from-gray-900 dark:to-black shadow-md">
+        <div class="relative w-full border-b-4 border-gray-500 dark:border-orange-600">
+            <div class="max-w-7xl mx-auto px-6 py-4 relative flex items-center justify-between">
+                <div class="flex gap-3">
+                    <a href="/lab/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Lab</div>
+                    </a>
+                    <a href="/research/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Research</div>
+                    </a>
+                </div>
+                <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
+                    <img src="/images/logo.png" class="w-16 h-14 object-contain dark:brightness-90">
+                    <a href="/default/">
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-orange-500 hover:text-orange-500 dark:hover:text-orange-400 transition-colors">ARMI Lab</h1>
+                    </a>
+                </div>
+                <div class="text-sm text-gray-700 dark:text-gray-300 leading-tight">
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">A</span>utonomous</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">R</span>obotics</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">M</span>achine</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">I</span>ntelligence</div>
+                    <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">Research Laboratory</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="card-container shadow-2xl lg:p-12 transition duration-500 mt-40">
+
+        <h1 class="text-4xl font-bold mb-4 text-gray-800 dark:text-gray-100">(Multithreading C++) 2. Getting Started with Threads</h1>
+
+        <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+            January 02, 2023
+        </div>
+
+        
+        <div class="flex gap-2 mb-6">
+            
+            <a href="/tags/#Multithreading C++" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-secondary hover:text-white transition-colors">
+                Multithreading C++
+            </a>
+            
+        </div>
+        
+
+        <hr class="mb-8 border-gray-300 dark:border-gray-700">
+
+        <div style="margin-bottom: 2rem;">
+            <a href="/research/" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #e97509; color: white; text-decoration: none; border-radius: 0.5rem; font-weight: 600; transition: all 0.3s;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Back
+            </a>
+        </div>
+
+        <div class="post-content">
+            <h1 id="i-system-thread-interface">I. System Thread interface</h1>
+<p>The C++ thread class uses the system implementation to perform threading, and there are situations where the system implementation needs to be used directly. This is because the C++ standard is designed to be available on every possible machine, and some systems are limited. Some useful features that are <strong>NOT</strong> available in standard C++ include setting the priority of a thread. Setting the priority of a thread can be useful when a thread is doing something important or needs to be done quickly. On the other hand, setting a lower share of processor time for a thread can be useful when the thread is doing something that is not very important and can wait. It is possible to pin a thread to a specific processor core, which is useful in finance, where a dedicated processor core and a thread for each stock ticker are used to guarantee that the code managing each ticker symbol is always running and always available. In C++11 threads, setting CPU affinity programmatically is possible using the <code class="language-plaintext highlighter-rouge">native_handle</code> method of a <code class="language-plaintext highlighter-rouge">std::thread</code>.</p>
+
+<h2 id="1-native_handle-in-c">1. native_handle() in C++</h2>
+<p>The <code class="language-plaintext highlighter-rouge">native_handle()</code> function in C++ is a member function of the <code class="language-plaintext highlighter-rouge">std::thread</code> class that returns the implementation-defined underlying thread handle. This handle can be used to access implementation-specific information associated with the thread. The <code class="language-plaintext highlighter-rouge">native_handle()</code>function can be used to enable real-time scheduling of C++ threads on a POSIX system.</p>
+
+<h2 id="example-of-native_handle-in-c">Example of native_handle() in C++</h2>
+
+<p><strong><em>Example <code class="language-plaintext highlighter-rouge">native_handle.cpp</code> bellow:</em></strong></p>
+
+<p class="filename">native_handle.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Example with thread handle</span>
+<span class="cp">#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span>
+<span class="c1">// Task function</span>
+<span class="kt">void</span> <span class="nf">hello</span><span class="p">()</span> <span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Hello, Thread!"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="c1">// Create an std::thread object</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr</span><span class="p">(</span><span class="n">hello</span><span class="p">);</span>
+
+	<span class="c1">// Display the child thread's native handle</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Hello thread has native handle "</span> <span class="o">&lt;&lt;</span> <span class="n">thr</span><span class="p">.</span><span class="n">native_handle</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="sc">'\n'</span><span class="p">;</span>
+
+	<span class="c1">// Wait for the thread to complete</span>
+	<span class="n">thr</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+
+	<span class="c1">// Display the child thread's native handle again</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Hello thread now has native handle "</span> <span class="o">&lt;&lt;</span> <span class="n">thr</span><span class="p">.</span><span class="n">native_handle</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="sc">'\n'</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<p class="filename">Output</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Hello thread has native handle 000000EC -&gt; Has a pointer,  the thread object is connected
+Hello, Thread!
+Hello thread has native handle 00000000 -&gt; Reset the pointer, the thread object is not connected to any execution thread.
+</code></pre></div></div>
+<h2 id="2-stdthread-id">2. std::thread ID</h2>
+<p>The std::thread::id class is a lightweight, trivially copyable class that serves as a unique identifier of <code class="language-plaintext highlighter-rouge">std::thread</code> and <code class="language-plaintext highlighter-rouge">std::jthread</code>. The <code class="language-plaintext highlighter-rouge">std::thread::get_id()</code> function is an observer function that returns the id of the current thread. The <code class="language-plaintext highlighter-rouge">std::thread::id</code> class can be used to identify a thread associated with a specific object.</p>
+
+<h2 id="example-of-thread-id-in-c">Example of thread ID in C++</h2>
+
+<p><strong><em>Example <code class="language-plaintext highlighter-rouge">thread_id.cpp</code> bellow:</em></strong></p>
+
+<p class="filename">thread_id.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Example with thread ID</span>
+<span class="cp">#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span>
+<span class="c1">// Task function</span>
+<span class="c1">// Displays the thread's ID</span>
+<span class="kt">void</span> <span class="nf">hello</span><span class="p">()</span> <span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Hello from thread with ID "</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">get_id</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="sc">'\n'</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="c1">// Display the main thread's ID</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Main thread has ID "</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">get_id</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="sc">'\n'</span><span class="p">;</span>
+	
+	<span class="c1">// Create an std::thread object</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr</span><span class="p">(</span><span class="n">hello</span><span class="p">);</span>
+	
+	<span class="c1">// Display the child thread's ID</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Hello thread has ID "</span> <span class="o">&lt;&lt;</span> <span class="n">thr</span><span class="p">.</span><span class="n">get_id</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="sc">'\n'</span><span class="p">;</span>
+	
+	<span class="c1">// Wait for the thread to complete</span>
+	<span class="n">thr</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+	
+	<span class="c1">// Display the child thread's ID again</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Hello thread now has ID "</span> <span class="o">&lt;&lt;</span> <span class="n">thr</span><span class="p">.</span><span class="n">get_id</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="sc">'\n'</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="3-pausing-thread-with-sleep_for">3. Pausing Thread with sleep_for()</h2>
+<p>In C++, the <code class="language-plaintext highlighter-rouge">std::this_thread::sleep_for()</code> function can be used to pause the current thread for a specified duration. The function takes a single argument that specifies the duration of time for which the execution of the thread must be suspended.</p>
+
+<h2 id="example-of-pausing-thread-sleep_for">Example of pausing thread sleep_for</h2>
+
+<p><strong><em>Example <code class="language-plaintext highlighter-rouge">thread_sleep.cpp</code> bellow:</em></strong></p>
+
+<p class="filename">thread_sleep.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Example of pausing a thread</span>
+<span class="cp">#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">hello</span><span class="p">()</span> <span class="p">{</span>
+	<span class="c1">//std::this_thread::sleep_for(std::chrono::seconds(2));</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">2s</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Hello, Thread!</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="c1">// Create an std::thread object</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Starting thread...</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr</span><span class="p">(</span><span class="n">hello</span><span class="p">);</span>
+	
+	<span class="c1">// Wait for the thread to complete</span>
+	<span class="n">thr</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h1 id="ii-c-thread-class">II. C++ Thread Class</h1>
+<p>RAII (Resource Acquisition Is Initialization) is a C++ programming technique that binds the life cycle of a resource that must be acquired before use (e.g., memory, threads) to the lifetime of an object. The idea is that the resource is acquired during object creation and released during object destruction, ensuring that the resource is always properly managed and preventing resource leaks.
+<code class="language-plaintext highlighter-rouge">std::thread</code> does not follow RAII principles, but there have been proposals to modify it to do so. In the meantime, users of <code class="language-plaintext highlighter-rouge">std::thread</code>should make sure to join or detach the thread before the <code class="language-plaintext highlighter-rouge">std::thread</code> object is destroyed to prevent program termination.</p>
+
+<p>This means that the class takes ownership of the resource in its constructor and releases it in its destructor. Examples of classes that follow this idiom include <code class="language-plaintext highlighter-rouge">unique_ptr</code>, which owns allocated memory, and <code class="language-plaintext highlighter-rouge">fstream</code>, which owns a file handle. Similarly, the <code class="language-plaintext highlighter-rouge">std::thread</code> class owns an execution thread, and only one object can be bound to a system execution thread at any given time. Therefore, it is not possible to copy <code class="language-plaintext highlighter-rouge">std::thread</code> objects because doing so would result in two objects being bound to the same system resource simultaneously.</p>
+
+<h2 id="stdthread-and-move-semantics">std::thread and Move Semantics</h2>
+<p>The std::thread class is designed to be move-only, which means that we can move objects but not copy them. When we move an object, we transfer ownership of the execution thread to the new object. For example, if we move object “a” into object “b”, then object “b”object “b” now becomes the owner of the execution thread, and we need to call join on object “b”, not object “a”. Object “a” is now empty. It is not associated with any execution thread, and we should not call <code class="language-plaintext highlighter-rouge">join()</code> on it.</p>
+
+<h2 id="passing-a-stdthread-object">Passing a std::thread Object</h2>
+<p>When passing a std::thread object as a function argument, it is necessary to use <strong>pass by move</strong>. If a named object (an lvalue) is being passed, it must be put inside a call to <code class="language-plaintext highlighter-rouge">std::move()</code> to cast it to an rvalue. Alternatively, a temporary std::thread object can be passed. This is because <code class="language-plaintext highlighter-rouge">std::thread</code> objects are move-only, meaning that they can be moved but not copied.</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//Function talking a thread object as argument</span>
+<span class="kt">void</span> <span class="nf">func</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr</span><span class="p">);</span>
+
+<span class="c1">//Pass a named object</span>
+<span class="c1">//Use std::move() to cast it to rvalue</span>
+<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="nf">thr</span><span class="p">(..);</span>
+<span class="n">func</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">thr</span><span class="p">));</span>
+
+<span class="c1">//Pass a temporary object</span>
+<span class="n">func</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="p">(...));</span>
+</code></pre></div></div>
+<p><strong>Example of passing a std::thread object to a function</strong></p>
+
+<p class="filename">pass_thread_by_move.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Example of passing a std::thread object to a function</span>
+<span class="cp">#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span>
+<span class="c1">// The task function</span>
+<span class="kt">void</span> <span class="nf">hello</span><span class="p">()</span> <span class="p">{</span>
+	<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">1s</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Hello, Thread!</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Function taking a thread object as argument</span>
+<span class="c1">// The object must be moved into the argument</span>
+<span class="kt">void</span> <span class="nf">func</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// it is better practice to add &amp;&amp;in the: void func(std::thread&amp;&amp; thr) to make sure you input the rvalue. </span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Received thread with ID "</span> <span class="o">&lt;&lt;</span> <span class="n">thr</span><span class="p">.</span><span class="n">get_id</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+	<span class="c1">// The function argument now "owns" the system thread</span>
+	<span class="c1">// It is responsible for calling join()</span>
+	<span class="n">thr</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="c1">// std::thread is a move-only object</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr</span><span class="p">(</span><span class="n">hello</span><span class="p">);</span>
+
+	<span class="c1">// Display the child thread's ID</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Hello thread has ID "</span> <span class="o">&lt;&lt;</span> <span class="n">thr</span><span class="p">.</span><span class="n">get_id</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="sc">'\n'</span><span class="p">;</span>
+
+	<span class="c1">// Pass a named object using std::move()</span>
+	<span class="n">func</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">thr</span><span class="p">));</span>
+
+	<span class="c1">// Pass a temporary object</span>
+	<span class="c1">//func(std::thread(hello));</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p class="filename">Ouput</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Hello thread has ID 19324 --&gt; Same ID
+Received thread with ID 19324 --&gt; Same ID
+Hello, Thread! --&gt; reveal after 1s
+</code></pre></div></div>
+<h2 id="returning-a-stdthread-object">Returning a std::thread Object</h2>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//Function returning a std::thread object</span>
+<span class="n">std</span><span class="o">::</span><span class="n">thred</span> <span class="nf">func</span><span class="p">(){</span>
+	<span class="c1">//Return a local variable</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr</span><span class="p">(..);</span>
+	<span class="c1">// --&gt; DON'T do that return std::move(thr); -&gt; make compiler confuse</span>
+
+	<span class="c1">//Return a temporary object</span>
+	<span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="p">(..)</span> <span class="p">;</span>
+<span class="p">}</span>	
+</code></pre></div></div>
+
+<p class="filename">return_thread.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Example of returning a std::thread object from a function</span>
+<span class="cp">#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;chrono&gt;</span><span class="cp">
+</span>
+<span class="c1">// Task function for the thread</span>
+<span class="kt">void</span> <span class="nf">hello</span><span class="p">()</span> <span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Hello, Thread!</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Function returning a std::thread object</span>
+<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="nf">func</span><span class="p">()</span> <span class="p">{</span>
+	<span class="c1">// Start the thread</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr</span><span class="p">(</span><span class="n">hello</span><span class="p">);</span>
+
+	<span class="c1">// Return a local variable</span>
+	<span class="k">return</span> <span class="n">thr</span><span class="p">;</span>
+
+	<span class="c1">// Return a temporary object</span>
+	<span class="c1">// return std::thread(hello);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="c1">// Call a function which return an std::thread object</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr</span> <span class="o">=</span> <span class="n">func</span><span class="p">();</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Received thread with ID "</span> <span class="o">&lt;&lt;</span> <span class="n">thr</span><span class="p">.</span><span class="n">get_id</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="sc">'\n'</span><span class="p">;</span>
+
+	<span class="c1">// Our thr object now "owns" the system thread</span>
+	<span class="c1">// It is responsible for calling join()</span>
+	<span class="n">thr</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p class="filename">Ouput</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Received thread with ID 19324 
+Hello, Thread! 
+</code></pre></div></div>
+<h2 id="threads-and-exceptions">Threads and Exceptions</h2>
+<p>When an exception is thrown in a single-threaded code, the destructors are called for all the objects in the scope where the exception is thrown. The program will then try to find a suitable handler and move up the stack to destroy all the objects there. If it reaches the top of the stack without finding a handler, it will terminate the program. The process is similar with threads, but each thread has its own execution stack. If the program reaches the top of the thread’s execution stack without finding a handler, it will terminate the entire program. With the std::thread class, there is no way for other threads in the program to catch the exception.
+When working with threads and exceptions in C++, there are several things to keep in mind.:</p>
+
+<ul>
+  <li>Main will not catch exceptions thrown from other threads.</li>
+  <li>The C++ standard supports transporting an exception between threads.</li>
+  <li>When a thread throws an exception, it is not caught by main</li>
+  <li>The current exception is said to be in flight from the time it’s thrown until the exception handler that catches it returns</li>
+  <li>If the program gets to the top of the thread’s execution stack without finding a handler, then it will terminate the entire program</li>
+  <li>With the std::thread class, there is no way for other threads in the program to catch the exception.</li>
+  <li>To handle an exception, a try/catch block can be used in the thread where the exception is thrown.</li>
+</ul>
+
+<p class="filename"><strong>Example of a thread which throws an exception</strong>
+exceptions_thread.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Example of a thread which throws an exception</span>
+<span class="cp">#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span>
+<span class="c1">// Task function</span>
+<span class="kt">void</span> <span class="nf">hello</span><span class="p">()</span> <span class="p">{</span>
+	<span class="k">try</span> <span class="p">{</span>
+		<span class="c1">// Throw an exception</span>
+		<span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">exception</span><span class="p">();</span>
+	<span class="p">}</span>
+	<span class="k">catch</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">exception</span><span class="o">&amp;</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Exception caught: "</span> <span class="o">&lt;&lt;</span> <span class="n">e</span><span class="p">.</span><span class="n">what</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="sc">'\n'</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Hello, Thread!</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="c1">// Create an std::thread object</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr</span><span class="p">(</span><span class="n">hello</span><span class="p">);</span>
+	<span class="n">thr</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+
+	<span class="c1">// Check that the program is still running</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Finished</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p class="filename">Ouput</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Exception caught: std::exception
+Hello, Thread!
+Finished
+</code></pre></div></div>
+
+<p>There are several reasons why we need to use threads and exceptions in C++. Here are some of the main reasons:</p>
+
+<ul>
+  <li>
+    <p><strong>To improve performance:</strong> Using threads can improve the performance of a program by allowing it to execute multiple tasks simultaneously.</p>
+  </li>
+  <li>
+    <p><strong>To handle errors gracefully:</strong> When working with databases or APIs, it is common to encounter errors related to invalid queries. In such cases, it is important to handle the errors gracefully to prevent the program from crashing. One way to handle such errors is to use a try-catch block to catch any exceptions that may be thrown when executing the query.</p>
+  </li>
+  <li>
+    <p><strong>To prevent program crashes:</strong> When an exception is thrown in a parent thread, it can cause the entire program to crash if not handled properly. By using a try-catch block to catch the exception, the program can continue running and the user can be notified of the error.</p>
+  </li>
+  <li>
+    <p><strong>To transport exceptions between threads:</strong> In some cases, it may be necessary to transport exceptions between threads. The C++ standard supports transporting an exception from one thread to another, enabling you to catch an exception in one thread and then make the exception appear to be thrown in a different thread.</p>
+  </li>
+  <li>
+    <p><strong>To propagate exceptions across threads:</strong> If you need to catch an exception in a worker thread and re-throw it in the main thread that’s waiting for the worker to finish, you can use <code class="language-plaintext highlighter-rouge">std::future</code></p>
+  </li>
+</ul>
+
+<h1 id="iii-safely-destroying-an-stdthread-object">III. Safely destroying an std::thread object</h1>
+<p>To safely destroy an std::thread object in C++, here are some best practices to follow:</p>
+
+<ul>
+  <li>
+    <p>Call join() or detach(): Before destroying an std::thread object, it is important to ensure that the thread has completed its execution. This can be done by calling join() or detach() on the thread object. If a std::thread object is destroyed without being joined or detached, the program will terminate.</p>
+  </li>
+  <li>
+    <p>Use RAII: One way to ensure that an std::thread object is safely destroyed is to use RAII (Resource Acquisition Is Initialization) by creating a wrapper class that manages the thread object. The wrapper class can ensure that the thread is joined or detached before the object is destroyed.</p>
+  </li>
+  <li>
+    <p>Use a mutex: Operations on an std::thread object are not thread-safe themselves, so it is important to use a mutex to ensure that only one thread can access the object at a time.</p>
+  </li>
+  <li>
+    <p>Use a flag: To stop a thread gracefully, it is recommended to use a flag that is checked periodically by the thread. When the flag is set, the thread can exit gracefully.</p>
+  </li>
+</ul>
+
+<h2 id="detach">detach()</h2>
+
+<p><code class="language-plaintext highlighter-rouge">join()</code> is used to wait for a thread to complete before continuing with the rest of the program, while <code class="language-plaintext highlighter-rouge">detach()</code> allows a thread to continue executing independently. If a <code class="language-plaintext highlighter-rouge">std::thread</code> object is destroyed without being joined or detached, the program will terminate. It is important to use <code class="language-plaintext highlighter-rouge">join()</code> or <code class="language-plaintext highlighter-rouge">detach()</code> to ensure that the executing thread completes its work before continuing in your code.</p>
+
+<p><strong>join():</strong></p>
+
+<ul>
+  <li>
+    <p>When join() is called, the calling thread will block until the thread of execution has completed.</p>
+  </li>
+  <li>
+    <p>join() is used to wait for a thread to complete before continuing with the rest of the program.</p>
+  </li>
+  <li>
+    <p>If a std::thread object is still joinable when it’s destroyed, an exception will be thrown.</p>
+  </li>
+  <li>
+    <p>join() does not kill the thread; it waits until the thread’s main function returns.</p>
+  </li>
+</ul>
+
+<p><strong>detach():</strong></p>
+
+<ul>
+  <li>
+    <p>When detach() is called, the thread of execution is “detached” from the thread object and is no longer represented by a thread object.</p>
+  </li>
+  <li>
+    <p>detach() allows a thread to continue executing independently, but you can no longer join the thread.</p>
+  </li>
+  <li>
+    <p>detach() is used for one-off independent tasks that you don’t care about the result of.</p>
+  </li>
+  <li>
+    <p>If a std::thread object is destroyed without being joined or detached, the program will terminate</p>
+  </li>
+</ul>
+
+<!-- use case:
+include image.html url="/images/my-cat.jpg" description="My cat, Robert Downey Jr." width = "50%" hide="true"
+-->
+<!-- hide is used to hide content from mainbody but show up in the gallery. Exclude if not using -->
+
+<figure class="image">
+  <img src="/assets/2023-1-1-Multithreading-C++/detach.png" alt="Detaching a Thread" style="width: 80%;" />
+  <figcaption class="caption">Detaching a Thread</figcaption>
+</figure>
+
+<p class="filename"><strong>Example of a detach</strong>
+detach_thread.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// std::thread and detach()</span>
+<span class="cp">#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span>
+<span class="c1">// Callable object - thread entry point</span>
+<span class="kt">void</span> <span class="nf">hello</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Hello, Thread!</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="c1">// Create an std::thread object</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr</span><span class="p">(</span><span class="n">hello</span><span class="p">);</span>
+	
+	<span class="c1">// Detach the child thread</span>
+	<span class="n">thr</span><span class="p">.</span><span class="n">detach</span><span class="p">();</span>
+	
+	<span class="c1">// Continue executing without waiting for the child thread</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>To catch an exception thrown in a parent thread in C++, a <strong>try-catch block</strong> can be used. However, if the parent thread is waiting for a child thread to complete using join(), the exception may be thrown in both the parent and child threads. To handle this situation, the <strong>try-catch block</strong> should be placed around the join() method call. If an exception is thrown in a child thread, it will be propagated to the parent thread, and the parent thread will throw the same exception.</p>
+
+<p class="filename"><strong>Safely destroying an std::thread object by join()</strong>
+thread_except_safe.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Safely destroying an std::thread object</span>
+<span class="c1">// when an exception is thrown (verbose)</span>
+<span class="cp">#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span>
+<span class="c1">// Callable object - thread entry point</span>
+<span class="kt">void</span> <span class="nf">hello</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Hello, Thread!</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="c1">// Create an std::thread object</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr</span><span class="p">(</span><span class="n">hello</span><span class="p">);</span>
+	
+	<span class="k">try</span> <span class="p">{</span>
+		<span class="c1">// Code that might throw an exception</span>
+		<span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">exception</span><span class="p">();</span>
+
+		<span class="c1">// No exception if we got here - call join() as usual</span>
+		<span class="n">thr</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+	<span class="p">}</span>
+	<span class="k">catch</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">exception</span><span class="o">&amp;</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Exception caught: "</span> <span class="o">&lt;&lt;</span> <span class="n">e</span><span class="p">.</span><span class="n">what</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="sc">'\n'</span><span class="p">;</span>
+		<span class="n">thr</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>                           <span class="c1">// Call join() before thr's destructor is called</span>
+	<span class="p">}</span>
+<span class="p">}</span> <span class="c1">// Calls ~thr()</span>
+</code></pre></div></div>
+<div class="tip">
+<b> But using join() in 2 times is not elegant, we can try other ways bellow</b>
+</div>
+
+<h2 id="stdjthread-vs-stdthread">std::jthread vs std::thread</h2>
+<p><code class="language-plaintext highlighter-rouge">std::jthread</code> is a new class introduced in <strong>C++20</strong> that provides the same functionality as std::thread, but with some additional features. Here are some differences between <code class="language-plaintext highlighter-rouge">std::jthread</code> and std::thread:</p>
+
+<ul>
+  <li>
+    <p><strong>RAII:</strong> <code class="language-plaintext highlighter-rouge">std::jthread</code> follows RAII (Resource Acquisition Is Initialization) by having its destructor call join(). This means that the thread is automatically joined when the <code class="language-plaintext highlighter-rouge">std::jthread</code> object is destroyed, ensuring that the thread has completed its execution before the object is destroyed.</p>
+  </li>
+  <li>
+    <p><strong>Requesting thread interruption:</strong> <code class="language-plaintext highlighter-rouge">std::jthread</code> provides a mechanism for requesting that a thread stop executing. This is done using the <code class="language-plaintext highlighter-rouge">request_stop()</code> method, which sets a flag that can be checked by the thread to determine whether it should stop executing.</p>
+  </li>
+  <li>
+    <p><strong>Thread safety:</strong> <code class="language-plaintext highlighter-rouge">std::jthread</code> is thread-safe, meaning that it can be safely accessed by multiple threads at the same time.</p>
+  </li>
+  <li>
+    <p><strong>Ease of use:</strong> <code class="language-plaintext highlighter-rouge">std::jthread</code> provides a simpler and more intuitive interface than <code class="language-plaintext highlighter-rouge">std::thread</code> making it easier to use and less prone to errors.</p>
+  </li>
+</ul>
+
+<p class="filename"><strong>A std::jthread object is safely destroyed</strong>
+jthread_except_safe.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// A std::jthread object is safely destroyed</span>
+<span class="c1">// when an exception is thrown</span>
+<span class="c1">// Requires a compiler which supports C++20</span>
+<span class="cp">#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span>
+<span class="c1">// Callable object - thread entry point</span>
+<span class="kt">void</span> <span class="nf">hello</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Hello, Thread!</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="k">try</span> <span class="p">{</span>
+		<span class="c1">// Create an std::jthread object</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">jthread</span> <span class="n">thr</span><span class="p">(</span><span class="n">hello</span><span class="p">);</span>
+		
+		<span class="c1">// Code that might throw an exception</span>
+		<span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">exception</span><span class="p">();</span>
+
+		<span class="c1">// std::jthread's destructor will call join() if necessary</span>
+	<span class="p">}</span>
+	<span class="k">catch</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">exception</span><span class="o">&amp;</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Exception caught: "</span> <span class="o">&lt;&lt;</span> <span class="n">e</span><span class="p">.</span><span class="n">what</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="sc">'\n'</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="use-raii-resource-acquisition-is-initialization">Use RAII (Resource Acquisition Is Initialization)</h2>
+<p>One way to ensure that an <code class="language-plaintext highlighter-rouge">std::thread</code> object is safely destroyed is to use RAII (Resource Acquisition Is Initialization) by creating a wrapper class that manages the thread object. The wrapper class can ensure that the thread is joined or detached before the object is destroyed.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>+ RAII Solution
+	- Wrap the std::thread object inside a class
+	- the class's destructor calls join() on the std::thread object.
++ An std::thread object can only be joined once
++ The joinable() member function
+	- Return false
+	- If join() or detach() have already been called
+	- Or if the thread object is not associated with an execution thread
++ Returns true if we need to call join()
+</code></pre></div></div>
+
+<p class="filename"><strong>Uses a wrapper class for std::thread</strong>
+use_RAII__thread_guard.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Uses a wrapper class for std::thread</span>
+<span class="c1">// Ensures safe destruction when an exception is throw</span>
+<span class="cp">#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span>
+<span class="k">class</span> <span class="nc">thread_guard</span> <span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr</span><span class="p">;</span>
+<span class="nl">public:</span>
+	<span class="c1">// Constructor takes rvalue reference argument (std::thread is move-only)</span>
+	<span class="k">explicit</span> <span class="n">thread_guard</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="o">&amp;&amp;</span> <span class="n">thr</span><span class="p">)</span><span class="o">:</span> <span class="n">thr</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">thr</span><span class="p">))</span> <span class="p">{</span>
+	<span class="p">}</span>
+
+	<span class="c1">// Destructor - join the thread if necessary</span>
+	<span class="o">~</span><span class="n">thread_guard</span><span class="p">()</span>
+	<span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">thr</span><span class="p">.</span><span class="n">joinable</span><span class="p">())</span>
+			<span class="n">thr</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+	<span class="p">}</span>
+
+	<span class="n">thread_guard</span><span class="p">(</span><span class="k">const</span> <span class="n">thread_guard</span><span class="o">&amp;</span><span class="p">)</span> <span class="o">=</span> <span class="k">delete</span><span class="p">;</span>       <span class="c1">// Deleted copy operators prevent copying</span>
+	<span class="n">thread_guard</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">thread_guard</span><span class="o">&amp;</span><span class="p">)</span> <span class="o">=</span> <span class="k">delete</span><span class="p">;</span>
+
+	<span class="c1">// The move assignment operator is not synthesized</span>
+<span class="p">};</span>
+
+<span class="c1">// Callable object - thread entry point</span>
+<span class="kt">void</span> <span class="nf">hello</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Hello, Thread!</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="k">try</span> <span class="p">{</span>
+		<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr</span><span class="p">(</span><span class="n">hello</span><span class="p">);</span>
+		<span class="n">thread_guard</span> <span class="n">tguard</span><span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">thr</span><span class="p">)};</span>
+
+		<span class="c1">//thread_guard tguard{std::thread(hello)};</span>
+
+		<span class="c1">// Code which might throw an exception</span>
+		<span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">exception</span><span class="p">();</span>
+
+	<span class="p">}</span> <span class="c1">// Calls ~thread_guard followed by ~thread</span>
+
+	<span class="k">catch</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">exception</span><span class="o">&amp;</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Exception caught: "</span> <span class="o">&lt;&lt;</span> <span class="n">e</span><span class="p">.</span><span class="n">what</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="sc">'\n'</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p class="filename">Ouput</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Hello, Thread!
+Exception caught: std::exception
+</code></pre></div></div>
+<h1 id="references">References</h1>
+<ol>
+  <li>https://en.cppreference.com/w/cpp/thread/thread/native_handle</li>
+  <li>https://cplusplus.com/reference/thread/thread/native_handle/</li>
+  <li>https://www.enseignement.polytechnique.fr/informatique/INF478/docs/Cpp/en/cpp/thread/thread/native_handle.html</li>
+  <li>James Raynard, Learn Multithreading with Modern C++ Udemy.</li>
+  <li>https://en.cppreference.com/w/cpp/thread/thread/id</li>
+  <li>https://en.cppreference.com/w/cpp/thread/get_id</li>
+  <li>https://cplusplus.com/reference/thread/thread/id/</li>
+  <li>Good book: C++ Concurrency in Action (Anthony Williams)</li>
+  <li>https://en.cppreference.com/w/cpp/language/raii</li>
+</ol>
+
+
+        </div>
+
+    </div>
+
+    <!-- Header scroll behavior -->
+    <script>
+        const header = document.getElementById("mainHeader");
+        const hoverZone = document.getElementById("hoverZone");
+        let lastScroll = 0;
+
+        window.addEventListener("scroll", () => {
+            const currentScroll = window.pageYOffset;
+
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                header.classList.add("-translate-y-full");
+            } else {
+                header.classList.remove("-translate-y-full");
+            }
+
+            lastScroll = currentScroll;
+        });
+
+        hoverZone.addEventListener("mouseenter", () => {
+            header.classList.remove("-translate-y-full");
+        });
+
+        
+    </script>
+
+    <!-- Theme Toggle -->
+    <button onclick="document.documentElement.classList.toggle('dark')"
+        class="fixed bottom-4 right-4 bg-white text-black p-3 border-4 border-gray-400 rounded-full shadow-lg text-sm font-semibold hover:bg-secondary transition-colors duration-300 dark:bg-gray-800 dark:text-white dark:border-orange-600 dark:hover:bg-secondary">
+        Toggle Theme
+    </button>
+
+</body>
+
+</html>

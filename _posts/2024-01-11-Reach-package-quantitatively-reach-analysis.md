@@ -1,6 +1,6 @@
 ---
 layout: post
-category: blog
+category: research
 title: Evaluate the reach capability of a robot system
 snippet: A tool that allows users to visualize and quantitatively evaluate the reach capability of a robot system for a given workpiece.
 tags: [robotics, ROS]

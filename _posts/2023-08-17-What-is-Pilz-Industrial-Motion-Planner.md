@@ -1,6 +1,6 @@
 ---
 layout: post
-category: blog
+category: research
 title: What is the Pilz Industrial Motion Planner?
 snippet: Explain the PiLZ Industrial Motion Planner and use cases.
 tags: [robotics]

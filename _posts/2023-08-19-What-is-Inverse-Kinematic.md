@@ -1,6 +1,6 @@
 ---
 layout: post
-category: blog
+category: research
 title: What is the Inverse Kinematic (IK) in robotics
 snippet: Explain the Inverse Kinematic (IK) and Python code example
 tags: [robotics, python]

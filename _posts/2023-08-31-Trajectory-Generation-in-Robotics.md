@@ -1,6 +1,6 @@
 ---
 layout: post
-category: blog
+category: research
 title: Trajectory Generation in Robotics
 snippet: Learn Trajectory Generation in robotics
 tags: [robotics, math]

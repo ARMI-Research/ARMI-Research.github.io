@@ -1,6 +1,6 @@
 ---
 layout: post
-category: blog
+category: research
 title: (Multithreading C++) 1. Introduction Concurrency
 snippet: This tutorial introduce the Multithreading C+
 tags: [Multithreading C++]

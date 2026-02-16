@@ -1,6 +1,6 @@
 ---
 layout: post
-category: blog
+category: research
 title: What is SORA AI Model from OpenAI
 snippet: Sora is an AI model developed by OpenAI that can create realistic and imaginative scenes from text instructions
 tags: [AI]

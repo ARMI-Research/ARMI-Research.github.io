@@ -1,6 +1,6 @@
 ---
 layout: post
-category: blog
+category: research
 title: (Algorithms C++) 2. Lambda Expressions in C++
 snippet: This tutorial following the algorithms in C++
 tags: [Algorithms C++]

@@ -1,6 +1,6 @@
 ---
 layout: post
-category: blog
+category: research
 title: Microcontroller Lab Experiments with AVR STK600 Kit
 snippet: 
 tags: [microcontroller]

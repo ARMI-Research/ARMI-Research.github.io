@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Motion Planning Techniques for Collaborative Robotics - ARMI Research Laboratory</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+        :root {
+            --primary: #0A1A2F;
+            --secondary: #d46700;
+            --text-dark: #000000;
+            --text-light: #ffffff;
+            --bg-light: #ffffff;
+            --bg-dark: #0d1117;
+            --card-dark: #111827;
+        }
+
+        .dark {
+            color-scheme: dark;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .dark body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+        }
+
+        .card-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--bg-light);
+            border-radius: 2rem;
+            padding: 2.5rem;
+            border: 2px solid var(--primary);
+        }
+
+        .dark .card-container {
+            background-color: var(--card-dark);
+            border-color: var(--secondary);
+        }
+
+        .post-content h2 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+        }
+
+        .dark .post-content h2 {
+            color: var(--text-light);
+        }
+
+        .post-content h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--primary);
+        }
+
+        .dark .post-content h3 {
+            color: var(--text-light);
+        }
+
+        .post-content p {
+            margin-bottom: 1rem;
+            line-height: 1.75;
+        }
+
+        .post-content ul, .post-content ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .post-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .post-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        .post-content table th {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .dark .post-content table th {
+            background-color: var(--secondary);
+        }
+
+        .post-content table td {
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem;
+        }
+
+        .dark .post-content table td {
+            border-color: #374151;
+        }
+
+        .post-content table tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+
+        .dark .post-content table tr:nth-child(even) {
+            background-color: #1f2937;
+        }
+
+        .post-content code {
+            background-color: #f3f4f6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        .dark .post-content code {
+            background-color: #374151;
+        }
+
+        .post-content pre {
+            background-color: #1f2937 !important;
+            color: #f3f4f6 !important;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .post-content pre code {
+            background-color: transparent !important;
+            color: #f3f4f6 !important;
+            padding: 0;
+        }
+
+        .post-content .highlight {
+            background-color: #1f2937 !important;
+        }
+
+        .post-content .highlight pre {
+            background-color: #1f2937 !important;
+        }
+
+        .post-content .highlight code {
+            color: #f3f4f6 !important;
+        }
+
+        .post-content blockquote {
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+            margin: 1rem 0;
+            font-style: italic;
+            color: #6b7280;
+        }
+
+        .dark .post-content blockquote {
+            color: #9ca3af;
+        }
+
+        .post-content hr {
+            border: none;
+            border-top: 2px solid #e5e7eb;
+            margin: 2rem 0;
+        }
+
+        .dark .post-content hr {
+            border-top-color: #374151;
+        }
+
+        .post-content strong {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .dark .post-content strong {
+            color: var(--secondary);
+        }
+
+        .post-content a {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+
+        .post-content a:hover {
+            color: var(--primary);
+        }
+
+        .dark .post-content a:hover {
+            color: var(--text-light);
+        }
+    </style>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0A1A2F',
+                        secondary: '#e97509',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+
+    <div id="hoverZone" class="fixed top-0 left-0 w-full h-6 z-40"></div>
+
+    <header id="mainHeader" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out bg-gradient-to-b from-white to-gray-100 dark:from-gray-900 dark:to-black shadow-md">
+        <div class="relative w-full border-b-4 border-gray-500 dark:border-orange-600">
+            <div class="max-w-7xl mx-auto px-6 py-4 relative flex items-center justify-between">
+                <div class="flex gap-3">
+                    <a href="/lab/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Lab</div>
+                    </a>
+                    <a href="/research/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Research</div>
+                    </a>
+                </div>
+                <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
+                    <img src="/images/logo.png" class="w-16 h-14 object-contain dark:brightness-90">
+                    <a href="/default/">
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-orange-500 hover:text-orange-500 dark:hover:text-orange-400 transition-colors">ARMI Lab</h1>
+                    </a>
+                </div>
+                <div class="text-sm text-gray-700 dark:text-gray-300 leading-tight">
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">A</span>utonomous</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">R</span>obotics</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">M</span>achine</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">I</span>ntelligence</div>
+                    <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">Research Laboratory</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="card-container shadow-2xl lg:p-12 transition duration-500 mt-40">
+
+        <h1 class="text-4xl font-bold mb-4 text-gray-800 dark:text-gray-100">Advanced Motion Planning Techniques for Collaborative Robotics</h1>
+
+        <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+            February 16, 2026
+        </div>
+
+        
+        <div class="flex gap-2 mb-6">
+            
+            <a href="/tags/#motion-planning" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-secondary hover:text-white transition-colors">
+                motion-planning
+            </a>
+            
+            <a href="/tags/#collaborative-robotics" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-secondary hover:text-white transition-colors">
+                collaborative-robotics
+            </a>
+            
+            <a href="/tags/#optimization" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-secondary hover:text-white transition-colors">
+                optimization
+            </a>
+            
+            <a href="/tags/#safety" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-secondary hover:text-white transition-colors">
+                safety
+            </a>
+            
+        </div>
+        
+
+        <hr class="mb-8 border-gray-300 dark:border-gray-700">
+
+        <div style="margin-bottom: 2rem;">
+            <a href="/research/" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #e97509; color: white; text-decoration: none; border-radius: 0.5rem; font-weight: 600; transition: all 0.3s;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Back
+            </a>
+        </div>
+
+        <div class="post-content">
+            <h2 id="introduction">Introduction</h2>
+
+<p>Collaborative robots (cobots) are increasingly deployed in industrial settings where they work alongside human operators. Ensuring safe and efficient motion planning in these shared workspaces remains a critical challenge. This research investigates optimization-based motion planning techniques that balance multiple objectives: collision avoidance, trajectory smoothness, and task efficiency.</p>
+
+<h2 id="problem-formulation">Problem Formulation</h2>
+
+<p>The motion planning problem for collaborative robots can be formulated as a constrained optimization problem:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>minimize: J(q, q̇, q̈) = w₁·E_smooth + w₂·E_time + w₃·E_energy
+subject to:
+  - q_min ≤ q ≤ q_max          (joint limits)
+  - ||q̇|| ≤ v_max               (velocity limits)
+  - d(q, obstacles) ≥ d_safe    (collision avoidance)
+  - d(q, humans) ≥ d_collab     (safety distance)
+</code></pre></div></div>
+
+<p>Where:</p>
+<ul>
+  <li><strong>J(q, q̇, q̈)</strong>: Multi-objective cost function</li>
+  <li><strong>E_smooth</strong>: Trajectory smoothness penalty</li>
+  <li><strong>E_time</strong>: Execution time cost</li>
+  <li><strong>E_energy</strong>: Energy consumption metric</li>
+</ul>
+
+<h2 id="methodology">Methodology</h2>
+
+<h3 id="1-real-time-obstacle-detection">1. Real-time Obstacle Detection</h3>
+
+<p>We integrate multiple sensors for robust environment perception:</p>
+<ul>
+  <li><strong>3D LiDAR</strong>: Velodyne VLP-16 for large-scale obstacle detection</li>
+  <li><strong>Depth Cameras</strong>: Intel RealSense D435 for close-range human tracking</li>
+  <li><strong>Force/Torque Sensors</strong>: Real-time contact detection</li>
+</ul>
+
+<h3 id="2-reactive-motion-control">2. Reactive Motion Control</h3>
+
+<p>The controller updates trajectories at 500Hz using a model predictive control (MPC) approach:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">reactive_controller</span><span class="p">(</span><span class="n">current_state</span><span class="p">,</span> <span class="n">goal</span><span class="p">,</span> <span class="n">obstacles</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mf">0.002</span><span class="p">):</span>
+    <span class="sh">"""</span><span class="s">
+    Real-time reactive motion controller
+    </span><span class="sh">"""</span>
+    <span class="n">horizon</span> <span class="o">=</span> <span class="mi">20</span>  <span class="c1"># prediction horizon
+</span>
+    <span class="c1"># Predict human motion
+</span>    <span class="n">human_trajectory</span> <span class="o">=</span> <span class="nf">predict_human_motion</span><span class="p">(</span><span class="n">obstacles</span><span class="p">,</span> <span class="n">horizon</span><span class="p">)</span>
+
+    <span class="c1"># Solve optimization problem
+</span>    <span class="n">optimal_path</span> <span class="o">=</span> <span class="nf">solve_mpc</span><span class="p">(</span>
+        <span class="n">current_state</span><span class="o">=</span><span class="n">current_state</span><span class="p">,</span>
+        <span class="n">goal</span><span class="o">=</span><span class="n">goal</span><span class="p">,</span>
+        <span class="n">obstacles</span><span class="o">=</span><span class="n">human_trajectory</span><span class="p">,</span>
+        <span class="n">horizon</span><span class="o">=</span><span class="n">horizon</span><span class="p">,</span>
+        <span class="n">dt</span><span class="o">=</span><span class="n">dt</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">optimal_path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># return first control action
+</span></code></pre></div></div>
+
+<h3 id="3-safety-verification">3. Safety Verification</h3>
+
+<p>We implement multiple safety layers:</p>
+<ol>
+  <li><strong>Planning Layer</strong>: Pre-computed safe zones using reachability analysis</li>
+  <li><strong>Execution Layer</strong>: Real-time trajectory monitoring</li>
+  <li><strong>Emergency Layer</strong>: Reflexive stopping with 10ms response time</li>
+</ol>
+
+<h2 id="experimental-results">Experimental Results</h2>
+
+<h3 id="test-setup">Test Setup</h3>
+<ul>
+  <li><strong>Robot</strong>: Universal Robots UR10e</li>
+  <li><strong>Workspace</strong>: 2m × 2m shared workspace</li>
+  <li><strong>Tasks</strong>: Pick-and-place operations with human collaboration</li>
+</ul>
+
+<h3 id="performance-metrics">Performance Metrics</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Metric</th>
+      <th>Traditional RRT</th>
+      <th>Our Approach</th>
+      <th>Improvement</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Planning Time</td>
+      <td>127ms</td>
+      <td>45ms</td>
+      <td><strong>64% faster</strong></td>
+    </tr>
+    <tr>
+      <td>Trajectory Smoothness</td>
+      <td>2.4 m/s³</td>
+      <td>0.8 m/s³</td>
+      <td><strong>67% smoother</strong></td>
+    </tr>
+    <tr>
+      <td>Safety Distance Violations</td>
+      <td>12</td>
+      <td>0</td>
+      <td><strong>100% safer</strong></td>
+    </tr>
+    <tr>
+      <td>Task Completion Time</td>
+      <td>8.2s</td>
+      <td>6.5s</td>
+      <td><strong>21% faster</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="key-findings">Key Findings</h3>
+
+<ol>
+  <li>
+    <p><strong>Real-time Performance</strong>: Our optimization-based approach achieves real-time replanning (500Hz) while maintaining safety constraints.</p>
+  </li>
+  <li>
+    <p><strong>Smooth Trajectories</strong>: Incorporating jerk minimization in the cost function results in significantly smoother motions, reducing wear on robot actuators.</p>
+  </li>
+  <li>
+    <p><strong>Predictive Safety</strong>: Human motion prediction allows the robot to proactively adjust its path, avoiding last-minute emergency stops.</p>
+  </li>
+  <li>
+    <p><strong>Energy Efficiency</strong>: Optimized trajectories consume 18% less energy compared to traditional methods.</p>
+  </li>
+</ol>
+
+<h2 id="implementation-in-ros">Implementation in ROS</h2>
+
+<p>The framework is implemented as ROS2 nodes:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Launch the motion planning stack</span>
+ros2 launch armi_motion_planning collaborative_planner.launch.py
+
+<span class="c"># Monitor safety metrics</span>
+ros2 topic <span class="nb">echo</span> /safety/collision_risk
+</code></pre></div></div>
+
+<p><strong>Key ROS2 Packages:</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">armi_perception</code>: Multi-sensor fusion for environment perception</li>
+  <li><code class="language-plaintext highlighter-rouge">armi_planning</code>: Optimization-based motion planner</li>
+  <li><code class="language-plaintext highlighter-rouge">armi_control</code>: Real-time trajectory execution and monitoring</li>
+  <li><code class="language-plaintext highlighter-rouge">armi_safety</code>: Safety verification and emergency handling</li>
+</ul>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>This research demonstrates that optimization-based motion planning can achieve real-time performance while ensuring safety in human-robot collaborative environments. The key contributions are:</p>
+
+<ul>
+  <li><strong>Multi-objective optimization</strong> balancing safety, efficiency, and smoothness</li>
+  <li><strong>Real-time replanning</strong> at 500Hz update rate</li>
+  <li><strong>Predictive safety</strong> using human motion forecasting</li>
+  <li><strong>Experimental validation</strong> on industrial collaborative robots</li>
+</ul>
+
+<h2 id="future-work">Future Work</h2>
+
+<ul>
+  <li><strong>Learning-based prediction</strong>: Integrate deep learning models for better human motion prediction</li>
+  <li><strong>Multi-robot coordination</strong>: Extend framework to multiple collaborative robots</li>
+  <li><strong>Adaptive safety zones</strong>: Dynamically adjust safety distances based on task criticality</li>
+  <li><strong>Digital Twin integration</strong>: Use simulation for offline trajectory optimization</li>
+</ul>
+
+<h2 id="references">References</h2>
+
+<ol>
+  <li>Modern Robotics: Mechanics, Planning, and Control (Kevin Lynch &amp; Frank Park)</li>
+  <li>“Real-time Motion Planning for Manipulator Robots Under Dynamic Constraints” - IEEE RA-L 2024</li>
+  <li>“Safe Human-Robot Collaboration: A Review” - Robotics and Autonomous Systems 2023</li>
+</ol>
+
+<h2 id="source-code">Source Code</h2>
+
+<p>Implementation available at: <a href="https://github.com/ARMI-Lab">github.com/ARMI-Lab/collaborative-motion-planning</a></p>
+
+<hr />
+
+<h2 id="contact">Contact</h2>
+
+<p>For questions or collaboration opportunities, reach out to <strong>armi.research@gmail.com</strong></p>
+
+        </div>
+
+    </div>
+
+    <!-- Header scroll behavior -->
+    <script>
+        const header = document.getElementById("mainHeader");
+        const hoverZone = document.getElementById("hoverZone");
+        let lastScroll = 0;
+
+        window.addEventListener("scroll", () => {
+            const currentScroll = window.pageYOffset;
+
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                header.classList.add("-translate-y-full");
+            } else {
+                header.classList.remove("-translate-y-full");
+            }
+
+            lastScroll = currentScroll;
+        });
+
+        hoverZone.addEventListener("mouseenter", () => {
+            header.classList.remove("-translate-y-full");
+        });
+
+        
+    </script>
+
+    <!-- Theme Toggle -->
+    <button onclick="document.documentElement.classList.toggle('dark')"
+        class="fixed bottom-4 right-4 bg-white text-black p-3 border-4 border-gray-400 rounded-full shadow-lg text-sm font-semibold hover:bg-secondary transition-colors duration-300 dark:bg-gray-800 dark:text-white dark:border-orange-600 dark:hover:bg-secondary">
+        Toggle Theme
+    </button>
+
+</body>
+
+</html>

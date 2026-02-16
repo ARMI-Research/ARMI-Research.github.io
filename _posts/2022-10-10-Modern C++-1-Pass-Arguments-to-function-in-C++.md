@@ -1,6 +1,6 @@
 ---
 layout: post
-category: blog
+category: research
 title: (Modern C++) 1. How to pass arguments to functions in C++ 
 snippet: This tutorial following the basic C++ course
 tags: [Modern C++]

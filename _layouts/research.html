@@ -1,0 +1,326 @@
+---
+permalink: /research/
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research & Publications - ARMI Research Laboratory</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configure Tailwind for Inter font and a modern color palette -->
+    <style>
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+        /* ------------------------------
+        COLOR SYSTEM
+        ------------------------------ */
+        :root {
+            --primary: #0A1A2F;
+            --secondary: #d46700;
+            --text-dark: #000000;
+            --text-light: #ffffff;
+            --bg-light: #ffffff;
+            --bg-dark: #0d1117;
+            --card-dark: #111827;
+        }
+
+
+        .dark {
+            color-scheme: dark;
+        }
+
+
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .dark body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+        }
+
+        /* ------------------------------
+        CARD CONTAINER
+        ------------------------------ */
+        .card-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: var(--bg-light);
+            border-radius: 2rem;
+            padding: 2.5rem;
+            border: 2px solid var(--primary);
+        }
+
+        .dark .card-container {
+            background-color: var(--card-dark);
+            border-color: var(--secondary);
+        }
+
+        /* ------------------------------
+        POST CARDS
+        ------------------------------ */
+        .post-card {
+            display: flex;
+            flex-direction: column;
+            border-radius: 1rem;
+            overflow: hidden;
+            height: 100%;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(10, 26, 47, 0.15);
+            background-color: var(--bg-light);
+            padding: 1.5rem;
+        }
+
+        .dark .post-card {
+            background-color: var(--card-dark);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .post-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+            border-color: var(--secondary);
+        }
+
+        .post-title {
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .dark .post-title {
+            color: var(--text-light);
+        }
+
+        .post-title:hover {
+            color: var(--secondary);
+        }
+
+        .post-meta {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .dark .post-meta {
+            color: #9ca3af;
+        }
+
+        .post-snippet {
+            color: var(--text-dark);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-top: 1rem;
+        }
+
+        .dark .post-snippet {
+            color: var(--text-light);
+        }
+
+        .tag-link {
+            color: var(--secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.3s;
+        }
+
+        .tag-link:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        .dark .tag-link:hover {
+            color: var(--text-light);
+        }
+
+    </style>
+
+    <script>
+
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0A1A2F',
+                        secondary: '#e97509',
+                        black: '#000000',
+                        gray: {
+                            DEFAULT: '#6b7280',
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                            300: '#d1d5db',
+                            400: '#9ca3af',
+                            500: '#6b7280',
+                            600: '#4b5563',
+                            700: '#374151',
+                            800: '#1f2937',
+                            900: '#111827'
+                        }
+                    }
+                }
+            }
+        }
+
+    </script>
+
+</head>
+
+<body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+
+    <div id="hoverZone" class="fixed top-0 left-0 w-full h-6 z-40"></div>
+
+    <header id="mainHeader" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out bg-gradient-to-b from-white to-gray-100 dark:from-gray-900 dark:to-black shadow-md">
+        <div class="relative w-full border-b-4 border-gray-500 dark:border-orange-600">
+            <div class="max-w-7xl mx-auto px-6 py-4 relative flex items-center justify-between">
+                <div class="flex gap-3">
+                    <a href="/lab/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Lab</div>
+                    </a>
+                    <a href="/research/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Research</div>
+                    </a>
+                </div>
+                <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
+                    <img src="/images/logo.png" class="w-16 h-14 object-contain dark:brightness-90">
+                    <a href="/default/">
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-orange-500 hover:text-orange-500 dark:hover:text-orange-400 transition-colors">ARMI Lab</h1>
+                    </a>
+                </div>
+                <div class="text-sm text-gray-700 dark:text-gray-300 leading-tight">
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">A</span>utonomous</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">R</span>obotics</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">M</span>achine</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">I</span>ntelligence</div>
+                    <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">Research Laboratory</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="card-container shadow-2xl lg:p-12 transition duration-500 mt-40">
+
+        <h2 class="text-4xl font-bold mb-8 text-gray-800 dark:text-gray-100 border-l-4 border-secondary pl-4">
+            Research & Publications
+        </h2>
+
+        <hr class="mb-8 border-gray-300 dark:border-gray-700">
+
+        <!-- Search Bar -->
+        <div class="mb-8">
+            <div class="relative max-w-2xl mx-auto">
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search publications..."
+                    class="w-full px-6 py-3 pl-12 text-lg border-2 border-gray-400 rounded-lg focus:outline-none focus:border-secondary transition-colors duration-300 bg-white text-gray-800 dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:focus:border-orange-400"
+                />
+                <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Research Posts Grid -->
+        <div class="grid grid-cols-1 gap-6">
+            {% for post in site.posts %}
+                {% if post.category == "research" or post.category == "blog" %}
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="{{site.baseurl}}{{ post.url }}" class="post-title">
+                            {{ post.title }}
+                        </a>
+
+                        <div class="post-meta">
+                            <span>{{ post.date | date: "%B %d, %Y" }}</span>
+                        </div>
+
+                        {% if post.tags %}
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            {% for tag in post.tags %}
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                {{ tag }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        {% if post.snippet %}
+                            <div class="post-snippet">
+                                {{ post.snippet }}
+                            </div>
+                        {% endif %}
+                    </article>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+    </div>
+
+    <!-- Header scroll behavior -->
+    <script>
+        const header = document.getElementById("mainHeader");
+        const hoverZone = document.getElementById("hoverZone");
+        let lastScroll = 0;
+
+        window.addEventListener("scroll", () => {
+            const currentScroll = window.pageYOffset;
+
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                header.classList.add("-translate-y-full");
+            } else {
+                header.classList.remove("-translate-y-full");
+            }
+
+            lastScroll = currentScroll;
+        });
+
+        hoverZone.addEventListener("mouseenter", () => {
+            header.classList.remove("-translate-y-full");
+        });
+
+        // Search functionality
+        const searchInput = document.getElementById("searchInput");
+        const postCards = document.querySelectorAll(".post-card");
+
+        if (searchInput && postCards.length > 0) {
+            searchInput.addEventListener("input", function() {
+                const searchTerm = this.value.toLowerCase().trim();
+
+                postCards.forEach(card => {
+                    const title = card.querySelector(".post-title")?.textContent.toLowerCase() || "";
+                    const snippet = card.querySelector(".post-snippet")?.textContent.toLowerCase() || "";
+
+                    // Get all tags
+                    const tagElements = card.querySelectorAll(".post-tag");
+                    const tags = Array.from(tagElements).map(tag => tag.textContent.toLowerCase()).join(" ");
+
+                    const searchableText = title + " " + snippet + " " + tags;
+
+                    if (searchTerm === "" || searchableText.includes(searchTerm)) {
+                        card.style.display = "flex";
+                    } else {
+                        card.style.display = "none";
+                    }
+                });
+            });
+        }
+    </script>
+
+    <!-- Theme Toggle -->
+    <button onclick="document.documentElement.classList.toggle('dark')"
+        class="fixed bottom-4 right-4 bg-white text-black p-3 border-4 border-gray-400 rounded-full shadow-lg text-sm font-semibold hover:bg-secondary transition-colors duration-300 dark:bg-gray-800 dark:text-white dark:border-orange-600 dark:hover:bg-secondary">
+        Toggle Theme
+    </button>
+
+</body>
+
+</html>

@@ -1,6 +1,6 @@
 ---
 layout: post
-category: blog
+category: research
 title: How to build a C++ project with CMake
 snippet: This tutorial shows how to build a simple C++ project with CMake
 tags: [C++]

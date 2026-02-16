@@ -1,0 +1,1731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>(Multithreading C++) 6. Deadlock and Livelock - ARMI Research Laboratory</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+        :root {
+            --primary: #0A1A2F;
+            --secondary: #d46700;
+            --text-dark: #000000;
+            --text-light: #ffffff;
+            --bg-light: #ffffff;
+            --bg-dark: #0d1117;
+            --card-dark: #111827;
+        }
+
+        .dark {
+            color-scheme: dark;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .dark body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+        }
+
+        .card-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--bg-light);
+            border-radius: 2rem;
+            padding: 2.5rem;
+            border: 2px solid var(--primary);
+        }
+
+        .dark .card-container {
+            background-color: var(--card-dark);
+            border-color: var(--secondary);
+        }
+
+        .post-content h2 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+        }
+
+        .dark .post-content h2 {
+            color: var(--text-light);
+        }
+
+        .post-content h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--primary);
+        }
+
+        .dark .post-content h3 {
+            color: var(--text-light);
+        }
+
+        .post-content p {
+            margin-bottom: 1rem;
+            line-height: 1.75;
+        }
+
+        .post-content ul, .post-content ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .post-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .post-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        .post-content table th {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .dark .post-content table th {
+            background-color: var(--secondary);
+        }
+
+        .post-content table td {
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem;
+        }
+
+        .dark .post-content table td {
+            border-color: #374151;
+        }
+
+        .post-content table tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+
+        .dark .post-content table tr:nth-child(even) {
+            background-color: #1f2937;
+        }
+
+        .post-content code {
+            background-color: #f3f4f6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        .dark .post-content code {
+            background-color: #374151;
+        }
+
+        .post-content pre {
+            background-color: #1f2937 !important;
+            color: #f3f4f6 !important;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .post-content pre code {
+            background-color: transparent !important;
+            color: #f3f4f6 !important;
+            padding: 0;
+        }
+
+        .post-content .highlight {
+            background-color: #1f2937 !important;
+        }
+
+        .post-content .highlight pre {
+            background-color: #1f2937 !important;
+        }
+
+        .post-content .highlight code {
+            color: #f3f4f6 !important;
+        }
+
+        .post-content blockquote {
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+            margin: 1rem 0;
+            font-style: italic;
+            color: #6b7280;
+        }
+
+        .dark .post-content blockquote {
+            color: #9ca3af;
+        }
+
+        .post-content hr {
+            border: none;
+            border-top: 2px solid #e5e7eb;
+            margin: 2rem 0;
+        }
+
+        .dark .post-content hr {
+            border-top-color: #374151;
+        }
+
+        .post-content strong {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .dark .post-content strong {
+            color: var(--secondary);
+        }
+
+        .post-content a {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+
+        .post-content a:hover {
+            color: var(--primary);
+        }
+
+        .dark .post-content a:hover {
+            color: var(--text-light);
+        }
+    </style>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0A1A2F',
+                        secondary: '#e97509',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+
+    <div id="hoverZone" class="fixed top-0 left-0 w-full h-6 z-40"></div>
+
+    <header id="mainHeader" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out bg-gradient-to-b from-white to-gray-100 dark:from-gray-900 dark:to-black shadow-md">
+        <div class="relative w-full border-b-4 border-gray-500 dark:border-orange-600">
+            <div class="max-w-7xl mx-auto px-6 py-4 relative flex items-center justify-between">
+                <div class="flex gap-3">
+                    <a href="/lab/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Lab</div>
+                    </a>
+                    <a href="/research/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Research</div>
+                    </a>
+                </div>
+                <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
+                    <img src="/images/logo.png" class="w-16 h-14 object-contain dark:brightness-90">
+                    <a href="/default/">
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-orange-500 hover:text-orange-500 dark:hover:text-orange-400 transition-colors">ARMI Lab</h1>
+                    </a>
+                </div>
+                <div class="text-sm text-gray-700 dark:text-gray-300 leading-tight">
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">A</span>utonomous</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">R</span>obotics</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">M</span>achine</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">I</span>ntelligence</div>
+                    <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">Research Laboratory</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="card-container shadow-2xl lg:p-12 transition duration-500 mt-40">
+
+        <h1 class="text-4xl font-bold mb-4 text-gray-800 dark:text-gray-100">(Multithreading C++) 6. Deadlock and Livelock</h1>
+
+        <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+            January 06, 2023
+        </div>
+
+        
+        <div class="flex gap-2 mb-6">
+            
+            <a href="/tags/#Multithreading C++" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-secondary hover:text-white transition-colors">
+                Multithreading C++
+            </a>
+            
+        </div>
+        
+
+        <hr class="mb-8 border-gray-300 dark:border-gray-700">
+
+        <div style="margin-bottom: 2rem;">
+            <a href="/research/" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #e97509; color: white; text-decoration: none; border-radius: 0.5rem; font-weight: 600; transition: all 0.3s;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Back
+            </a>
+        </div>
+
+        <div class="post-content">
+            <h1 id="i-deadlock">I. Deadlock</h1>
+<div class="tip">
+<b>Deadlock is the second most problem in multi-threading code, after data races</b>
+</div>
+
+<p>A mutual deadlock in C++ occurs when two or more threads are blocked and waiting for each other to release a resource. 
+Deadlocks can occur due to a wrong order of acquiring locks, which can be avoided by acquiring locks in an agreed order. It can happen by following reasons:</p>
+
+<ul>
+  <li>
+    <p>Two or more threads are waiting for each other</p>
+  </li>
+  <li>
+    <p>Thread A waits for thread B to do something</p>
+  </li>
+  <li>
+    <p>Thread B is waiting for A to do something</p>
+  </li>
+  <li>
+    <p>Theads A and B are waiting for an event that can never happen</p>
+  </li>
+</ul>
+
+<!-- use case:
+include image.html url="/images/my-cat.jpg" description="My cat, Robert Downey Jr." width = "50%" hide="true"
+-->
+<!-- hide is used to hide content from mainbody but show up in the gallery. Exclude if not using -->
+
+<figure class="image">
+  <img src="/assets/2023-1-1-Multithreading-C++/dead_lock.png" alt="Dead Lock" style="width: 80%;" />
+  <figcaption class="caption">Dead Lock</figcaption>
+</figure>
+
+<p>It can occur when waiting for:</p>
+
+<ul>
+  <li>
+    <p>The result of a computation performed by another thread</p>
+  </li>
+  <li>
+    <p>A message sent by another thread</p>
+  </li>
+  <li>
+    <p>A GUI event produced by another thread</p>
+  </li>
+</ul>
+
+<h2 id="example-of-dead-lock-in-c">Example of dead lock in C++</h2>
+
+<p><strong>Example <code class="language-plaintext highlighter-rouge">dead_lock.cpp</code> bellow:</strong></p>
+
+<p class="filename">dead_lock.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Mutual deadlock</span>
+<span class="c1">// Two threads wait for the other to unlock a mutex</span>
+<span class="cp">#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;mutex&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;chrono&gt;</span><span class="cp">
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">mut1</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">mut2</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">funcA</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread A trying to lock mutex 1...</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">lck_guard</span><span class="p">(</span><span class="n">mut1</span><span class="p">);</span>		<span class="c1">// Acquire lock on mut1</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread A has locked mutex 1</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">50ms</span><span class="p">);</span>	                <span class="c1">// Do some work</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread A trying to lock mutex 2...</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">lck_guard2</span><span class="p">(</span><span class="n">mut2</span><span class="p">);</span>		<span class="c1">// Wait for lock on mut2</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread A has locked mutex 2</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">50ms</span><span class="p">);</span>	                <span class="c1">// Do some work</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread A releases all its locks</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">funcB</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread B trying to lock mutex 2...</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">lck_guard1</span><span class="p">(</span><span class="n">mut2</span><span class="p">);</span>	    <span class="c1">// Acquire lock on mut2</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread B has locked mutex 2</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">50ms</span><span class="p">);</span>	                <span class="c1">// Do some work</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread B trying to lock mutex 1...</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">lck_guard2</span><span class="p">(</span><span class="n">mut1</span><span class="p">);</span>	    <span class="c1">// Wait for lock on mut1</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread B has locked mutex 1</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">50ms</span><span class="p">);</span>	                <span class="c1">// Do some work</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread B releases all its locks</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thrA</span><span class="p">(</span><span class="n">funcA</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thrB</span><span class="p">(</span><span class="n">funcB</span><span class="p">);</span>
+	
+	<span class="n">thrA</span><span class="p">.</span><span class="n">join</span><span class="p">();</span> <span class="n">thrB</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p class="filename">Output
+dead_lock.cpp</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Thread A trying to lock mutex 1...
+Thread A has locked mutex 1
+Thread B trying to lock mutex 2...
+Thread B has locked mutex 2
+Thread B trying to lock mutex 1...
+Thread A trying to lock mutex 2...
+// Deadlock --&gt; Program is stuck
+</code></pre></div></div>
+
+<h2 id="deadlock-avoidance">Deadlock avoidance</h2>
+
+<div class="tip">
+<b>Simple way to avoid deadlock</b>
+<ul>
+<li> <b>Both threads try to acquire the locks in the same order</b> Thread A and Thread B both try to lock the mutex1 first -&gt; The successful thread then tries to lock the mutex2. But this is not ideal (Relies on the programmer, may not feasible in large programs</li>
+
+<li> <b>Minimize shared state and synchronization:</b>Restructure or divide the resource so that threads can work asynchronously. This can help avoid contention and reduce the likelihood of deadlock </li>
+
+</ul>
+</div>
+
+<p><strong>Example <code class="language-plaintext highlighter-rouge">deadlock_avoidance.cpp</code> bellow:</strong></p>
+
+<p class="filename">deadlock_avoidance.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Avoid deadlock by writing the threads</span>
+<span class="c1">// so that they lock the mutexes in the same order</span>
+<span class="cp">#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;mutex&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;chrono&gt;</span><span class="cp">
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">mut1</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">mut2</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">funcA</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread A trying to lock mutex 1...</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">lck_guard</span><span class="p">(</span><span class="n">mut1</span><span class="p">);</span>        <span class="c1">// Acquire lock on mut1</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread A has locked mutex 1</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">50ms</span><span class="p">);</span>	                <span class="c1">// Do some work</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread A trying to lock mutex 2...</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">lck_guard2</span><span class="p">(</span><span class="n">mut2</span><span class="p">);</span>       <span class="c1">// Wait for lock on mut2</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread A has locked mutex 2</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">50ms</span><span class="p">);</span>                  <span class="c1">// Do some work</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread A releases all its locks</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">funcB</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread B trying to lock mutex 1...</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">lck_guard1</span><span class="p">(</span><span class="n">mut1</span><span class="p">);</span>       <span class="c1">// Acquire lock on mut1</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread B has locked mutex 1</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">50ms</span><span class="p">);</span>                  <span class="c1">// Do some work</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread B trying to lock mutex 2...</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">lck_guard2</span><span class="p">(</span><span class="n">mut2</span><span class="p">);</span>	    <span class="c1">// Wait for lock on mut2</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread B has locked mutex 2</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">50ms</span><span class="p">);</span>	                <span class="c1">// Do some work</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread B releases all its locks</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thrA</span><span class="p">(</span><span class="n">funcA</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thrB</span><span class="p">(</span><span class="n">funcB</span><span class="p">);</span>
+	
+	<span class="n">thrA</span><span class="p">.</span><span class="n">join</span><span class="p">();</span> <span class="n">thrB</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p class="filename">Output
+dead_lock_avoidance.cpp</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Thread A trying to lock mutex 1...
+Thread A has locked mutex 1
+Thread B trying to lock mutex 1...
+Thread A trying to lock mutex 2...
+Thread A has locked mutex 2
+Thread A releases all its locks
+Thread B has locked mutex 1
+Thread B trying to lock mutex 2...
+Thread B has locked mutex 2
+Thread B releases all its locks
+</code></pre></div></div>
+
+<h1 id="ii-deadlock-practical">II. Deadlock Practical</h1>
+<p>The Dining Philosophers problem is a classic problem in computer science that illustrates synchronization issues in a multi-threaded environment. The problem states that there are five philosophers sitting around a circular table, each with their own plate and a fork between each plate. The philosophers alternate between thinking and eating, and can only eat when they have both a left and right fork. After an individual philosopher finishes eating, he will put down both forks. The problem is how to design a regimen (a concurrent algorithm) such that no philosopher will starve; i.e., each can forever continue to alternate between eating and thinking, assuming that no philosopher can know when others may want to eat or think.</p>
+
+<!-- use case:
+include image.html url="/images/my-cat.jpg" description="My cat, Robert Downey Jr." width = "50%" hide="true"
+-->
+<!-- hide is used to hide content from mainbody but show up in the gallery. Exclude if not using -->
+
+<figure class="image">
+  <img src="/assets/2023-1-1-Multithreading-C++/dining_philosophers_problem.png" alt="dining_philosophers_problem" style="width: 80%;" />
+  <figcaption class="caption">dining_philosophers_problem</figcaption>
+</figure>
+
+<h2 id="code-implementation">Code implementation</h2>
+
+<ul>
+  <li>
+    <p>A separate thread for each philosopher</p>
+  </li>
+  <li>
+    <p>Each fork has an associated mutex</p>
+  </li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// A mutex prevents more than one philosopher picking up the same fork</span>
+<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">fork_mutex</span><span class="p">[</span><span class="n">nforks</span><span class="p">];</span>
+
+<span class="c1">//  A pholosopher theard can only pick up a fork if it can lock the corresponding mutex</span>
+<span class="c1">//Try to pick up the left fork</span>
+<span class="n">fork_mutex</span><span class="p">[</span><span class="n">lfork</span><span class="p">].</span><span class="n">lock</span><span class="p">();</span>
+
+<span class="c1">// Try to pic up the right fork</span>
+<span class="n">fork_mutex</span><span class="p">[</span><span class="n">rfork</span><span class="p">].</span><span class="n">lock</span><span class="p">();</span>
+
+<span class="c1">// Succeeded - This philosopher can now eat</span>
+<span class="c1">//</span>
+</code></pre></div></div>
+
+<h2 id="deadlock-problem---the-philosophers-are-blocked-indefinitely">Deadlock problem -&gt; The philosophers are blocked indefinitely.</h2>
+
+<p class="filename">deadlock_dining_philosophers.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Dining philosophers problem (part 1)</span>
+<span class="c1">//</span>
+<span class="c1">// 5 philosophers sit at a round table which has 5 forks on it.</span>
+<span class="c1">// A philosopher has a fork at each side of them.</span>
+<span class="c1">// A philosopher can only eat if they can pick up both forks.</span>
+<span class="c1">// If a philosopher picks up the fork on their right,</span>
+<span class="c1">// that prevents the next philosopher from picking up their left fork.</span>
+<span class="c1">//</span>
+<span class="c1">// All the philosophers pick up their left fork at the same time</span>
+<span class="c1">// They wait to pick up their right fork (which is also their neighbour's left fork)</span>
+<span class="c1">// Their neighbour is waiting to pick up their own right fork</span>
+<span class="c1">// All the philosophers are waiting for their neighbour</span>
+<span class="c1">//</span>
+<span class="c1">// The philosophers are blocked indefinitely.</span>
+<span class="c1">// Deadlock</span>
+<span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;mutex&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;vector&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;chrono&gt;</span><span class="cp">
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
+
+<span class="c1">// Some data about the problem</span>
+<span class="k">constexpr</span> <span class="kt">int</span> <span class="n">nforks</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+<span class="k">constexpr</span> <span class="kt">int</span> <span class="n">nphilosophers</span> <span class="o">=</span> <span class="n">nforks</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">names</span><span class="p">[</span><span class="n">nphilosophers</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s">"A"</span><span class="p">,</span> <span class="s">"B"</span><span class="p">,</span> <span class="s">"C"</span><span class="p">,</span> <span class="s">"D"</span><span class="p">,</span> <span class="s">"E"</span><span class="p">};</span>
+
+<span class="c1">// Keep track of how many times a philosopher is able to eat</span>
+<span class="kt">int</span> <span class="n">mouthfuls</span><span class="p">[</span><span class="n">nphilosophers</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+
+<span class="c1">// A philosopher who has not picked up both forks is thinking</span>
+<span class="k">constexpr</span> <span class="k">auto</span> <span class="n">think_time</span> <span class="o">=</span> <span class="mx">2s</span><span class="p">;</span>
+
+<span class="c1">// A philosopher has picked up both forks is eating</span>
+<span class="k">constexpr</span> <span class="k">auto</span> <span class="n">eat_time</span> <span class="o">=</span> <span class="mx">1s</span><span class="p">;</span>
+
+<span class="c1">// A philosopher who has picked up one fork will put it down again</span>
+<span class="c1">// if they cannot pick up the other fork they need</span>
+<span class="k">constexpr</span> <span class="k">auto</span> <span class="n">time_out</span> <span class="o">=</span> <span class="n">think_time</span><span class="p">;</span>
+
+<span class="c1">// A mutex prevents more than one philosopher picking up the same fork</span>
+<span class="c1">// A philosopher thread can only pick up a fork if it can lock the corresponding mutex</span>
+<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">fork_mutex</span><span class="p">[</span><span class="n">nforks</span><span class="p">];</span>
+
+<span class="c1">// Mutex to protect output</span>
+<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">print_mutex</span><span class="p">;</span>
+
+<span class="c1">// Functions to display information about the 'nth' philosopher</span>
+
+<span class="c1">// Interactions with a fork</span>
+<span class="kt">void</span> <span class="nf">print</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">str</span><span class="p">,</span> <span class="kt">int</span> <span class="n">forkno</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">print_lock</span><span class="p">(</span><span class="n">print_mutex</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Philosopher "</span> <span class="o">&lt;&lt;</span> <span class="n">names</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">str</span> <span class="o">&lt;&lt;</span> <span class="n">forkno</span> <span class="o">&lt;&lt;</span> <span class="sc">'\n'</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// The philosopher's state</span>
+<span class="kt">void</span> <span class="nf">print</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">str</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">print_lock</span><span class="p">(</span><span class="n">print_mutex</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Philosopher "</span> <span class="o">&lt;&lt;</span> <span class="n">names</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">str</span> <span class="o">&lt;&lt;</span> <span class="sc">'\n'</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Thread which represents a dining philosopher</span>
+<span class="kt">void</span> <span class="nf">dine</span><span class="p">(</span><span class="kt">int</span> <span class="n">phil_no</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="c1">// Philosopher A has fork 0 on their left</span>
+	<span class="c1">// and fork 1 on their right</span>
+	<span class="c1">// Philosopher B has fork 1 on their left</span>
+	<span class="c1">// and fork 2 on their right</span>
+	<span class="c1">// ...</span>
+	<span class="c1">// Philosopher E has fork 4 on their left</span>
+	<span class="c1">// and fork 0 on their right</span>
+	<span class="c1">//</span>
+	<span class="c1">// Each philosopher must pick up their left fork first</span>
+	<span class="kt">int</span> <span class="n">lfork</span> <span class="o">=</span> <span class="n">phil_no</span><span class="p">;</span>
+	<span class="kt">int</span> <span class="n">rfork</span> <span class="o">=</span> <span class="p">(</span><span class="n">phil_no</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">nforks</span><span class="p">;</span>
+
+	
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">"</span><span class="se">\'</span><span class="s">s left fork is number "</span><span class="p">,</span> <span class="n">lfork</span><span class="p">);</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">"</span><span class="se">\'</span><span class="s">s right fork is number "</span><span class="p">,</span> <span class="n">rfork</span><span class="p">);</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" is thinking..."</span><span class="p">);</span>
+
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="n">think_time</span><span class="p">);</span>
+
+	<span class="c1">// Make an attempt to eat</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" reaches for fork number "</span><span class="p">,</span> <span class="n">lfork</span><span class="p">);</span>
+
+	<span class="c1">// Try to pick up the left fork</span>
+	<span class="n">fork_mutex</span><span class="p">[</span><span class="n">lfork</span><span class="p">].</span><span class="n">lock</span><span class="p">();</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" picks up fork "</span><span class="p">,</span> <span class="n">lfork</span><span class="p">);</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" is thinking..."</span><span class="p">);</span>
+
+	<span class="c1">// Succeeded - now try to pick up the right fork</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="n">think_time</span><span class="p">);</span>
+
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" reaches for fork number "</span><span class="p">,</span> <span class="n">rfork</span><span class="p">);</span>
+
+	<span class="n">fork_mutex</span><span class="p">[</span><span class="n">rfork</span><span class="p">].</span><span class="n">lock</span><span class="p">();</span>
+
+	<span class="c1">// Succeeded - this philosopher can now eat</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" picks up fork "</span><span class="p">,</span> <span class="n">rfork</span><span class="p">);</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" is eating..."</span><span class="p">);</span>
+	
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="n">eat_time</span><span class="p">);</span>
+
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" puts down fork "</span><span class="p">,</span> <span class="n">lfork</span><span class="p">);</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" puts down fork "</span><span class="p">,</span> <span class="n">rfork</span><span class="p">);</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" is thinking..."</span><span class="p">);</span>
+
+	<span class="n">fork_mutex</span><span class="p">[</span><span class="n">lfork</span><span class="p">].</span><span class="n">unlock</span><span class="p">();</span>
+	<span class="n">fork_mutex</span><span class="p">[</span><span class="n">rfork</span><span class="p">].</span><span class="n">unlock</span><span class="p">();</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="n">think_time</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="c1">// Start a separate thread for each philosopher</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="o">&gt;</span> <span class="n">philos</span><span class="p">;</span>
+
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">nphilosophers</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">philos</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="p">{</span><span class="n">dine</span><span class="p">,</span> <span class="n">i</span><span class="p">}));</span>
+	<span class="p">}</span>
+
+	<span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="n">philo</span><span class="o">:</span> <span class="n">philos</span><span class="p">)</span>
+		<span class="n">philo</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+
+	<span class="c1">// How many times were the philosophers able to eat?</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">nphilosophers</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Philosopher "</span> <span class="o">&lt;&lt;</span> <span class="n">names</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">" had "</span> <span class="o">&lt;&lt;</span> <span class="n">mouthfuls</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" mouthfuls</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p class="filename">Ouput of dining_philosophers.cpp</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Philosopher A's left fork is number 0
+Philosopher A's right fork is number 1
+Philosopher C's left fork is number 2
+Philosopher C's right fork is number 3
+Philosopher A is thinking...
+Philosopher C is thinking...
+Philosopher B's left fork is number 1
+Philosopher B's right fork is number 2
+Philosopher B is thinking...
+Philosopher D's left fork is number 3
+Philosopher D's right fork is number 4
+Philosopher D is thinking...
+Philosopher E's left fork is number 4
+Philosopher E's right fork is number 0
+Philosopher E is thinking...
+Philosopher C reaches for fork number 2
+Philosopher C picks up fork 2
+Philosopher B reaches for fork number 1
+Philosopher B picks up fork 1
+Philosopher C is thinking...
+Philosopher A reaches for fork number 0
+Philosopher A picks up fork 0
+Philosopher A is thinking...
+Philosopher D reaches for fork number 3
+Philosopher D picks up fork 3
+Philosopher B is thinking...
+Philosopher D is thinking...
+Philosopher E reaches for fork number 4
+Philosopher E picks up fork 4
+Philosopher E is thinking...
+Philosopher C reaches for fork number 3
+Philosopher A reaches for fork number 1
+Philosopher B reaches for fork number 2
+Philosopher D reaches for fork number 4
+Philosopher E reaches for fork number 0
+</code></pre></div></div>
+
+<h2 id="stdscoped_lock">std::scoped_lock</h2>
+<p>Another solution is lock mutiple mutexes in a single operation. C++ provides library feature for this is <code class="language-plaintext highlighter-rouge">std::scope_lock</code>. <code class="language-plaintext highlighter-rouge">std::scoped_lock</code> is a mutex wrapper that provides a convenient RAII-style mechanism for owning one or more mutexes for the duration of a scoped block.  <code class="language-plaintext highlighter-rouge">std::scoped_lock</code>can lock several mutexes at the same time, with a deadlock prevention mechanism, while <code class="language-plaintext highlighter-rouge">std::lock_guard</code> is limited to a single mutex.</p>
+
+<p><strong>Example scoped_lock</strong></p>
+
+<p class="filename">scoped_lock.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Use std::scoped_lock to avoid deadlock</span>
+<span class="c1">// All the mutexes are locked in a single operation</span>
+<span class="c1">// Requires C++17 compiler</span>
+<span class="cp">#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;mutex&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;chrono&gt;</span><span class="c1">	</span><span class="cp">
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">mut1</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">mut2</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">funcA</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread A trying to lock mutexes 1 and 2...</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">scoped_lock</span> <span class="n">scoped_lck</span><span class="p">(</span><span class="n">mut1</span><span class="p">,</span> <span class="n">mut2</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread A has locked mutexes 1 and 2</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">50ms</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread A releasing mutexes 1 and 2...</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">funcB</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread B trying to lock mutexes 2 and 1...</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">scoped_lock</span> <span class="n">scoped_lck</span><span class="p">(</span><span class="n">mut2</span><span class="p">,</span> <span class="n">mut1</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread B has locked mutexes 2 and 1</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">50ms</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread B releasing mutexes 2 and 1...</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thrA</span><span class="p">(</span><span class="n">funcA</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thrB</span><span class="p">(</span><span class="n">funcB</span><span class="p">);</span>
+	
+	<span class="n">thrA</span><span class="p">.</span><span class="n">join</span><span class="p">();</span> <span class="n">thrB</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="stdadopt_lock">std::adopt_lock</h2>
+
+<p>std::adopt_lock is an option that can be used with <code class="language-plaintext highlighter-rouge">std::unique_lock</code> to indicate that the mutex is already locked and that the <code class="language-plaintext highlighter-rouge">std::unique_lock</code> should assume ownership of the lock without attempting to lock the mutex again. This is useful when you need to transfer ownership of a lock from one <code class="language-plaintext highlighter-rouge">std::unique_lock</code> object to another or when you want to initialize a <code class="language-plaintext highlighter-rouge">std::unique_lock</code> object with an already locked mutex.</p>
+
+<p><strong>Example adopt_lock</strong></p>
+
+<p class="filename">adopt_lock.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Use std::adopt_lock to avoid deadlock</span>
+<span class="cp">#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;mutex&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;chrono&gt;</span><span class="cp">
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">mut1</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">mut2</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">funcA</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread A trying to lock mutexes 1 and 2...</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">lock</span><span class="p">(</span><span class="n">mut1</span><span class="p">,</span> <span class="n">mut2</span><span class="p">);</span>				               <span class="c1">// Lock both mutexes</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread A has locked mutexes 1 and 2</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	
+	<span class="c1">// Adopt the locks</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">unique_lock</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">uniq_lk1</span><span class="p">(</span><span class="n">mut1</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">adopt_lock</span><span class="p">);</span>   <span class="c1">// Associate each mutex</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">unique_lock</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">uniq_lk2</span><span class="p">(</span><span class="n">mut2</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">adopt_lock</span><span class="p">);</span>   <span class="c1">// with a unique_lock</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread A has adopted the locks</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">50ms</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread A releasing mutexes 1 and 2...</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">funcB</span><span class="p">()</span> <span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread B trying to lock mutexes 2 and 1...</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">lock</span><span class="p">(</span><span class="n">mut2</span><span class="p">,</span> <span class="n">mut1</span><span class="p">);</span>				               <span class="c1">// Lock both mutexes</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread B has locked mutexes 2 and 1</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	
+	<span class="c1">// Adopt the locks</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">unique_lock</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">uniq_lk2</span><span class="p">(</span><span class="n">mut2</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">adopt_lock</span><span class="p">);</span>   <span class="c1">// with a unique_lock</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">unique_lock</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">uniq_lk1</span><span class="p">(</span><span class="n">mut1</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">adopt_lock</span><span class="p">);</span>   <span class="c1">// Associate each mutex</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread B has adopted the locks</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">50ms</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread B releasing mutexes 2 and 1...</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thrA</span><span class="p">(</span><span class="n">funcA</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thrB</span><span class="p">(</span><span class="n">funcB</span><span class="p">);</span>
+	
+	<span class="n">thrA</span><span class="p">.</span><span class="n">join</span><span class="p">();</span> <span class="n">thrB</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p class="filename">Ouput of adopt_lock.cpp</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Thread A trying to lock mutexes 1 and 2...
+Thread B trying to lock mutexes 2 and 1...
+Thread A has locked mutexes 1 and 2
+Thread A has adopted the locks
+Thread A releasing mutexes 1 and 2...
+Thread B has locked mutexes 2 and 1
+Thread B has adopted the locks
+Thread B releasing mutexes 2 and 1...
+</code></pre></div></div>
+
+<h2 id="stddefer_lock">std::defer_lock</h2>
+<p><code class="language-plaintext highlighter-rouge">std::defer_lock</code> is an option that can be used with <code class="language-plaintext highlighter-rouge">std::unique_lock</code>to indicate that the mutex should not be locked upon construction of the <code class="language-plaintext highlighter-rouge">std::unique_lock</code> object. This is useful when you need to lock multiple mutexes in a specific order to avoid deadlock.</p>
+
+<p class="filename"><strong>Example defer_lock</strong>
+defer_lock.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Use std::defer_lock to avoid deadlock</span>
+<span class="cp">#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;mutex&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;chrono&gt;</span><span class="cp">
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">mut1</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">mut2</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">funcA</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">unique_lock</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">uniq_lk1</span><span class="p">(</span><span class="n">mut1</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">defer_lock</span><span class="p">);</span>	<span class="c1">// Associate mutex with lock...</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">unique_lock</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">uniq_lk2</span><span class="p">(</span><span class="n">mut2</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">defer_lock</span><span class="p">);</span>	<span class="c1">// ...but don’t lock it yet</span>
+	
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread A trying to lock mutexes 1 and 2...</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">lock</span><span class="p">(</span><span class="n">uniq_lk1</span><span class="p">,</span> <span class="n">uniq_lk2</span><span class="p">);</span>								    <span class="c1">// Now lock both of them</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread A has locked mutexes 1 and 2</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">50ms</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread A releasing mutexes 1 and 2...</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">funcB</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">unique_lock</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">uniq_lk2</span><span class="p">(</span><span class="n">mut2</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">defer_lock</span><span class="p">);</span>	<span class="c1">// Associate mutex with lock...</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">unique_lock</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">uniq_lk1</span><span class="p">(</span><span class="n">mut1</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">defer_lock</span><span class="p">);</span>	<span class="c1">// ...but don’t lock it yet</span>
+	
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread B trying to lock mutexes 2 and 1...</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">lock</span><span class="p">(</span><span class="n">uniq_lk2</span><span class="p">,</span> <span class="n">uniq_lk1</span><span class="p">);</span>									<span class="c1">// Now lock both of them</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread B has locked mutexes 2 and 1</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">50ms</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread B releasing mutexes 2 and 1...</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thrA</span><span class="p">(</span><span class="n">funcA</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thrB</span><span class="p">(</span><span class="n">funcB</span><span class="p">);</span>
+	
+	<span class="n">thrA</span><span class="p">.</span><span class="n">join</span><span class="p">();</span> <span class="n">thrB</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p class="filename">Ouput of defer_lock.cpp</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Thread A trying to lock mutexes 1 and 2...
+Thread A has locked mutexes 1 and 2
+Thread B trying to lock mutexes 2 and 1...
+Thread A releasing mutexes 1 and 2...
+Thread B has locked mutexes 2 and 1
+Thread B releasing mutexes 2 and 1...
+</code></pre></div></div>
+
+<h2 id="stdtry_lock">std::try_lock</h2>
+<p><code class="language-plaintext highlighter-rouge">std::try_lock</code>is a C++ function that attempts to lock multiple mutexes simultaneously without blocking. It is a non-blocking alternative to <code class="language-plaintext highlighter-rouge">std::lock</code>, which blocks until all mutexes are locked. If <code class="language-plaintext highlighter-rouge">std::try_lock</code> is successful in locking all mutexes, it returns immediately -1 and the caller can proceed with the critical section. If <code class="language-plaintext highlighter-rouge">std::try_lock</code> fails to lock one or more mutexes, it releases any locks that it has acquired and returns a 0-based index of the first mutex that it failed to lock.</p>
+
+<p><strong>Example try_lock</strong></p>
+
+<p class="filename">try_lock.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Use std::defer_lock to avoid deadlock</span>
+<span class="cp">#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;mutex&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;chrono&gt;</span><span class="cp">
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">mut1</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">mut2</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">funcA</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">unique_lock</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">uniq_lk1</span><span class="p">(</span><span class="n">mut1</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">defer_lock</span><span class="p">);</span>   <span class="c1">// Associate mutex with lock...</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">unique_lock</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">uniq_lk2</span><span class="p">(</span><span class="n">mut2</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">defer_lock</span><span class="p">);</span>   <span class="c1">// ...but don’t lock it yet</span>
+	
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread A trying to lock mutexes 1 and 2...</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+    
+	<span class="c1">// Now lock both of them</span>
+	<span class="k">auto</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">try_lock</span><span class="p">(</span><span class="n">uniq_lk1</span><span class="p">,</span> <span class="n">uniq_lk2</span><span class="p">);</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">idx</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"try_lock failed on mutex with index "</span> <span class="o">&lt;&lt;</span> <span class="n">idx</span> <span class="o">&lt;&lt;</span> <span class="sc">'\n'</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">else</span> <span class="p">{</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread A has locked mutexes 1 and 2</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">50ms</span><span class="p">);</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread A releasing mutexes 1 and 2...</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">funcB</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">unique_lock</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">uniq_lk2</span><span class="p">(</span><span class="n">mut2</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">defer_lock</span><span class="p">);</span>   <span class="c1">// Associate mutex with lock...</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">unique_lock</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">uniq_lk1</span><span class="p">(</span><span class="n">mut1</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">defer_lock</span><span class="p">);</span>   <span class="c1">// ...but don’t lock it yet</span>
+	
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread B trying to lock mutexes 2 and 1...</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+    
+	<span class="c1">// Now lock both of them</span>
+	<span class="k">auto</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">try_lock</span><span class="p">(</span><span class="n">uniq_lk2</span><span class="p">,</span> <span class="n">uniq_lk1</span><span class="p">);</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">idx</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"try_lock failed on mutex with index "</span> <span class="o">&lt;&lt;</span> <span class="n">idx</span> <span class="o">&lt;&lt;</span> <span class="sc">'\n'</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">else</span> <span class="p">{</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread B has locked mutexes 2 and 1</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">50ms</span><span class="p">);</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread B releasing mutexes 2 and 1...</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thrA</span><span class="p">(</span><span class="n">funcA</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thrB</span><span class="p">(</span><span class="n">funcB</span><span class="p">);</span>
+	
+	<span class="n">thrA</span><span class="p">.</span><span class="n">join</span><span class="p">();</span> <span class="n">thrB</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p class="filename">Ouput of try_lock.cpp</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Thread B trying to lock mutexes 2 and 1...
+Thread B has locked mutexes 2 and 1
+Thread A trying to lock mutexes 1 and 2...
+try_lock failed on mutex with index 0
+Thread B releasing mutexes 2 and 1...
+</code></pre></div></div>
+<div class="tip">
+<b>Main points on avoiding deadlock:</b>
+<ul>
+<li> <b>Avoid waiting for other threads when your thread holds a lock,</b> because that thread may need your lock before it can proceed.</li>
+
+<li> <b>Try to avoid waiting for other threads in general,</b> because the other thread may be waiting for your thread.  </li>
+
+<li> <b>Avoid nested locks.</b> If your thread already has a lock on a mutex, do not lock other mutexes.  </li>
+
+<li> <b>If you do need to lock multiple mutexes, </b> do it all in a single operation. </li>
+
+<li> <b>If your thread is inside a critical section, </b> , avoid calling functions unless you are absolutely certain that the function is not going to lock.</li>
+
+</ul>
+</div>
+
+<h1 id="iii-deadlock-avoidance-practical">III. Deadlock Avoidance Practical</h1>
+
+<h2 id="solution-for-dining-philosophers-problems">Solution for Dining Philosophers problems</h2>
+
+<p class="filename">multiple_lock.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Dining philosophers problem (part 2a)</span>
+<span class="c1">//</span>
+<span class="c1">// 5 philosophers sit at a round table which has 5 forks on it.</span>
+<span class="c1">// A philosopher has a fork at each side of them.</span>
+<span class="c1">// A philosopher can only eat if they can pick up both forks.</span>
+<span class="c1">// If a philosopher picks up the fork on their right,</span>
+<span class="c1">// that prevents the next philosopher from picking up their left fork.</span>
+<span class="c1">//</span>
+<span class="c1">// The philosophers try to pick up both forks at the same time.</span>
+<span class="c1">// If they succeed, they can eat.</span>
+<span class="c1">// If not, both forks are available to their neighbours.</span>
+<span class="c1">//</span>
+<span class="c1">// All philosophers are able to eat.</span>
+<span class="c1">// No deadlock</span>
+<span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;mutex&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;vector&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;chrono&gt;</span><span class="cp">
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
+
+<span class="c1">// Some data about the problem</span>
+<span class="k">constexpr</span> <span class="kt">int</span> <span class="n">nforks</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+<span class="k">constexpr</span> <span class="kt">int</span> <span class="n">nphilosophers</span> <span class="o">=</span> <span class="n">nforks</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">names</span><span class="p">[</span><span class="n">nphilosophers</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s">"A"</span><span class="p">,</span> <span class="s">"B"</span><span class="p">,</span> <span class="s">"C"</span><span class="p">,</span> <span class="s">"D"</span><span class="p">,</span> <span class="s">"E"</span><span class="p">};</span>
+
+<span class="c1">// Keep track of how many times a philosopher is able to eat</span>
+<span class="kt">int</span> <span class="n">mouthfuls</span><span class="p">[</span><span class="n">nphilosophers</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+
+<span class="c1">// A philosopher who has not picked up both forks is thinking</span>
+<span class="k">constexpr</span> <span class="k">auto</span> <span class="n">think_time</span> <span class="o">=</span> <span class="mx">2s</span><span class="p">;</span>
+
+<span class="c1">// A philosopher has picked up both forks is eating</span>
+<span class="k">constexpr</span> <span class="k">auto</span> <span class="n">eat_time</span> <span class="o">=</span> <span class="mx">1s</span><span class="p">;</span>
+
+<span class="c1">// A philosopher who has picked up one fork will put it down again</span>
+<span class="c1">// if they cannot pick up the other fork they need</span>
+<span class="k">constexpr</span> <span class="k">auto</span> <span class="n">time_out</span> <span class="o">=</span> <span class="n">think_time</span><span class="p">;</span>
+
+<span class="c1">// A mutex prevents more than one philosopher picking up the same fork</span>
+<span class="c1">// A philosopher thread can only pick up a fork if it can lock the corresponding mutex</span>
+<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">fork_mutex</span><span class="p">[</span><span class="n">nforks</span><span class="p">];</span>
+
+<span class="c1">// Mutex to protect output</span>
+<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">print_mutex</span><span class="p">;</span>
+
+<span class="c1">// Functions to display information about the 'nth' philosopher</span>
+
+<span class="c1">// Interactions with forks</span>
+<span class="kt">void</span> <span class="nf">print</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">str</span><span class="p">,</span> <span class="kt">int</span> <span class="n">lfork</span><span class="p">,</span> <span class="kt">int</span> <span class="n">rfork</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">print_lock</span><span class="p">(</span><span class="n">print_mutex</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Philosopher "</span> <span class="o">&lt;&lt;</span> <span class="n">names</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">str</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">lfork</span> <span class="o">&lt;&lt;</span> <span class="s">" and "</span> <span class="o">&lt;&lt;</span> <span class="n">rfork</span> <span class="o">&lt;&lt;</span> <span class="sc">'\n'</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// The philosopher's state</span>
+<span class="kt">void</span> <span class="nf">print</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">str</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">print_lock</span><span class="p">(</span><span class="n">print_mutex</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Philosopher "</span> <span class="o">&lt;&lt;</span> <span class="n">names</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">str</span> <span class="o">&lt;&lt;</span> <span class="sc">'\n'</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Thread which represents a dining philosopher</span>
+<span class="kt">void</span> <span class="nf">dine</span><span class="p">(</span><span class="kt">int</span> <span class="n">phil_no</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="c1">// Philosopher A has fork 0 on their left</span>
+	<span class="c1">// and fork 1 on their right</span>
+	<span class="c1">// Philosopher B has fork 1 on their left</span>
+	<span class="c1">// and fork 2 on their right</span>
+	<span class="c1">// ...</span>
+	<span class="c1">// Philosopher E has fork 4 on their left</span>
+	<span class="c1">// and fork 0 on their right</span>
+	<span class="c1">//</span>
+	<span class="c1">// Each philosopher must pick up their left fork first</span>
+	<span class="kt">int</span> <span class="n">lfork</span> <span class="o">=</span> <span class="n">phil_no</span><span class="p">;</span>
+	<span class="kt">int</span> <span class="n">rfork</span> <span class="o">=</span> <span class="p">(</span><span class="n">phil_no</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">nforks</span><span class="p">;</span>
+	
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">"</span><span class="se">\'</span><span class="s">s forks are "</span><span class="p">,</span> <span class="n">lfork</span><span class="p">,</span> <span class="n">rfork</span><span class="p">);</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" is thinking..."</span><span class="p">);</span>
+
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="n">think_time</span><span class="p">);</span>
+
+	<span class="c1">// Make an attempt to eat</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" reaches for forks "</span><span class="p">,</span> <span class="n">lfork</span><span class="p">,</span> <span class="n">rfork</span><span class="p">);</span>
+
+	<span class="c1">// Try to pick up both forks</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">lock</span><span class="p">(</span><span class="n">fork_mutex</span><span class="p">[</span><span class="n">lfork</span><span class="p">],</span> <span class="n">fork_mutex</span><span class="p">[</span><span class="n">rfork</span><span class="p">]);</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" picks up fork "</span><span class="p">,</span> <span class="n">lfork</span><span class="p">,</span> <span class="n">rfork</span><span class="p">);</span>
+
+	<span class="c1">// Succeeded - this philosopher can now eat</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" is eating..."</span><span class="p">);</span>
+	<span class="o">++</span><span class="n">mouthfuls</span><span class="p">[</span><span class="n">phil_no</span><span class="p">];</span>
+	
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="n">eat_time</span><span class="p">);</span>
+
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" puts down fork "</span><span class="p">,</span> <span class="n">lfork</span><span class="p">,</span> <span class="n">rfork</span><span class="p">);</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" is thinking..."</span><span class="p">);</span>
+
+	<span class="n">fork_mutex</span><span class="p">[</span><span class="n">lfork</span><span class="p">].</span><span class="n">unlock</span><span class="p">();</span>
+	<span class="n">fork_mutex</span><span class="p">[</span><span class="n">rfork</span><span class="p">].</span><span class="n">unlock</span><span class="p">();</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="n">think_time</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="c1">// Start a separate thread for each philosopher</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="o">&gt;</span> <span class="n">philos</span><span class="p">;</span>
+
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">nphilosophers</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">philos</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="p">{</span><span class="n">dine</span><span class="p">,</span> <span class="n">i</span><span class="p">}));</span>
+	<span class="p">}</span>
+
+	<span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="n">philo</span><span class="o">:</span> <span class="n">philos</span><span class="p">)</span>
+		<span class="n">philo</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+
+	<span class="c1">// How many times were the philosophers able to eat?</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">nphilosophers</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Philosopher "</span> <span class="o">&lt;&lt;</span> <span class="n">names</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">" had "</span> <span class="o">&lt;&lt;</span> <span class="n">mouthfuls</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" mouthful</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p class="filename">Output
+dead_lock_avoidance.cpp</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Philosopher A's forks are 0 and 1
+Philosopher A is thinking...
+Philosopher B's forks are 1 and 2
+Philosopher B is thinking...
+Philosopher C's forks are 2 and 3
+Philosopher C is thinking...
+Philosopher E's forks are 4 and 0
+Philosopher E is thinking...
+Philosopher D's forks are 3 and 4
+Philosopher D is thinking...
+Philosopher A reaches for forks 0 and 1
+Philosopher A picks up fork 0 and 1
+Philosopher B reaches for forks 1 and 2
+Philosopher C reaches for forks 2 and 3
+Philosopher C picks up fork 2 and 3
+Philosopher C is eating...
+Philosopher E reaches for forks 4 and 0
+Philosopher A is eating...
+Philosopher D reaches for forks 3 and 4
+Philosopher C puts down fork 2 and 3
+Philosopher C is thinking...
+Philosopher A puts down fork 0 and 1
+Philosopher A is thinking...
+Philosopher D picks up fork 3 and 4
+Philosopher D is eating...
+Philosopher B picks up fork 1 and 2
+Philosopher B is eating...
+Philosopher D puts down fork 3 and 4
+Philosopher D is thinking...
+Philosopher B puts down fork 1 and 2
+Philosopher B is thinking...
+Philosopher E picks up fork 4 and 0
+Philosopher E is eating...
+Philosopher E puts down fork 4 and 0
+Philosopher E is thinking...
+Philosopher A had 1 mouthful
+Philosopher B had 1 mouthful
+Philosopher C had 1 mouthful
+Philosopher D had 1 mouthful
+Philosopher E had 1 mouthful
+</code></pre></div></div>
+
+<p class="filename">hierarchical.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Dining philosophers problem (part 2b)</span>
+<span class="c1">//</span>
+<span class="c1">// 5 philosophers sit at a round table which has 5 forks on it.</span>
+<span class="c1">// A philosopher has a fork at each side of them.</span>
+<span class="c1">// A philosopher can only eat if they can pick up both forks.</span>
+<span class="c1">// If a philosopher picks up the fork on their right,</span>
+<span class="c1">// that prevents the next philosopher from picking up their left fork.</span>
+<span class="c1">//</span>
+<span class="c1">// Each philosopher tries to pick up their lowest numbered fork first.</span>
+<span class="c1">// For philosopher E, this leaves their right fork free. This breaks</span>
+<span class="c1">// the deadlock and allows philosopher D to eat, followed by the others.</span>
+<span class="c1">//</span>
+<span class="c1">// All philosophers are able to eat.</span>
+<span class="c1">// No deadlock</span>
+<span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;mutex&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;vector&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;chrono&gt;</span><span class="cp">
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
+
+<span class="c1">// Some data about the problem</span>
+<span class="k">constexpr</span> <span class="kt">int</span> <span class="n">nforks</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+<span class="k">constexpr</span> <span class="kt">int</span> <span class="n">nphilosophers</span> <span class="o">=</span> <span class="n">nforks</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">names</span><span class="p">[</span><span class="n">nphilosophers</span><span class="p">]</span> <span class="o">=</span><span class="p">{</span><span class="s">"A"</span><span class="p">,</span> <span class="s">"B"</span><span class="p">,</span> <span class="s">"C"</span><span class="p">,</span> <span class="s">"D"</span><span class="p">,</span> <span class="s">"E"</span><span class="p">};</span>
+
+<span class="c1">// Keep track of how many times a philosopher is able to eat</span>
+<span class="kt">int</span> <span class="n">mouthfuls</span><span class="p">[</span><span class="n">nphilosophers</span><span class="p">]</span> <span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+
+<span class="c1">// A philosopher who has not picked up both forks is thinking</span>
+<span class="k">constexpr</span> <span class="k">auto</span> <span class="n">think_time</span> <span class="o">=</span> <span class="mx">2s</span><span class="p">;</span>
+
+<span class="c1">// A philosopher has picked up both forks is eating</span>
+<span class="k">constexpr</span> <span class="k">auto</span> <span class="n">eat_time</span> <span class="o">=</span> <span class="mx">1s</span><span class="p">;</span>
+
+<span class="c1">// A philosopher who has picked up one fork will put it down again</span>
+<span class="c1">// if they cannot pick up the other fork they need</span>
+<span class="k">constexpr</span> <span class="k">auto</span> <span class="n">time_out</span> <span class="o">=</span> <span class="n">think_time</span><span class="p">;</span>
+
+<span class="c1">// A mutex prevents more than one philosopher picking up the same fork</span>
+<span class="c1">// A philosopher thread can only pick up a fork if it can lock the corresponding mutex</span>
+<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">fork_mutex</span><span class="p">[</span><span class="n">nforks</span><span class="p">];</span>
+
+<span class="c1">// Mutex to protect output</span>
+<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">print_mutex</span><span class="p">;</span>
+
+<span class="c1">// Functions to display information about the 'nth' philosopher</span>
+
+<span class="c1">// Interactions with forks</span>
+<span class="kt">void</span> <span class="nf">print</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">str</span><span class="p">,</span> <span class="kt">int</span> <span class="n">lfork</span><span class="p">,</span> <span class="kt">int</span> <span class="n">rfork</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">print_lock</span><span class="p">(</span><span class="n">print_mutex</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Philosopher "</span> <span class="o">&lt;&lt;</span> <span class="n">names</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">str</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">lfork</span> <span class="o">&lt;&lt;</span> <span class="s">" and "</span> <span class="o">&lt;&lt;</span> <span class="n">rfork</span> <span class="o">&lt;&lt;</span> <span class="sc">'\n'</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Interactions with a fork</span>
+<span class="kt">void</span> <span class="nf">print</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">str</span><span class="p">,</span> <span class="kt">int</span> <span class="n">forkno</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">print_lock</span><span class="p">(</span><span class="n">print_mutex</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Philosopher "</span> <span class="o">&lt;&lt;</span> <span class="n">names</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">str</span> <span class="o">&lt;&lt;</span> <span class="n">forkno</span> <span class="o">&lt;&lt;</span> <span class="sc">'\n'</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// The philosopher's state</span>
+<span class="kt">void</span> <span class="nf">print</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">str</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">print_lock</span><span class="p">(</span><span class="n">print_mutex</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Philosopher "</span> <span class="o">&lt;&lt;</span> <span class="n">names</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">str</span> <span class="o">&lt;&lt;</span> <span class="sc">'\n'</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Thread which represents a dining philosopher</span>
+<span class="kt">void</span> <span class="nf">dine</span><span class="p">(</span><span class="kt">int</span> <span class="n">phil_no</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="c1">// Philosopher A has fork 0 on their left</span>
+	<span class="c1">// and fork 1 on their right</span>
+	<span class="c1">// Philosopher B has fork 1 on their left</span>
+	<span class="c1">// and fork 2 on their right</span>
+	<span class="c1">// ...</span>
+	<span class="c1">// Philosopher E has fork 4 on their left</span>
+	<span class="c1">// and fork 0 on their right</span>
+	<span class="c1">//</span>
+	<span class="c1">// Each philosopher must pick up their left fork first</span>
+	<span class="kt">int</span> <span class="n">lfork</span> <span class="o">=</span> <span class="n">phil_no</span><span class="p">;</span>
+	<span class="kt">int</span> <span class="n">rfork</span> <span class="o">=</span> <span class="p">(</span><span class="n">phil_no</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">nforks</span><span class="p">;</span>
+
+	<span class="k">if</span> <span class="p">(</span><span class="n">lfork</span> <span class="o">&gt;</span> <span class="n">rfork</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">lfork</span><span class="p">,</span> <span class="n">rfork</span><span class="p">);</span>
+	<span class="p">}</span>
+
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">"</span><span class="se">\'</span><span class="s">s forks are "</span><span class="p">,</span> <span class="n">lfork</span><span class="p">,</span> <span class="n">rfork</span><span class="p">);</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" is thinking..."</span><span class="p">);</span>
+
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="n">think_time</span><span class="p">);</span>
+
+	<span class="c1">// Make an attempt to eat</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" reaches for fork number "</span><span class="p">,</span> <span class="n">lfork</span><span class="p">);</span>
+
+	<span class="c1">// Try to pick up the left fork</span>
+	<span class="n">fork_mutex</span><span class="p">[</span><span class="n">lfork</span><span class="p">].</span><span class="n">lock</span><span class="p">();</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" picks up fork "</span><span class="p">,</span> <span class="n">lfork</span><span class="p">);</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" is thinking..."</span><span class="p">);</span>
+
+	<span class="c1">// Succeeded - now try to pick up the right fork</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="n">think_time</span><span class="p">);</span>
+
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" reaches for fork number "</span><span class="p">,</span> <span class="n">rfork</span><span class="p">);</span>
+
+	<span class="n">fork_mutex</span><span class="p">[</span><span class="n">rfork</span><span class="p">].</span><span class="n">lock</span><span class="p">();</span>
+
+	<span class="c1">// Succeeded - this philosopher can now eat</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" picks up fork "</span><span class="p">,</span> <span class="n">rfork</span><span class="p">);</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" is eating..."</span><span class="p">);</span>
+	<span class="o">++</span><span class="n">mouthfuls</span><span class="p">[</span><span class="n">phil_no</span><span class="p">];</span>
+
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="n">eat_time</span><span class="p">);</span>
+
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" puts down fork "</span><span class="p">,</span> <span class="n">lfork</span><span class="p">);</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" puts down fork "</span><span class="p">,</span> <span class="n">rfork</span><span class="p">);</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" is thinking..."</span><span class="p">);</span>
+
+	<span class="n">fork_mutex</span><span class="p">[</span><span class="n">lfork</span><span class="p">].</span><span class="n">unlock</span><span class="p">();</span>
+	<span class="n">fork_mutex</span><span class="p">[</span><span class="n">rfork</span><span class="p">].</span><span class="n">unlock</span><span class="p">();</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="n">think_time</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="c1">// Start a separate thread for each philosopher</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="o">&gt;</span> <span class="n">philos</span><span class="p">;</span>
+
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">nphilosophers</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">philos</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="p">{</span><span class="n">dine</span><span class="p">,</span> <span class="n">i</span><span class="p">}));</span>
+	<span class="p">}</span>
+
+	<span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="n">philo</span><span class="o">:</span> <span class="n">philos</span><span class="p">)</span>
+		<span class="n">philo</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+
+	<span class="c1">// How many times were the philosophers able to eat?</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">nphilosophers</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Philosopher "</span> <span class="o">&lt;&lt;</span> <span class="n">names</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">" had "</span> <span class="o">&lt;&lt;</span> <span class="n">mouthfuls</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" mouthful</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p class="filename">Output
+dead_lock_avoidance.cpp</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Philosopher A's forks are 0 and 1
+Philosopher A is thinking...
+Philosopher B's forks are 1 and 2
+Philosopher B is thinking...
+Philosopher D's forks are 3 and 4
+Philosopher D is thinking...
+Philosopher E's forks are 0 and 4
+Philosopher E is thinking...
+Philosopher C's forks are 2 and 3
+Philosopher C is thinking...
+Philosopher A reaches for fork number 0
+Philosopher A picks up fork 0
+Philosopher A is thinking...
+Philosopher B reaches for fork number 1
+Philosopher B picks up fork 1
+Philosopher B is thinking...
+Philosopher E reaches for fork number 0
+Philosopher D reaches for fork number 3
+Philosopher D picks up fork 3
+Philosopher D is thinking...
+Philosopher C reaches for fork number 2
+Philosopher C picks up fork 2
+Philosopher C is thinking...
+Philosopher A reaches for fork number 1
+Philosopher B reaches for fork number 2
+Philosopher D reaches for fork number 4
+Philosopher D picks up fork 4
+Philosopher D is eating...
+Philosopher C reaches for fork number 3
+Philosopher D puts down fork 3
+Philosopher D puts down fork 4
+Philosopher D is thinking...
+Philosopher C picks up fork 3
+Philosopher C is eating...
+Philosopher C puts down fork 2
+Philosopher C puts down fork 3
+Philosopher C is thinking...
+Philosopher B picks up fork 2
+Philosopher B is eating...
+Philosopher B puts down fork 1
+Philosopher B puts down fork 2
+Philosopher B is thinking...
+Philosopher A picks up fork 1
+Philosopher A is eating...
+Philosopher A puts down fork 0
+Philosopher A puts down fork 1
+Philosopher A is thinking...
+Philosopher E picks up fork 0
+Philosopher E is thinking...
+Philosopher E reaches for fork number 4
+Philosopher E picks up fork 4
+Philosopher E is eating...
+Philosopher E puts down fork 0
+Philosopher E puts down fork 4
+Philosopher E is thinking...
+Philosopher A had 1 mouthful
+Philosopher B had 1 mouthful
+Philosopher C had 1 mouthful
+Philosopher D had 1 mouthful
+Philosopher E had 1 mouthful
+</code></pre></div></div>
+
+<h1 id="ivlivelock">IV.Livelock</h1>
+
+<p>Livelock is a situation where a request for an exclusive lock is denied repeatedly, as many overlapping shared locks keep on interfering with each other. Livelocks are less common than deadlocks and starvation, but they can still cause problems in concurrent systems. To avoid livelocks, it is important to design processes and algorithms that can make progress despite changes in the state of other processes</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>A program cannot make progress
+- In deadlock, the threads are inactive
+- In livelock, the threads are still active
+
+Livelock can result from badly done deadlock avoidance
+- A thread can not get a lock
+- Instead of blocking indefinitely, it backs off and tries again.
+</code></pre></div></div>
+
+<p class="filename">livelock_example.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Livelock caused by poorly implemented deadlock avoidance</span>
+<span class="c1">// If the thread cannot get a lock, sleep and try again</span>
+<span class="c1">// However, all the threads wake up at the same time</span>
+<span class="cp">#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;mutex&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;chrono&gt;</span><span class="cp">
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">mut1</span><span class="p">,</span> <span class="n">mut2</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">funcA</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">10ms</span><span class="p">);</span>
+	<span class="kt">bool</span> <span class="n">locked</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+	<span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">locked</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">lck_guard</span><span class="p">(</span><span class="n">mut1</span><span class="p">);</span>  <span class="c1">// Lock mut1</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"After you, Claude!</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">2s</span><span class="p">);</span>
+		<span class="n">locked</span> <span class="o">=</span> <span class="n">mut2</span><span class="p">.</span><span class="n">try_lock</span><span class="p">();</span>                           <span class="c1">// Try to lock mut2</span>
+	<span class="p">}</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">locked</span><span class="p">)</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"ThreadA has locked both mutexes</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">funcB</span><span class="p">()</span> <span class="p">{</span>
+	<span class="kt">bool</span> <span class="n">locked</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+	<span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">locked</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">lk</span><span class="p">(</span><span class="n">mut2</span><span class="p">);</span>         <span class="c1">// Lock mut2</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"After you, Cecil!</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">2s</span><span class="p">);</span>
+		<span class="n">locked</span> <span class="o">=</span> <span class="n">mut1</span><span class="p">.</span><span class="n">try_lock</span><span class="p">();</span>                           <span class="c1">// Try to lock mut1</span>
+	<span class="p">}</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">locked</span><span class="p">)</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"ThreadB has locked both mutexes</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thrA</span><span class="p">(</span><span class="n">funcA</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">10ms</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thrB</span><span class="p">(</span><span class="n">funcB</span><span class="p">);</span>
+
+	<span class="n">thrA</span><span class="p">.</span><span class="n">join</span><span class="p">();</span> <span class="n">thrB</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p class="filename">Output
+dead_lock_avoidance.cpp</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>After you, Claude!
+After you, Cecil!
+After you, Claude!
+After you, Cecil!
+After you, Claude!
+After you, Cecil!
+After you, Claude!
+After you, Cecil!
+After you, Claude!
+After you, Cecil!
+</code></pre></div></div>
+
+<h2 id="livelock-avoidance">Livelock Avoidance</h2>
+<p>Try to avoid waiting for other threads when your thread holds a lock, because that thread may need your lock before it can proceed</p>
+<ul>
+  <li>Use <code class="language-plaintext highlighter-rouge">std::scoped_lock</code> or <code class="language-plaintext highlighter-rouge">std::lock()</code></li>
+  <li>
+    <p>Using thread priority, there is currently no way of setting the priority on a thread with the current C++ thread APIs. However, by using <code class="language-plaintext highlighter-rouge">std::thread::native_handle</code>, one can get a handle to the underlying operating system thread and use native APIs for setting priorities</p>
+  </li>
+  <li>A high priority thread will run more often and lock the mutex first, the low priority thread will lock the mutex afterwards.</li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">funcA</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">scoped_lock</span> <span class="n">scoped_lck</span><span class="p">(</span><span class="n">mut1</span><span class="p">,</span> <span class="n">mut2</span><span class="p">);</span>  <span class="c1">//lock both mutexes</span>
+<span class="p">}</span>
+<span class="kt">void</span> <span class="nf">funcB</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">scoped_lock</span> <span class="n">scoped_lck</span><span class="p">(</span><span class="n">mut2</span><span class="p">,</span> <span class="n">mut1</span><span class="p">);</span>  <span class="c1">//lock both mutexes</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p class="filename">no_livelock.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// std::shared_lock and std::lock() avoid deadlock</span>
+<span class="c1">// when locking multiple mutexes. They also avoid livelock.</span>
+<span class="cp">#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;mutex&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;chrono&gt;</span><span class="c1">	</span><span class="cp">
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">mut1</span><span class="p">,</span> <span class="n">mut2</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">funcA</span><span class="p">()</span> <span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">10ms</span><span class="p">);</span>
+
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"After you, Claude!"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">scoped_lock</span> <span class="n">scoped_lck</span><span class="p">(</span><span class="n">mut1</span><span class="p">,</span> <span class="n">mut2</span><span class="p">);</span>		 <span class="c1">// Lock both mutexes</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">2s</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread A has locked both mutexes</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">funcB</span><span class="p">()</span> <span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"After you, Cecil!</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">scoped_lock</span> <span class="n">scoped_lck</span><span class="p">(</span><span class="n">mut2</span><span class="p">,</span> <span class="n">mut1</span><span class="p">);</span>		 <span class="c1">// Lock mutexes</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">2s</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread B has locked both mutexes</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thrA</span><span class="p">(</span><span class="n">funcA</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">10ms</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thrB</span><span class="p">(</span><span class="n">funcB</span><span class="p">);</span>
+
+	<span class="n">thrA</span><span class="p">.</span><span class="n">join</span><span class="p">();</span> <span class="n">thrB</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<h2 id="resource-starvation">Resource starvation</h2>
+<p>in C++ occurs when a process is perpetually denied necessary resources to process its work. This can be caused by the lack of computer resources or the existence of multiple processes that are competing for the same computer resources. Resource starvation can lead to a process freezing or being denied access to a shared resource.</p>
+
+<p>Here are some tips to avoid resource starvation in C++:</p>
+
+<ul>
+  <li>
+    <p>Lower the limits to a point where the application can run comfortably.</p>
+  </li>
+  <li>
+    <p>Avoid waiting for other threads when your thread holds a lock, because that thread may need your lock before it can proceed.</p>
+  </li>
+  <li>
+    <p>Avoid nested locks. If your thread already has a lock on a mutex, do not lock other mutexes.</p>
+  </li>
+  <li>
+    <p>If you do need to lock multiple mutexes, do it all in a single operation.</p>
+  </li>
+  <li>
+    <p>If your thread is inside a critical section, avoid calling functions unless you are absolutely certain that the function is not going to lock</p>
+  </li>
+</ul>
+
+<h2 id="livelock-practical">Livelock Practical</h2>
+
+<div class="tip">
+<b>Solution for Dining philosophers problem</b>
+<ul>
+<li> <b>Add randomness</b> Philosophers pick up and put down their forks at difference, reduces the probability of starvation, does not completely eliminate it</li>
+
+<li> <b>Provide a central arbitrator to coordinate the philosophers</b> Only  allows one philosopher to pick up a fork at a time, only one philosopher can eat at a time, reduces paraleelism  </li>
+
+<li> <b>Use a shared lock</b> In effect, a philosopher picks up both forks at the same time </li>
+
+</ul>
+</div>
+
+<p class="filename">livelock_dining_philosopher.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Dining philosophers problem (part 3)</span>
+<span class="c1">//</span>
+<span class="c1">// 5 philosophers sit at a round table which has 5 forks on it.</span>
+<span class="c1">// A philosopher has a fork at each side of them.</span>
+<span class="c1">// A philosopher can only eat if they can pick up both forks.</span>
+<span class="c1">// If a philosopher picks up the fork on their right,</span>
+<span class="c1">// that prevents the next philosopher from picking up their left fork.</span>
+<span class="c1">//</span>
+<span class="c1">// All the philosophers pick up their left fork at the same time</span>
+<span class="c1">// They wait to pick up their right fork (which is also their neighbour's left fork)</span>
+<span class="c1">// If a philosopher cannot pick up the right fork, they put down the left fork</span>
+<span class="c1">// and go back to thinking.</span>
+<span class="c1">//</span>
+<span class="c1">// If all the philosophers pick up their left fork at the same time,</span>
+<span class="c1">// and put it down at the same time, they will still not be able to eat.</span>
+<span class="c1">// Livelock</span>
+<span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;mutex&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;vector&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;chrono&gt;</span><span class="cp">
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
+
+<span class="c1">// Some data about the problem</span>
+<span class="k">constexpr</span> <span class="kt">int</span> <span class="n">nforks</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+<span class="k">constexpr</span> <span class="kt">int</span> <span class="n">nphilosophers</span> <span class="o">=</span> <span class="n">nforks</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">names</span><span class="p">[</span><span class="n">nphilosophers</span><span class="p">]</span> <span class="o">=</span><span class="p">{</span><span class="s">"A"</span><span class="p">,</span> <span class="s">"B"</span><span class="p">,</span> <span class="s">"C"</span><span class="p">,</span> <span class="s">"D"</span><span class="p">,</span> <span class="s">"E"</span><span class="p">};</span>
+
+<span class="c1">// Keep track of how many times a philosopher is able to eat</span>
+<span class="kt">int</span> <span class="n">mouthfuls</span><span class="p">[</span><span class="n">nphilosophers</span><span class="p">]</span> <span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+
+<span class="c1">// A philosopher who has not picked up both forks is thinking</span>
+<span class="k">constexpr</span> <span class="k">auto</span> <span class="n">think_time</span> <span class="o">=</span> <span class="mx">2s</span><span class="p">;</span>
+
+<span class="c1">// A philosopher has picked up both forks is eating</span>
+<span class="k">constexpr</span> <span class="k">auto</span> <span class="n">eat_time</span> <span class="o">=</span> <span class="mx">1s</span><span class="p">;</span>
+
+<span class="c1">// A philosopher who has picked up one fork will put it down again</span>
+<span class="c1">// if they cannot pick up the other fork they need</span>
+<span class="k">constexpr</span> <span class="k">auto</span> <span class="n">time_out</span> <span class="o">=</span> <span class="n">think_time</span><span class="p">;</span>
+
+<span class="c1">// A mutex prevents more than one philosopher picking up the same fork</span>
+<span class="c1">// A philosopher thread can only pick up a fork if it can lock the corresponding mutex</span>
+<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">fork_mutex</span><span class="p">[</span><span class="n">nforks</span><span class="p">];</span>
+
+<span class="c1">// Mutex to protect output</span>
+<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">print_mutex</span><span class="p">;</span>
+
+<span class="c1">// Functions to display information about the 'nth' philosopher</span>
+
+<span class="c1">// Interactions with a fork</span>
+<span class="kt">void</span> <span class="nf">print</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">str</span><span class="p">,</span> <span class="kt">int</span> <span class="n">forkno</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">print_lock</span><span class="p">(</span><span class="n">print_mutex</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Philosopher "</span> <span class="o">&lt;&lt;</span> <span class="n">names</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">str</span> <span class="o">&lt;&lt;</span> <span class="n">forkno</span> <span class="o">&lt;&lt;</span> <span class="sc">'\n'</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// The philosopher's state</span>
+<span class="kt">void</span> <span class="nf">print</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">str</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">print_lock</span><span class="p">(</span><span class="n">print_mutex</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Philosopher "</span> <span class="o">&lt;&lt;</span> <span class="n">names</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">str</span> <span class="o">&lt;&lt;</span> <span class="sc">'\n'</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Thread which represents a dining philosopher</span>
+<span class="kt">void</span> <span class="nf">dine</span><span class="p">(</span><span class="kt">int</span> <span class="n">phil_no</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="c1">// Philosopher A has fork 0 on their left</span>
+	<span class="c1">// and fork 1 on their right</span>
+	<span class="c1">// Philosopher B has fork 1 on their left</span>
+	<span class="c1">// and fork 2 on their right</span>
+	<span class="c1">// ...</span>
+	<span class="c1">// Philosopher E has fork 4 on their left</span>
+	<span class="c1">// and fork 0 on their right</span>
+	<span class="c1">//</span>
+	<span class="c1">// Each philosopher must pick up their left fork first</span>
+	<span class="kt">int</span> <span class="n">lfork</span> <span class="o">=</span> <span class="n">phil_no</span><span class="p">;</span>
+	<span class="kt">int</span> <span class="n">rfork</span> <span class="o">=</span> <span class="p">(</span><span class="n">phil_no</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">nforks</span><span class="p">;</span>
+
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">"</span><span class="se">\'</span><span class="s">s left fork is number "</span><span class="p">,</span> <span class="n">lfork</span><span class="p">);</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">"</span><span class="se">\'</span><span class="s">s right fork is number "</span><span class="p">,</span> <span class="n">rfork</span><span class="p">);</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" is thinking..."</span><span class="p">);</span>
+
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="n">think_time</span><span class="p">);</span>
+
+	<span class="c1">// Make an attempt to eat</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" reaches for fork number "</span><span class="p">,</span> <span class="n">lfork</span><span class="p">);</span>
+
+	<span class="c1">// Try to pick up the left fork</span>
+	<span class="kt">bool</span> <span class="n">locked</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+
+	<span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">locked</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">fork_mutex</span><span class="p">[</span><span class="n">lfork</span><span class="p">].</span><span class="n">lock</span><span class="p">();</span>
+		<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" picks up fork "</span><span class="p">,</span> <span class="n">lfork</span><span class="p">);</span>
+		<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" is thinking..."</span><span class="p">);</span>
+
+		<span class="c1">// Succeeded - now try to pick up the right fork</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="n">think_time</span><span class="p">);</span>
+		<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" reaches for fork number "</span><span class="p">,</span> <span class="n">rfork</span><span class="p">);</span>
+
+		<span class="n">locked</span> <span class="o">=</span> <span class="n">fork_mutex</span><span class="p">[</span><span class="n">rfork</span><span class="p">].</span><span class="n">try_lock</span><span class="p">();</span>
+
+		<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">locked</span><span class="p">)</span> <span class="p">{</span>
+			<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" puts down fork "</span><span class="p">,</span> <span class="n">lfork</span><span class="p">);</span>
+			<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="n">think_time</span><span class="p">);</span>
+			<span class="n">fork_mutex</span><span class="p">[</span><span class="n">lfork</span><span class="p">].</span><span class="n">unlock</span><span class="p">();</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="c1">// Succeeded - this philosopher can now eat</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" picks up fork "</span><span class="p">,</span> <span class="n">rfork</span><span class="p">);</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" is eating..."</span><span class="p">);</span>
+	<span class="o">++</span><span class="n">mouthfuls</span><span class="p">[</span><span class="n">phil_no</span><span class="p">];</span>
+
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="n">eat_time</span><span class="p">);</span>
+
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" puts down fork "</span><span class="p">,</span> <span class="n">lfork</span><span class="p">);</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" puts down fork "</span><span class="p">,</span> <span class="n">rfork</span><span class="p">);</span>
+	<span class="n">print</span><span class="p">(</span><span class="n">phil_no</span><span class="p">,</span> <span class="s">" is thinking..."</span><span class="p">);</span>
+
+	<span class="n">fork_mutex</span><span class="p">[</span><span class="n">lfork</span><span class="p">].</span><span class="n">unlock</span><span class="p">();</span>
+	<span class="n">fork_mutex</span><span class="p">[</span><span class="n">rfork</span><span class="p">].</span><span class="n">unlock</span><span class="p">();</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="n">think_time</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="c1">// Start a separate thread for each philosopher</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="o">&gt;</span> <span class="n">philos</span><span class="p">;</span>
+
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">nphilosophers</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">philos</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="p">{</span><span class="n">dine</span><span class="p">,</span> <span class="n">i</span><span class="p">}));</span>
+	<span class="p">}</span>
+
+	<span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="n">philo</span><span class="o">:</span> <span class="n">philos</span><span class="p">)</span>
+		<span class="n">philo</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+
+	<span class="c1">// How many times were the philosophers able to eat?</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">nphilosophers</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Philosopher "</span> <span class="o">&lt;&lt;</span> <span class="n">names</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">" had "</span> <span class="o">&lt;&lt;</span> <span class="n">mouthfuls</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" mouthful(s)</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p class="filename">Output
+livelock_philosopher.cpp</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Philosopher B's left fork is number 1
+Philosopher B's right fork is number 2
+Philosopher B is thinking...
+Philosopher C's left fork is number 2
+Philosopher C's right fork is number 3
+Philosopher C is thinking...
+Philosopher D's left fork is number 3
+Philosopher E's left fork is number 4
+Philosopher E's right fork is number 0
+Philosopher D's right fork is number 4
+Philosopher A's left fork is number 0
+Philosopher A's right fork is number 1
+Philosopher A is thinking...
+Philosopher D is thinking...
+Philosopher E is thinking...
+Philosopher B reaches for fork number 1
+Philosopher B picks up fork 1
+Philosopher B is thinking...
+Philosopher C reaches for fork number 2
+Philosopher C picks up fork 2
+Philosopher C is thinking...
+Philosopher A reaches for fork number 0
+Philosopher A picks up fork 0
+Philosopher A is thinking...
+Philosopher E reaches for fork number 4
+Philosopher E picks up fork 4
+Philosopher E is thinking...
+Philosopher D reaches for fork number 3
+Philosopher D picks 
+//livelock phylosopher -&gt; countinue in forever the loop
+</code></pre></div></div>
+<h1 id="references">References</h1>
+<ol>
+  <li>https://vorbrodt.blog/2019/10/12/avoiding-deadlocks-the-c-way/</li>
+  <li>https://www.technical-recipes.com/2015/creating-and-avoiding-deadlock-conditions-in-c/</li>
+  <li>https://en.wikipedia.org/wiki/Dining_philosophers_problem</li>
+  <li>James Raynard, Learn Multithreading with Modern C++ Udemy.</li>
+  <li>https://en.cppreference.com/w/cpp/thread/lock_tag</li>
+  <li>https://cplusplus.com/reference/mutex/defer_lock/</li>
+  <li>http://www.ccplusplus.com/2013/05/livelock-example.html</li>
+  <li>https://en.wikipedia.org/wiki/Starvation_(computer_science)</li>
+</ol>
+
+
+        </div>
+
+    </div>
+
+    <!-- Header scroll behavior -->
+    <script>
+        const header = document.getElementById("mainHeader");
+        const hoverZone = document.getElementById("hoverZone");
+        let lastScroll = 0;
+
+        window.addEventListener("scroll", () => {
+            const currentScroll = window.pageYOffset;
+
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                header.classList.add("-translate-y-full");
+            } else {
+                header.classList.remove("-translate-y-full");
+            }
+
+            lastScroll = currentScroll;
+        });
+
+        hoverZone.addEventListener("mouseenter", () => {
+            header.classList.remove("-translate-y-full");
+        });
+
+        
+    </script>
+
+    <!-- Theme Toggle -->
+    <button onclick="document.documentElement.classList.toggle('dark')"
+        class="fixed bottom-4 right-4 bg-white text-black p-3 border-4 border-gray-400 rounded-full shadow-lg text-sm font-semibold hover:bg-secondary transition-colors duration-300 dark:bg-gray-800 dark:text-white dark:border-orange-600 dark:hover:bg-secondary">
+        Toggle Theme
+    </button>
+
+</body>
+
+</html>

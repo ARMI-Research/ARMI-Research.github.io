@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sample Research Report - Autonomous Navigation Systems - ARMI Research Laboratory</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- KaTeX for mathematical equations -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+        :root {
+            --primary: #0A1A2F;
+            --secondary: #d46700;
+            --text-dark: #000000;
+            --text-light: #ffffff;
+            --bg-light: #ffffff;
+            --bg-dark: #0d1117;
+            --card-dark: #111827;
+        }
+
+        .dark {
+            color-scheme: dark;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .dark body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+        }
+
+        .card-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--bg-light);
+            border-radius: 2rem;
+            padding: 2.5rem;
+            border: 2px solid var(--primary);
+        }
+
+        .dark .card-container {
+            background-color: var(--card-dark);
+            border-color: var(--secondary);
+        }
+
+        .post-content h2 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+        }
+
+        .dark .post-content h2 {
+            color: var(--text-light);
+        }
+
+        .post-content h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--primary);
+        }
+
+        .dark .post-content h3 {
+            color: var(--text-light);
+        }
+
+        .post-content p {
+            margin-bottom: 1rem;
+            line-height: 1.75;
+        }
+
+        .post-content ul, .post-content ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .post-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .post-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        .post-content table th {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .dark .post-content table th {
+            background-color: var(--secondary);
+        }
+
+        .post-content table td {
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem;
+        }
+
+        .dark .post-content table td {
+            border-color: #374151;
+        }
+
+        .post-content table tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+
+        .dark .post-content table tr:nth-child(even) {
+            background-color: #1f2937;
+        }
+
+        .post-content code {
+            background-color: #f3f4f6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        .dark .post-content code {
+            background-color: #374151;
+        }
+
+        .post-content pre {
+            background-color: #1f2937 !important;
+            color: #f3f4f6 !important;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .post-content pre code {
+            background-color: transparent !important;
+            color: #f3f4f6 !important;
+            padding: 0;
+        }
+
+        .post-content .highlight {
+            background-color: #1f2937 !important;
+        }
+
+        .post-content .highlight pre {
+            background-color: #1f2937 !important;
+        }
+
+        .post-content .highlight code {
+            color: #f3f4f6 !important;
+        }
+
+        .post-content blockquote {
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+            margin: 1rem 0;
+            font-style: italic;
+            color: #6b7280;
+        }
+
+        .dark .post-content blockquote {
+            color: #9ca3af;
+        }
+
+        .post-content hr {
+            border: none;
+            border-top: 2px solid #e5e7eb;
+            margin: 2rem 0;
+        }
+
+        .dark .post-content hr {
+            border-top-color: #374151;
+        }
+
+        .post-content strong {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .dark .post-content strong {
+            color: var(--secondary);
+        }
+
+        .post-content a {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+
+        .post-content a:hover {
+            color: var(--primary);
+        }
+
+        .dark .post-content a:hover {
+            color: var(--text-light);
+        }
+    </style>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0A1A2F',
+                        secondary: '#e97509',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+
+    <div id="hoverZone" class="fixed top-0 left-0 w-full h-6 z-40"></div>
+
+    <header id="mainHeader" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out bg-gradient-to-b from-white to-gray-100 dark:from-gray-900 dark:to-black shadow-md">
+        <div class="relative w-full border-b-4 border-gray-500 dark:border-orange-600">
+            <div class="max-w-7xl mx-auto px-6 py-4 relative flex items-center justify-between">
+                <div class="flex gap-3">
+                    <a href="/lab/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Lab</div>
+                    </a>
+                    <a href="/research/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Research</div>
+                    </a>
+                </div>
+                <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
+                    <img src="/images/logo.png" class="w-16 h-14 object-contain dark:brightness-90">
+                    <a href="/default/">
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-orange-500 hover:text-orange-500 dark:hover:text-orange-400 transition-colors">ARMI Lab</h1>
+                    </a>
+                </div>
+                <div class="text-sm text-gray-700 dark:text-gray-300 leading-tight">
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">A</span>utonomous</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">R</span>obotics</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">M</span>achine</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">I</span>ntelligence</div>
+                    <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">Research Laboratory</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="card-container shadow-2xl lg:p-12 transition duration-500 mt-40">
+
+        <h1 class="text-4xl font-bold mb-4 text-gray-800 dark:text-gray-100">Sample Research Report - Autonomous Navigation Systems</h1>
+
+        <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+            February 16, 2026
+        </div>
+
+        
+        <div class="flex gap-2 mb-6">
+            
+            <a href="/tags/#robotics" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-secondary hover:text-white transition-colors">
+                robotics
+            </a>
+            
+            <a href="/tags/#navigation" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-secondary hover:text-white transition-colors">
+                navigation
+            </a>
+            
+            <a href="/tags/#autonomous-systems" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-secondary hover:text-white transition-colors">
+                autonomous-systems
+            </a>
+            
+            <a href="/tags/#research" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-secondary hover:text-white transition-colors">
+                research
+            </a>
+            
+        </div>
+        
+
+        <hr class="mb-8 border-gray-300 dark:border-gray-700">
+
+        <div style="margin-bottom: 2rem;">
+            <a href="/research/" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #e97509; color: white; text-decoration: none; border-radius: 0.5rem; font-weight: 600; transition: all 0.3s;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Back
+            </a>
+        </div>
+
+        <div class="post-content">
+            <h2 id="abstract">Abstract</h2>
+
+<p>This research investigates advanced autonomous navigation systems for mobile robots operating in dynamic and unstructured environments. The study presents a novel approach combining simultaneous localization and mapping (SLAM) with deep reinforcement learning for improved path planning and obstacle avoidance. Experimental results demonstrate significant improvements in navigation efficiency and safety compared to traditional methods.</p>
+
+<p><strong>Keywords:</strong> Autonomous Navigation, SLAM, Reinforcement Learning, Mobile Robotics, Path Planning</p>
+
+<hr />
+
+<h2 id="1-introduction">1. Introduction</h2>
+
+<h3 id="11-background">1.1 Background</h3>
+
+<p>Autonomous navigation represents a fundamental challenge in mobile robotics, requiring robots to perceive their environment, localize themselves, and plan safe and efficient paths to their destinations. Recent advances in sensor technology and machine learning have opened new possibilities for addressing these challenges.</p>
+
+<h3 id="12-problem-statement">1.2 Problem Statement</h3>
+
+<p>Traditional navigation systems often struggle in dynamic environments with moving obstacles and changing conditions. This research addresses the need for more adaptive and robust navigation systems.</p>
+
+<h3 id="13-research-objectives">1.3 Research Objectives</h3>
+
+<p>The primary objectives of this research are:</p>
+<ul>
+  <li>Develop an integrated navigation framework combining SLAM and reinforcement learning</li>
+  <li>Evaluate performance in various dynamic scenarios</li>
+  <li>Compare results with existing state-of-the-art methods</li>
+</ul>
+
+<h3 id="14-significance">1.4 Significance</h3>
+
+<p>This research contributes to the field by providing:</p>
+<ul>
+  <li>A novel integration approach for SLAM and RL</li>
+  <li>Empirical validation in real-world scenarios</li>
+  <li>Open-source implementation for the research community</li>
+</ul>
+
+<hr />
+
+<h2 id="2-literature-review">2. Literature Review</h2>
+
+<h3 id="21-traditional-navigation-approaches">2.1 Traditional Navigation Approaches</h3>
+
+<p>Classical navigation methods rely on geometric approaches and sampling-based planners such as:</p>
+<ul>
+  <li>A* and Dijkstra algorithms</li>
+  <li>Rapidly-exploring Random Trees (RRT)</li>
+  <li>Dynamic Window Approach (DWA)</li>
+</ul>
+
+<h3 id="22-slam-techniques">2.2 SLAM Techniques</h3>
+
+<p>Various SLAM approaches have been developed:</p>
+<ul>
+  <li><strong>Visual SLAM:</strong> Camera-based localization and mapping</li>
+  <li><strong>LiDAR SLAM:</strong> Laser scanner-based approaches</li>
+  <li><strong>Sensor Fusion:</strong> Combining multiple sensor modalities</li>
+</ul>
+
+<h3 id="23-learning-based-navigation">2.3 Learning-Based Navigation</h3>
+
+<p>Recent advances in deep learning have enabled:</p>
+<ul>
+  <li>End-to-end learning from sensor data</li>
+  <li>Reinforcement learning for path planning</li>
+  <li>Imitation learning from expert demonstrations</li>
+</ul>
+
+<h3 id="24-research-gap">2.4 Research Gap</h3>
+
+<p>Despite significant progress, current methods lack:</p>
+<ul>
+  <li>Real-time adaptability to dynamic obstacles</li>
+  <li>Efficient integration of perception and planning</li>
+  <li>Generalization across different environments</li>
+</ul>
+
+<hr />
+
+<h2 id="3-methodology">3. Methodology</h2>
+
+<h3 id="31-system-architecture">3.1 System Architecture</h3>
+
+<p>The proposed system consists of three main components:</p>
+<ol>
+  <li><strong>Perception Module:</strong> Sensor fusion and environment representation</li>
+  <li><strong>Localization Module:</strong> Real-time SLAM implementation</li>
+  <li><strong>Planning Module:</strong> RL-based path planning</li>
+</ol>
+
+<h3 id="32-slam-implementation">3.2 SLAM Implementation</h3>
+
+<p>We implement a graph-based SLAM system using:</p>
+<ul>
+  <li>LiDAR for 2D mapping</li>
+  <li>Visual odometry for motion estimation</li>
+  <li>Loop closure detection for map consistency</li>
+</ul>
+
+<p>Mathematical formulation:</p>
+
+<span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi mathvariant="bold">x</mi><mi>t</mi></msub><mo>=</mo><mi>f</mi><mo stretchy="false">(</mo><msub><mi mathvariant="bold">x</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo separator="true">,</mo><msub><mi mathvariant="bold">u</mi><mi>t</mi></msub><mo separator="true">,</mo><msub><mi mathvariant="bold">w</mi><mi>t</mi></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\mathbf{x}_{t} = f(\mathbf{x}_{t-1}, \mathbf{u}_t, \mathbf{w}_t)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.5944em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathbf">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mopen">(</span><span class="mord"><span class="mord mathbf">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">t</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2083em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathbf">u</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathbf" style="margin-right:0.01597em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:-0.016em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span>
+
+<span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi mathvariant="bold">z</mi><mi>t</mi></msub><mo>=</mo><mi>h</mi><mo stretchy="false">(</mo><msub><mi mathvariant="bold">x</mi><mi>t</mi></msub><mo separator="true">,</mo><mi mathvariant="bold">m</mi><mo separator="true">,</mo><msub><mi mathvariant="bold">v</mi><mi>t</mi></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\mathbf{z}_t = h(\mathbf{x}_t, \mathbf{m}, \mathbf{v}_t)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.5944em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathbf">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">h</span><span class="mopen">(</span><span class="mord"><span class="mord mathbf">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathbf">m</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathbf" style="margin-right:0.01597em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:-0.016em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span>
+
+<p>Where:</p>
+<ul>
+  <li>$\mathbf{x}_t$ represents the robot pose at time $t$</li>
+  <li>$\mathbf{u}_t$ is the control input</li>
+  <li>$\mathbf{z}_t$ is the sensor measurement</li>
+  <li>$\mathbf{m}$ is the map</li>
+</ul>
+
+<h3 id="33-reinforcement-learning-framework">3.3 Reinforcement Learning Framework</h3>
+
+<p>The navigation problem is formulated as a Markov Decision Process (MDP):</p>
+<ul>
+  <li><strong>State Space:</strong> Robot pose, velocity, and local occupancy grid</li>
+  <li><strong>Action Space:</strong> Linear and angular velocity commands</li>
+  <li><strong>Reward Function:</strong> Goal-reaching bonus minus distance traveled and collision penalties</li>
+</ul>
+
+<h3 id="34-training-procedure">3.4 Training Procedure</h3>
+
+<p>The RL agent is trained using:</p>
+<ul>
+  <li>Algorithm: Proximal Policy Optimization (PPO)</li>
+  <li>Simulation environment: Gazebo with ROS</li>
+  <li>Training episodes: 10,000</li>
+  <li>Hardware: NVIDIA RTX 4090 GPU</li>
+</ul>
+
+<h3 id="35-experimental-setup">3.5 Experimental Setup</h3>
+
+<p><strong>Hardware Platform:</strong></p>
+<ul>
+  <li>Mobile robot: TurtleBot 3 Waffle</li>
+  <li>LiDAR: RPLIDAR A2</li>
+  <li>Camera: Intel RealSense D435</li>
+  <li>Computing: NVIDIA Jetson Xavier NX</li>
+</ul>
+
+<p><strong>Testing Environments:</strong></p>
+<ol>
+  <li>Laboratory setting with static obstacles</li>
+  <li>Crowded corridor with pedestrians</li>
+  <li>Outdoor campus environment</li>
+</ol>
+
+<hr />
+
+<h2 id="4-results">4. Results</h2>
+
+<h3 id="41-navigation-performance">4.1 Navigation Performance</h3>
+
+<p>Performance metrics across different environments:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Environment</th>
+      <th>Success Rate</th>
+      <th>Avg. Time (s)</th>
+      <th>Path Length (m)</th>
+      <th>Collision Rate</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Lab</td>
+      <td>98.5%</td>
+      <td>45.2</td>
+      <td>12.4</td>
+      <td>1.5%</td>
+    </tr>
+    <tr>
+      <td>Corridor</td>
+      <td>94.3%</td>
+      <td>78.6</td>
+      <td>18.7</td>
+      <td>5.7%</td>
+    </tr>
+    <tr>
+      <td>Outdoor</td>
+      <td>91.8%</td>
+      <td>92.4</td>
+      <td>24.3</td>
+      <td>8.2%</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="42-comparison-with-baseline-methods">4.2 Comparison with Baseline Methods</h3>
+
+<p>Our approach shows improvement over traditional methods:</p>
+<ul>
+  <li><strong>vs. DWA:</strong> 15% faster, 20% shorter paths</li>
+  <li><strong>vs. RRT*:</strong> 25% higher success rate in dynamic environments</li>
+  <li><strong>vs. Pure RL:</strong> 30% better sample efficiency during training</li>
+</ul>
+
+<h3 id="43-ablation-study">4.3 Ablation Study</h3>
+
+<p>Component contribution analysis:</p>
+<ul>
+  <li>SLAM only: 85% success rate</li>
+  <li>RL only: 88% success rate</li>
+  <li><strong>Integrated approach: 94.9% success rate</strong></li>
+</ul>
+
+<h3 id="44-real-time-performance">4.4 Real-time Performance</h3>
+
+<ul>
+  <li>Average computation time: 12ms per planning cycle</li>
+  <li>Map update frequency: 10 Hz</li>
+  <li>Control frequency: 20 Hz</li>
+</ul>
+
+<hr />
+
+<h2 id="5-discussion">5. Discussion</h2>
+
+<h3 id="51-key-findings">5.1 Key Findings</h3>
+
+<p>The integration of SLAM and reinforcement learning provides:</p>
+<ol>
+  <li><strong>Robust localization</strong> in GPS-denied environments</li>
+  <li><strong>Adaptive behavior</strong> in response to dynamic obstacles</li>
+  <li><strong>Scalable performance</strong> across different environment complexities</li>
+</ol>
+
+<h3 id="52-advantages">5.2 Advantages</h3>
+
+<ul>
+  <li>Real-time performance on embedded hardware</li>
+  <li>No need for predefined maps</li>
+  <li>Continuous learning and adaptation</li>
+</ul>
+
+<h3 id="53-limitations">5.3 Limitations</h3>
+
+<p>Several limitations were identified:</p>
+<ul>
+  <li>Performance degradation in highly crowded spaces</li>
+  <li>Computational requirements for large-scale environments</li>
+  <li>Dependency on sensor quality and calibration</li>
+</ul>
+
+<h3 id="54-practical-applications">5.4 Practical Applications</h3>
+
+<p>This research has applications in:</p>
+<ul>
+  <li>Autonomous delivery robots</li>
+  <li>Industrial warehouse automation</li>
+  <li>Service robots in public spaces</li>
+  <li>Search and rescue operations</li>
+</ul>
+
+<hr />
+
+<h2 id="6-conclusion">6. Conclusion</h2>
+
+<h3 id="61-summary">6.1 Summary</h3>
+
+<p>This research successfully demonstrates the integration of SLAM and reinforcement learning for autonomous navigation. The proposed system achieves high success rates across diverse environments while maintaining real-time performance.</p>
+
+<h3 id="62-contributions">6.2 Contributions</h3>
+
+<p>Main contributions include:</p>
+<ol>
+  <li>Novel integration framework for SLAM and RL</li>
+  <li>Comprehensive evaluation in realistic scenarios</li>
+  <li>Open-source implementation for reproducibility</li>
+</ol>
+
+<h3 id="63-future-work">6.3 Future Work</h3>
+
+<p>Future research directions include:</p>
+<ul>
+  <li>Extension to 3D environments</li>
+  <li>Multi-robot coordination</li>
+  <li>Transfer learning across different robot platforms</li>
+  <li>Integration with semantic understanding</li>
+</ul>
+
+<hr />
+
+<h2 id="7-references">7. References</h2>
+
+<ol>
+  <li>
+    <p>Smith, J. et al. (2024). “Advanced SLAM Techniques for Mobile Robotics.” <em>IEEE Transactions on Robotics</em>, 40(2), 234-248.</p>
+  </li>
+  <li>
+    <p>Johnson, A. &amp; Lee, B. (2023). “Deep Reinforcement Learning for Navigation.” <em>Journal of Autonomous Systems</em>, 15(4), 567-582.</p>
+  </li>
+  <li>
+    <p>Chen, Y. et al. (2025). “Sensor Fusion in Dynamic Environments.” <em>Robotics and Autonomous Systems</em>, 128, 103-118.</p>
+  </li>
+  <li>
+    <p>Williams, R. (2024). “Path Planning Algorithms: A Comprehensive Review.” <em>Annual Review of Robotics</em>, 12, 45-78.</p>
+  </li>
+  <li>
+    <p>Anderson, K. et al. (2023). “Real-time SLAM on Embedded Systems.” <em>International Conference on Robotics and Automation (ICRA)</em>, pp. 1234-1241.</p>
+  </li>
+</ol>
+
+<hr />
+
+<h2 id="appendix-a-implementation-details">Appendix A: Implementation Details</h2>
+
+<h3 id="code-repository">Code Repository</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://github.com/armi-lab/autonomous-navigation
+</code></pre></div></div>
+
+<h3 id="dependencies">Dependencies</h3>
+<ul>
+  <li>ROS Noetic</li>
+  <li>Python 3.8+</li>
+  <li>PyTorch 1.12+</li>
+  <li>OpenCV 4.5+</li>
+</ul>
+
+<h3 id="hardware-requirements">Hardware Requirements</h3>
+<ul>
+  <li>Minimum: 8GB RAM, 4-core CPU</li>
+  <li>Recommended: 16GB RAM, NVIDIA GPU with 6GB+ VRAM</li>
+</ul>
+
+<hr />
+
+<h2 id="acknowledgments">Acknowledgments</h2>
+
+<p>This research was supported by the ARMI Laboratory at Vietnamese German University. We thank the research team members for their valuable contributions and feedback.</p>
+
+<hr />
+
+<div style="margin-top: 3rem; padding: 1.5rem; background-color: #f3f4f6; border-left: 4px solid #e97509; border-radius: 0.5rem;">
+    <strong style="color: #e97509;">Citation:</strong>
+    <p style="margin-top: 0.5rem; font-family: monospace; font-size: 0.9rem;">
+    Author, A. (2026). Sample Research Report - Autonomous Navigation Systems. <em>ARMI Research Laboratory</em>. Retrieved from https://armi-lab.github.io/research/
+    </p>
+</div>
+
+        </div>
+
+    </div>
+
+    <!-- Header scroll behavior -->
+    <script>
+        const header = document.getElementById("mainHeader");
+        const hoverZone = document.getElementById("hoverZone");
+        let lastScroll = 0;
+
+        window.addEventListener("scroll", () => {
+            const currentScroll = window.pageYOffset;
+
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                header.classList.add("-translate-y-full");
+            } else {
+                header.classList.remove("-translate-y-full");
+            }
+
+            lastScroll = currentScroll;
+        });
+
+        hoverZone.addEventListener("mouseenter", () => {
+            header.classList.remove("-translate-y-full");
+        });
+
+        
+        // Render KaTeX
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\[", right: "\\]", display: true},
+                    {left: "\\(", right: "\\)", display: false}
+                ]
+            });
+        });
+        
+    </script>
+
+    <!-- Theme Toggle -->
+    <button onclick="document.documentElement.classList.toggle('dark')"
+        class="fixed bottom-4 right-4 bg-white text-black p-3 border-4 border-gray-400 rounded-full shadow-lg text-sm font-semibold hover:bg-secondary transition-colors duration-300 dark:bg-gray-800 dark:text-white dark:border-orange-600 dark:hover:bg-secondary">
+        Toggle Theme
+    </button>
+
+</body>
+
+</html>

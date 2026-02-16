@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>(Multithreading C++) 4. Mutex and Multiple Threads working with Share data (Part 1) - ARMI Research Laboratory</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+        :root {
+            --primary: #0A1A2F;
+            --secondary: #d46700;
+            --text-dark: #000000;
+            --text-light: #ffffff;
+            --bg-light: #ffffff;
+            --bg-dark: #0d1117;
+            --card-dark: #111827;
+        }
+
+        .dark {
+            color-scheme: dark;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .dark body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+        }
+
+        .card-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--bg-light);
+            border-radius: 2rem;
+            padding: 2.5rem;
+            border: 2px solid var(--primary);
+        }
+
+        .dark .card-container {
+            background-color: var(--card-dark);
+            border-color: var(--secondary);
+        }
+
+        .post-content h2 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+        }
+
+        .dark .post-content h2 {
+            color: var(--text-light);
+        }
+
+        .post-content h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--primary);
+        }
+
+        .dark .post-content h3 {
+            color: var(--text-light);
+        }
+
+        .post-content p {
+            margin-bottom: 1rem;
+            line-height: 1.75;
+        }
+
+        .post-content ul, .post-content ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .post-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .post-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        .post-content table th {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .dark .post-content table th {
+            background-color: var(--secondary);
+        }
+
+        .post-content table td {
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem;
+        }
+
+        .dark .post-content table td {
+            border-color: #374151;
+        }
+
+        .post-content table tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+
+        .dark .post-content table tr:nth-child(even) {
+            background-color: #1f2937;
+        }
+
+        .post-content code {
+            background-color: #f3f4f6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        .dark .post-content code {
+            background-color: #374151;
+        }
+
+        .post-content pre {
+            background-color: #1f2937 !important;
+            color: #f3f4f6 !important;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .post-content pre code {
+            background-color: transparent !important;
+            color: #f3f4f6 !important;
+            padding: 0;
+        }
+
+        .post-content .highlight {
+            background-color: #1f2937 !important;
+        }
+
+        .post-content .highlight pre {
+            background-color: #1f2937 !important;
+        }
+
+        .post-content .highlight code {
+            color: #f3f4f6 !important;
+        }
+
+        .post-content blockquote {
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+            margin: 1rem 0;
+            font-style: italic;
+            color: #6b7280;
+        }
+
+        .dark .post-content blockquote {
+            color: #9ca3af;
+        }
+
+        .post-content hr {
+            border: none;
+            border-top: 2px solid #e5e7eb;
+            margin: 2rem 0;
+        }
+
+        .dark .post-content hr {
+            border-top-color: #374151;
+        }
+
+        .post-content strong {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .dark .post-content strong {
+            color: var(--secondary);
+        }
+
+        .post-content a {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+
+        .post-content a:hover {
+            color: var(--primary);
+        }
+
+        .dark .post-content a:hover {
+            color: var(--text-light);
+        }
+    </style>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0A1A2F',
+                        secondary: '#e97509',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+
+    <div id="hoverZone" class="fixed top-0 left-0 w-full h-6 z-40"></div>
+
+    <header id="mainHeader" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out bg-gradient-to-b from-white to-gray-100 dark:from-gray-900 dark:to-black shadow-md">
+        <div class="relative w-full border-b-4 border-gray-500 dark:border-orange-600">
+            <div class="max-w-7xl mx-auto px-6 py-4 relative flex items-center justify-between">
+                <div class="flex gap-3">
+                    <a href="/lab/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Lab</div>
+                    </a>
+                    <a href="/research/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Research</div>
+                    </a>
+                </div>
+                <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
+                    <img src="/images/logo.png" class="w-16 h-14 object-contain dark:brightness-90">
+                    <a href="/default/">
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-orange-500 hover:text-orange-500 dark:hover:text-orange-400 transition-colors">ARMI Lab</h1>
+                    </a>
+                </div>
+                <div class="text-sm text-gray-700 dark:text-gray-300 leading-tight">
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">A</span>utonomous</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">R</span>obotics</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">M</span>achine</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">I</span>ntelligence</div>
+                    <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">Research Laboratory</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="card-container shadow-2xl lg:p-12 transition duration-500 mt-40">
+
+        <h1 class="text-4xl font-bold mb-4 text-gray-800 dark:text-gray-100">(Multithreading C++) 4. Mutex and Multiple Threads working with Share data (Part 1)</h1>
+
+        <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+            January 04, 2023
+        </div>
+
+        
+        <div class="flex gap-2 mb-6">
+            
+            <a href="/tags/#Multithreading C++" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-secondary hover:text-white transition-colors">
+                Multithreading C++
+            </a>
+            
+        </div>
+        
+
+        <hr class="mb-8 border-gray-300 dark:border-gray-700">
+
+        <div style="margin-bottom: 2rem;">
+            <a href="/research/" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #e97509; color: white; text-decoration: none; border-radius: 0.5rem; font-weight: 600; transition: all 0.3s;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Back
+            </a>
+        </div>
+
+        <div class="post-content">
+            <h1 id="i-critical-section">I. Critical section</h1>
+<p>In C++, a critical section is a segment of code that is executed by multiple concurrent threads or processes and which accesses shared resources. A critical section can be any section of code where shared resources are accessed, and it typically consists of two parts: the entry section and the exit section.  The entry section is where a process requests access to the critical section, and the exit section is where it releases the resources and exits the critical section.</p>
+
+<p>To prevent data races in C++, critical sections can be protected using synchronization mechanisms such as mutexes, locks, and thread-safe data structures.</p>
+
+<ul>
+  <li>
+    <p><strong>Mutexes</strong> can be used to protect any shared resource, including variables, data structures, and I/O streams.</p>
+  </li>
+  <li>
+    <p><strong>Locks</strong> are synchronization objects that can be used to protect shared resources from being accessed simultaneously by multiple threads.</p>
+  </li>
+  <li>
+    <p><strong>Thread-safe data</strong> structures are data structures that are designed to be accessed by multiple threads simultaneously without causing data races</p>
+  </li>
+</ul>
+
+<h1 id="ii-mutex-mutual-exclusion-">II. Mutex (MUTual EXclusion )</h1>
+<p>A mutex is a synchronization primitive that can be used to protect shared data from being simultaneously accessed by multiple threads. A mutex is a lockable object that is designed to signal when critical sections of code need exclusive access, preventing other threads with the same access from modifying the shared data. In C++, a mutex is implemented as a class, <code class="language-plaintext highlighter-rouge">std::mutex</code>, which provides two member functions: <code class="language-plaintext highlighter-rouge">lock()</code> and <code class="language-plaintext highlighter-rouge">unlock()</code>.</p>
+
+<ul>
+  <li>
+    <p>When a thread locks a mutex, no other thread can access the shared data until the mutex is unlocked. If a thread tries to lock a mutex that is already locked by another thread, the thread will block until the mutex is unlocked.</p>
+  </li>
+  <li>
+    <p>Mutexes can be used to protect shared resources from simultaneous access by multiple threads or processes. Mutexes are used to prevent data races and ensure that only one thread can access the shared data at a time. Mutexes can be expensive to use, and it is essential to use them judiciously to avoid performance degradation.</p>
+  </li>
+  <li>
+    <p>A thread locks the mutex when it enters the critical section.</p>
+  </li>
+  <li>
+    <p>A thread unlocks the mutex when it leaves the critical section.</p>
+  </li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Thread Synchroniztion with Mutex
+- Thread A locks the mutex
+- Thread A enters the critical section
+- Thread B, C,.. wait until they can lock the mutex
+- Thread A leaves the critical section
+- Thread A unlock the mutex
+- One of threads B,C,.. can now lock the mutex and enter the critical section.
+</code></pre></div></div>
+<h2 id="stdmutex-class">std::mutex Class</h2>
+<p>The <code class="language-plaintext highlighter-rouge">std::mutex</code>class is a synchronization primitive in C++ that can be used to protect shared data from being simultaneously accessed by multiple threads. The class provides member functions, <code class="language-plaintext highlighter-rouge">lock()</code>, <code class="language-plaintext highlighter-rouge">try_lock()</code> and <code class="language-plaintext highlighter-rouge">unlock()</code>, which can be used to lock, tries to lock the mutex -&gt; returns immediately if not successful and unlock the mutex, respectively.</p>
+
+<h2 id="example-of-multiple-threads-with-mutex-in-c">Example of multiple threads with mutex in C++</h2>
+
+<p><strong><em>Example <code class="language-plaintext highlighter-rouge">unscramble.cpp</code> bellow:</em></strong></p>
+
+<p class="filename">unscramble.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Use a mutex to avoid scrambled output</span>
+<span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;mutex&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string&gt;</span><span class="cp">
+</span>
+<span class="c1">// Global mutex object</span>
+<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">task_mutex</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">task</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">str</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+		<span class="c1">// Lock the mutex before the critical section</span>
+		<span class="n">task_mutex</span><span class="p">.</span><span class="n">lock</span><span class="p">();</span>
+
+		<span class="c1">// Start of critical section</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">str</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">str</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">str</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+		<span class="c1">// End of critical section</span>
+
+		<span class="c1">// Unlock the mutex after the critical section</span>
+		<span class="n">task_mutex</span><span class="p">.</span><span class="n">unlock</span><span class="p">();</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr1</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="s">"abc"</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr2</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="s">"def"</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr3</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="s">"xyz"</span><span class="p">);</span>
+
+	<span class="n">thr1</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+	<span class="n">thr2</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+	<span class="n">thr3</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p class="filename">Output</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>abc
+abc
+abc
+abc
+abc
+def
+def
+def
+def
+def
+xyz
+xyz
+xyz
+xyz
+xyz
+</code></pre></div></div>
+<!-- use case:
+include image.html url="/images/my-cat.jpg" description="My cat, Robert Downey Jr." width = "50%" hide="true"
+-->
+<!-- hide is used to hide content from mainbody but show up in the gallery. Exclude if not using -->
+
+<figure class="image">
+  <img src="/assets/2023-1-1-Multithreading-C++/mutex.png" alt="Mutex example from James" style="width: 80%;" />
+  <figcaption class="caption">Mutex example from James</figcaption>
+</figure>
+
+<h2 id="stdmutextrylock">std::mutex::trylock()</h2>
+
+<p>The <code class="language-plaintext highlighter-rouge">std::mutex::try_lock()</code> function is a member function of the std::mutex class in C++ that attempts to lock the mutex without blocking. The function returns immediately and tries to acquire the lock. If the lock is acquired successfully, the function returns true, and if the lock is not acquired, the function returns false. The <code class="language-plaintext highlighter-rouge">std::mutex::try_lock()</code> function can be used to avoid blocking when acquiring a lock on a mutex.</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Keep trying to get the lock</span>
+<span class="k">while</span><span class="p">(</span><span class="o">!</span><span class="n">the_mutex</span><span class="p">.</span><span class="n">try_lock</span><span class="p">()){</span>
+	<span class="c1">// Could not lock the mutex</span>
+	<span class="c1">// Try again later</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">100ms</span><span class="p">);</span>
+<span class="p">}</span>
+	<span class="c1">// Finally locked the mutex</span>
+	<span class="c1">// Can now execute in the critical section</span>
+</code></pre></div></div>
+
+<p><strong><em>Example try_lock() the mutex<code class="language-plaintext highlighter-rouge">try_lock_mutex.cpp</code> bellow:</em></strong></p>
+
+<p class="filename">try_lock_mutex.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Example of calling try_lock() in a loop until the mutex is locked</span>
+<span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;mutex&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;chrono&gt;</span><span class="cp">
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">the_mutex</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">task1</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Task1 trying to lock the mutex"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+	<span class="n">the_mutex</span><span class="p">.</span><span class="n">lock</span><span class="p">();</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Task1 has locked the mutex"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">500ms</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Task1 unlocking the mutex"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+	<span class="n">the_mutex</span><span class="p">.</span><span class="n">unlock</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">task2</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">100ms</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Task2 trying to lock the mutex"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+	<span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">the_mutex</span><span class="p">.</span><span class="n">try_lock</span><span class="p">())</span> <span class="p">{</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Task2 could not lock the mutex"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">100ms</span><span class="p">);</span>
+	<span class="p">}</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Task2 has locked the mutex"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+	<span class="n">the_mutex</span><span class="p">.</span><span class="n">unlock</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr1</span><span class="p">(</span><span class="n">task1</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr2</span><span class="p">(</span><span class="n">task2</span><span class="p">);</span>
+	
+	<span class="n">thr1</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+	<span class="n">thr2</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p class="filename">Output</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Task1 trying to lock the mutex
+Task1 has locked the mutex
+Task2 trying to lock the mutex
+Task2 could not lock the mutex
+Task2 could not lock the mutex
+Task2 could not lock the mutex
+Task2 could not lock the mutex
+Task1 unlocking the mutex
+Task2 has locked the mutex
+</code></pre></div></div>
+
+<h1 id="iii-internally-synchronized-class">III. Internally Synchronized Class</h1>
+<p>When multiple threads access the same memory location concurrently, and at least one of them modifies that memory location, we need to synchronize these accesses to prevent a data race.</p>
+
+<ul>
+  <li>
+    <p>The containers in the C++ standard library need to be synchronized and we can lock a mutex before calling any of the member functions on a shared C++ library container to prevent a data race.</p>
+  </li>
+  <li>
+    <p>We can also write classes that provide their synchronization, where the class takes the responsibility for preventing the data race. One way to do that is to have a mutex as a data member, and the member functions of this class will lock the mutex before they access any of the class’s internal data and then unlock it afterward.</p>
+  </li>
+</ul>
+
+<h3 id="wrapper-for-stdvector">Wrapper for std::vector</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>+ std::vector acts as a memory location
+- We may need to lock a mutex before calling its member function
++ Alternatively, we could write an internally synchronized wrapper for it.
++ A class which
+	- Has an std::vector data member
+	- Has an std::mutex data member
+	- Member functions which lock the mutex before accessing the std::vector
+	- Then unlock the mutex after accessing it
++ An internally synchronized class
+</code></pre></div></div>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//Very simplistic thread-safe vector class</span>
+<span class="k">class</span> <span class="nc">Vector</span><span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">mut</span><span class="p">;</span>			<span class="c1">// Mutex as private class data member</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">vec</span><span class="p">;</span>	<span class="c1">// Shared data -mutex protects access to it</span>
+	<span class="nl">public:</span>
+		<span class="kt">void</span> <span class="n">push_back</span><span class="p">(</span><span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span> <span class="n">i</span><span class="p">){</span>
+			<span class="n">mut</span><span class="p">.</span><span class="n">lock</span><span class="p">();</span> 		<span class="c1">//Lock the mutex</span>
+			<span class="n">vec</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>	<span class="c1">//Critical section</span>
+			<span class="n">mut</span><span class="p">.</span><span class="n">unlock</span><span class="p">();</span>		<span class="c1">//Unlock the mutex</span>
+		<span class="p">}</span>
+	<span class="p">};</span>
+</code></pre></div></div>
+
+<p><strong><em>Example A class which is internally without mutex bellow:</em></strong></p>
+
+<p class="filename">without_mutex.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// A class which is internally synchronized</span>
+<span class="c1">// The member functions lock a mutex before they access a data member</span>
+<span class="cp">#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;mutex&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;vector&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;chrono&gt;</span><span class="cp">
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">Vector</span> <span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">mut</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">vec</span><span class="p">;</span>
+<span class="nl">public:</span>
+	<span class="kt">void</span> <span class="n">push_back</span><span class="p">(</span><span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span> <span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="c1">//mut.lock();</span>
+
+		<span class="c1">// Start of critical section</span>
+		<span class="n">vec</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+
+		<span class="c1">// End of critical section</span>
+		<span class="c1">//mut.unlock();</span>
+	<span class="p">}</span>
+
+	<span class="kt">void</span> <span class="nf">print</span><span class="p">()</span> <span class="p">{</span>
+		<span class="c1">//mut.lock();</span>
+
+		<span class="c1">// Start of critical section</span>
+		<span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="n">i</span> <span class="o">:</span> <span class="n">vec</span><span class="p">)</span> <span class="p">{</span>
+			<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="s">", "</span><span class="p">;</span>
+		<span class="p">}</span>
+
+		<span class="c1">// End of critical section</span>
+		<span class="c1">//mut.unlock();</span>
+	<span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">void</span> <span class="nf">func</span><span class="p">(</span><span class="n">Vector</span><span class="o">&amp;</span> <span class="n">vec</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">vec</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">50ms</span><span class="p">);</span>
+		<span class="n">vec</span><span class="p">.</span><span class="n">print</span><span class="p">();</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">Vector</span> <span class="n">vec</span><span class="p">;</span>
+
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr1</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">ref</span><span class="p">(</span><span class="n">vec</span><span class="p">));</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr2</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">ref</span><span class="p">(</span><span class="n">vec</span><span class="p">));</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr3</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">ref</span><span class="p">(</span><span class="n">vec</span><span class="p">));</span>
+
+	<span class="n">thr1</span><span class="p">.</span><span class="n">join</span><span class="p">();</span> <span class="n">thr2</span><span class="p">.</span><span class="n">join</span><span class="p">();</span> <span class="n">thr3</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p class="filename">Scramble Ouput</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>0, 0, 
+end print section
+0, 0, 
+0, 0, 1, 
+end print section
+end print section
+start print section
+0, 0, 1, 1, 1, 
+end print section
+start print section
+0, 0, 1, 1, 1, 2, 
+end print section
+start print section
+0, 0, 1, 1, 1, 2, 2, 
+end print section
+start print section
+0start print section, 
+0, 0, 1, 1, 1, 2, 2, 2, 
+0, end print section
+1, 1, 1, 2, 2, 2, 
+end print section
+start print section
+0, 0, 1073744080, 32544, 1, 2, 2, 2, 3, 
+end print section
+start print section
+0, 0, 1073744080, 32544, 1, 2, 2, 2, 3, 3, 
+end print section
+start print section
+0, 0, 1073744080, 32544, 1, 2, 2, 2, 3, 3, 4, 
+end print section
+start print section
+0, 0, 1073744080, 32544, 1, 2, 2, 2, 3, 3, 4, 4, 
+end print section
+start print section
+0, 0, 1073744080, 32544, 1, 2, 2, 2, 3, 3, 4, 4, 4, 
+end print section
+start print section
+start print section0, 0, 1073744080, 32544, 1, 2, 2, 2, 3, 3, 4, 4, 4, 
+end print section
+0, 0, 1073744080, 32544, 1, 2, 2, 2, 3, 3, 4, 4, 4, 
+end print section
+</code></pre></div></div>
+
+<p><strong>Example A class which is internally synchronize bellow:</strong></p>
+
+<p class="filename">internal_sync_class.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// A class which is internally synchronized</span>
+<span class="c1">// The member functions lock a mutex before they access a data member</span>
+<span class="cp">#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;mutex&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;vector&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;chrono&gt;</span><span class="cp">
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">Vector</span> <span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">mut</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">vec</span><span class="p">;</span>
+<span class="nl">public:</span>
+	<span class="kt">void</span> <span class="n">push_back</span><span class="p">(</span><span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span> <span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">mut</span><span class="p">.</span><span class="n">lock</span><span class="p">();</span>
+
+		<span class="c1">// Start of critical section</span>
+		<span class="n">vec</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+
+		<span class="c1">// End of critical section</span>
+		<span class="n">mut</span><span class="p">.</span><span class="n">unlock</span><span class="p">();</span>
+	<span class="p">}</span>
+
+	<span class="kt">void</span> <span class="nf">print</span><span class="p">()</span> <span class="p">{</span>
+		<span class="n">mut</span><span class="p">.</span><span class="n">lock</span><span class="p">();</span>
+
+		<span class="c1">// Start of critical section</span>
+		<span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="n">i</span> <span class="o">:</span> <span class="n">vec</span><span class="p">)</span> <span class="p">{</span>
+			<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="s">", "</span><span class="p">;</span>
+		<span class="p">}</span>
+
+		<span class="c1">// End of critical section</span>
+		<span class="n">mut</span><span class="p">.</span><span class="n">unlock</span><span class="p">();</span>
+	<span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">void</span> <span class="nf">func</span><span class="p">(</span><span class="n">Vector</span><span class="o">&amp;</span> <span class="n">vec</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">vec</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">50ms</span><span class="p">);</span>
+		<span class="n">vec</span><span class="p">.</span><span class="n">print</span><span class="p">();</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">Vector</span> <span class="n">vec</span><span class="p">;</span>
+
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr1</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">ref</span><span class="p">(</span><span class="n">vec</span><span class="p">));</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr2</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">ref</span><span class="p">(</span><span class="n">vec</span><span class="p">));</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr3</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">ref</span><span class="p">(</span><span class="n">vec</span><span class="p">));</span>
+
+	<span class="n">thr1</span><span class="p">.</span><span class="n">join</span><span class="p">();</span> <span class="n">thr2</span><span class="p">.</span><span class="n">join</span><span class="p">();</span> <span class="n">thr3</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p class="filename">Stable Ouput</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>start print section
+0, 0, 0, 
+end print section
+start print section
+0, 0, 0, 
+end print section
+start print section
+0, 0, 0, 1, 1, 
+end print section
+start print section
+0, 0, 0, 1, 1, 1, 
+end print section
+start print section
+0, 0, 0, 1, 1, 1, 
+end print section
+start print section
+0, 0, 0, 1, 1, 1, 2, 
+end print section
+start print section
+0, 0, 0, 1, 1, 1, 2, 2, 2, 
+end print section
+start print section
+0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 
+end print section
+start print section
+0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 
+end print section
+start print section
+0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 
+end print section
+start print section
+0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 
+end print section
+start print section
+0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 
+end print section
+start print section
+0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 
+end print section
+start print section
+0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 
+end print section
+start print section
+0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 
+end print section
+</code></pre></div></div>
+<h1 id="iv-lock-guard">IV. Lock guard</h1>
+<h2 id="mutex-problem-with-the-exception-is-thrown">Mutex problem with the exception is thrown</h2>
+<p>To protect a critical section, we can use a mutex or a lock. We lock the mutex before entering the critical section and unlock it afterwards. However, if an exception is thrown while the thread is in the critical section, the code will jump out of the try block into the catch block, and the code that follows will not be executed. This means that the unlock function is <strong>NEVER</strong> called, and the mutex is left in a locked state.</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">try</span><span class="p">{</span>
+	<span class="n">task_mutex</span><span class="p">.</span><span class="n">lock</span><span class="p">();</span> <span class="c1">//Lock the mutex before the critical section</span>
+	<span class="c1">//Critical section thrown an exception</span>
+
+	<span class="n">task_mutex</span><span class="p">.</span><span class="n">unlock</span><span class="p">();</span> <span class="c1">// NEVER get called</span>
+<span class="p">}</span>
+<span class="k">catch</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">exeption</span><span class="o">&amp;</span><span class="n">e</span> <span class="p">){</span>
+ <span class="p">....</span>
+<span class="p">}</span>
+<span class="c1">// -&gt; MUTEX will be left locked state -&gt; Error: device or resource busy</span>
+</code></pre></div></div>
+<p>So, when the exception is thrown, we have the stack unwinding process:</p>
+
+<ul>
+  <li>
+    <p>The destructors are called, for all objects in scope.</p>
+  </li>
+  <li>
+    <p>The program flow jumps into the catch handler.</p>
+  </li>
+  <li>
+    <p>The unlock() call is never executed, and</p>
+  </li>
+  <li>
+    <p>The mutex remains in a locked state.</p>
+  </li>
+</ul>
+
+<p>When a thread locks a mutex, any other thread that wants to lock that mutex will wait indefinitely, causing the threads to be blocked. If any code has called join() on those blocked threads, such as the<code class="language-plaintext highlighter-rouge">main()</code> function, then that code will also be blocked. As a result, the entire program will be blocked, and the threads will not be able to proceed.</p>
+
+<div class="tip">
+<b>Drawback of std::mutex:</b>
+<ul>
+<li> <b>Calling lock() requires corresponding call unlock() </b> If NOT the mutex remaining locked after the thread exits</li>
+
+<li> <b>Unlock must always be called, even if</b>There are multiple paths through the critical section, An exception thrown</li>
+
+<li> <b>Relies to the programmer to get it right</b> </li>
+
+<li> <b>Due to these reasons, we do not normally use std::mutex</b> </li>
+</ul>
+</div>
+
+<h2 id="so-what-should-we-use---mutex-wrapper-class">So what should we use? -&gt; Mutex Wrapper Class</h2>
+<p>A mutex wrapper class is a class that holds a mutex and an associated object, providing a convenient way to lock and unlock the mutex when accessing the object. the wrapper classes for mutexes in C++ provide the following benefits:</p>
+<ul>
+  <li>They have a mutex object as a private member and are defined in the same header as the mutex class</li>
+  <li>They use the RAII idiom to manage resources, where the resource is a mutex that is locked</li>
+  <li>The constructor acquires the resource by locking the mutex, and the destructor releases the resource by unlocking the mutex</li>
+  <li>Objects of this class are created on the stack, and when the object goes out of scope, the destructor is called, and the mutex is unlocked</li>
+  <li>This guarantees that objects are destroyed when the scope in which they were declared ends, and it is possible to acquire the resource in the constructor and release it in the destructor</li>
+  <li>This is even more useful in the presence of exceptions, whose unusual control flow is often the source of resources not being released under exceptional flows</li>
+</ul>
+
+<h2 id="stdlock_guard">std::lock_guard</h2>
+<p><code class="language-plaintext highlighter-rouge">std::lock_guard</code> is a C++ class that provides a convenient RAII-style mechanism for owning a mutex for the duration of a scoped block. <code class="language-plaintext highlighter-rouge">std::lock_guard</code> is a useful tool for synchronizing access to shared resources in a multithreaded environment. It provides a convenient way to lock and unlock a mutex when accessing an object, ensuring that only one thread can access the object at a time. It is simple to use and has less likelihood for incorrect use than other mutex wrapper classes.</p>
+
+<p><strong>Example use std::lock_guard to avoid scrambled output:</strong></p>
+
+<p class="filename">lock_guard.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Use std::lock_guard to avoid scrambled output</span>
+<span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;mutex&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;chrono&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string&gt;</span><span class="cp">
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">print_mutex</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">task</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">str</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">try</span> <span class="p">{</span>
+			<span class="c1">// Create an std::lock_guard object</span>
+			<span class="c1">// This calls print_mutex.lock()</span>
+			<span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">lck_guard</span><span class="p">(</span><span class="n">print_mutex</span><span class="p">);</span>
+
+			<span class="c1">// Start of critical section</span>
+			<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">str</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">str</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">str</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+			<span class="c1">// Critical section throws an exception</span>
+			<span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">exception</span><span class="p">();</span>
+			<span class="c1">// End of critical section</span>
+
+			<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">50ms</span><span class="p">);</span>
+		<span class="p">}</span>  <span class="c1">// Calls ~std::lock_guard</span>
+		<span class="k">catch</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">exception</span><span class="o">&amp;</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+			<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Exception caught: "</span> <span class="o">&lt;&lt;</span> <span class="n">e</span><span class="p">.</span><span class="n">what</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="sc">'\n'</span><span class="p">;</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr1</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="s">"abc"</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr2</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="s">"def"</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr3</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="s">"xyz"</span><span class="p">);</span>
+
+	<span class="n">thr1</span><span class="p">.</span><span class="n">join</span><span class="p">();</span> <span class="n">thr2</span><span class="p">.</span><span class="n">join</span><span class="p">();</span> <span class="n">thr3</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p class="filename">Output</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>abc
+Exception caught: std::exception
+def
+Exception caught: std::exception
+def
+Exception caught: std::exception
+def
+Exception caught: std::exception
+def
+Exception caught: std::exception
+def
+Exception caught: std::exception
+xyz
+Exception caught: std::exception
+abc
+Exception caught: std::exception
+xyz
+Exception caught: std::exception
+xyz
+Exception caught: std::exception
+xyz
+Exception caught: std::exception
+xyz
+Exception caught: std::exception
+abc
+Exception caught: std::exception
+abc
+Exception caught: std::exception
+abc
+Exception caught: std::exception
+</code></pre></div></div>
+<p>The exceptions are being caught and different threads are executing. Other threads are able to lock the mutex and perform their own critical section without scrambled output.</p>
+
+<h2 id="stdunique_lock">std::unique_lock()</h2>
+<p>In general, std::lock_guard is simpler and easier to use, while std::unique_lock is more flexible and provides more functionality. If the mutex needs to be locked for the entire scope of a block, std::lock_guard is preferred. If the mutex needs to be locked for only part of the scope of a block or if more advanced functionality is needed, std::unique_lock is preferred.</p>
+
+<ul>
+  <li>
+    <p>It is used to ensure that a mutex is locked for the duration of a critical section, and it is automatically released when the unique_lock object goes out of scope.</p>
+  </li>
+  <li>
+    <p>It is more flexible than <code class="language-plaintext highlighter-rouge">std::lock_guard</code> because it can be constructed with or without taking the mutex immediately, and it can adopt a current lock that is already locked by a thread.</p>
+  </li>
+  <li>
+    <p>It is useful for synchronizing access to shared resources in a multithreaded environment, and it can be used to avoid deadlocks and complexity that can arise from using too many mutexes.</p>
+  </li>
+</ul>
+
+<p><strong>Example use std::unique_lock() to avoid scrambled output:</strong></p>
+
+<p class="filename">unique_lock.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Use std::unique_lock to avoid scrambled output</span>
+<span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;mutex&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;chrono&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string&gt;</span><span class="cp">
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">print_mutex</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">task</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">str</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+		<span class="c1">// Create an std::unique_lock object</span>
+        <span class="c1">// This calls print_mutex.lock()</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">unique_lock</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">uniq_lck</span><span class="p">(</span><span class="n">print_mutex</span><span class="p">);</span>
+		
+		<span class="c1">// Start of critical section</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">str</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">str</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">str</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+		<span class="c1">// End of critical section</span>
+		
+		<span class="c1">// Unlock the mutex</span>
+		<span class="n">uniq_lck</span><span class="p">.</span><span class="n">unlock</span><span class="p">();</span>
+
+        <span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">50ms</span><span class="p">);</span>
+    <span class="p">}</span> <span class="c1">// Calls ~std::unique_lock</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr1</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="s">"abc"</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr2</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="s">"def"</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr3</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="s">"xyz"</span><span class="p">);</span>
+	
+	<span class="n">thr1</span><span class="p">.</span><span class="n">join</span><span class="p">();</span> <span class="n">thr2</span><span class="p">.</span><span class="n">join</span><span class="p">();</span> <span class="n">thr3</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p class="filename">Output</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>abc
+def
+xyz
+abc
+def
+xyz
+abc
+def
+xyz
+abc
+def
+xyz
+abc
+def
+xyz
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">std::unique_lock</code> class has several constructors that allow for different ways of locking a mutex. The second argument of the constructor is optional and specifies the locking strategy. Here are some of the available options:</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">std::defer_lock:</code> The mutex is not locked on construction. The caller must lock the mutex manually using the lock() method.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">std::try_to_lock:</code> The mutex is locked if possible, but the constructor does not block if the mutex is already locked by another thread. If the mutex is not locked, it is locked by the constructor.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">std::adopt_lock:</code> The mutex is assumed to be already locked by the calling thread. The constructor does not lock the mutex, but instead adopts the lock.</p>
+  </li>
+</ul>
+
+<div class="tip">
+<b>std::lock_guard vs std::unique_lock</b>
+<ul>
+<li> <b>std::unique_lock is much more flexible, but:</b> Slower and requires slighly more storage</li>
+
+<li> <b>Recommendation</b>use lock_guard to lock mutex for entire scope, unique_lock for unlock wihin the scope, use unique_lock if you need more extra features. </li>
+
+</ul>
+</div>
+<h1 id="references">References</h1>
+<ol>
+  <li>https://learn.microsoft.com/en-us/cpp/cppcx/wrl/criticalsection-class?view=msvc-170</li>
+  <li>https://en.cppreference.com/w/cpp/thread/mutex/try_lock</li>
+  <li>https://cplusplus.com/reference/mutex/mutex/try_lock/</li>
+  <li>James Raynard, Learn Multithreading with Modern C++ Udemy.</li>
+  <li>https://blog.andreiavram.ro/cpp-channel-thread-safe-container-share-data-threads/</li>
+</ol>
+
+
+        </div>
+
+    </div>
+
+    <!-- Header scroll behavior -->
+    <script>
+        const header = document.getElementById("mainHeader");
+        const hoverZone = document.getElementById("hoverZone");
+        let lastScroll = 0;
+
+        window.addEventListener("scroll", () => {
+            const currentScroll = window.pageYOffset;
+
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                header.classList.add("-translate-y-full");
+            } else {
+                header.classList.remove("-translate-y-full");
+            }
+
+            lastScroll = currentScroll;
+        });
+
+        hoverZone.addEventListener("mouseenter", () => {
+            header.classList.remove("-translate-y-full");
+        });
+
+        
+    </script>
+
+    <!-- Theme Toggle -->
+    <button onclick="document.documentElement.classList.toggle('dark')"
+        class="fixed bottom-4 right-4 bg-white text-black p-3 border-4 border-gray-400 rounded-full shadow-lg text-sm font-semibold hover:bg-secondary transition-colors duration-300 dark:bg-gray-800 dark:text-white dark:border-orange-600 dark:hover:bg-secondary">
+        Toggle Theme
+    </button>
+
+</body>
+
+</html>

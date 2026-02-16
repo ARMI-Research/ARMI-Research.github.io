@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>(Modern C++) 5. Array, Vector and String - ARMI Research Laboratory</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+        :root {
+            --primary: #0A1A2F;
+            --secondary: #d46700;
+            --text-dark: #000000;
+            --text-light: #ffffff;
+            --bg-light: #ffffff;
+            --bg-dark: #0d1117;
+            --card-dark: #111827;
+        }
+
+        .dark {
+            color-scheme: dark;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .dark body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+        }
+
+        .card-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--bg-light);
+            border-radius: 2rem;
+            padding: 2.5rem;
+            border: 2px solid var(--primary);
+        }
+
+        .dark .card-container {
+            background-color: var(--card-dark);
+            border-color: var(--secondary);
+        }
+
+        .post-content h2 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+        }
+
+        .dark .post-content h2 {
+            color: var(--text-light);
+        }
+
+        .post-content h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--primary);
+        }
+
+        .dark .post-content h3 {
+            color: var(--text-light);
+        }
+
+        .post-content p {
+            margin-bottom: 1rem;
+            line-height: 1.75;
+        }
+
+        .post-content ul, .post-content ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .post-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .post-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        .post-content table th {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .dark .post-content table th {
+            background-color: var(--secondary);
+        }
+
+        .post-content table td {
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem;
+        }
+
+        .dark .post-content table td {
+            border-color: #374151;
+        }
+
+        .post-content table tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+
+        .dark .post-content table tr:nth-child(even) {
+            background-color: #1f2937;
+        }
+
+        .post-content code {
+            background-color: #f3f4f6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        .dark .post-content code {
+            background-color: #374151;
+        }
+
+        .post-content pre {
+            background-color: #1f2937 !important;
+            color: #f3f4f6 !important;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .post-content pre code {
+            background-color: transparent !important;
+            color: #f3f4f6 !important;
+            padding: 0;
+        }
+
+        .post-content .highlight {
+            background-color: #1f2937 !important;
+        }
+
+        .post-content .highlight pre {
+            background-color: #1f2937 !important;
+        }
+
+        .post-content .highlight code {
+            color: #f3f4f6 !important;
+        }
+
+        .post-content blockquote {
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+            margin: 1rem 0;
+            font-style: italic;
+            color: #6b7280;
+        }
+
+        .dark .post-content blockquote {
+            color: #9ca3af;
+        }
+
+        .post-content hr {
+            border: none;
+            border-top: 2px solid #e5e7eb;
+            margin: 2rem 0;
+        }
+
+        .dark .post-content hr {
+            border-top-color: #374151;
+        }
+
+        .post-content strong {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .dark .post-content strong {
+            color: var(--secondary);
+        }
+
+        .post-content a {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+
+        .post-content a:hover {
+            color: var(--primary);
+        }
+
+        .dark .post-content a:hover {
+            color: var(--text-light);
+        }
+    </style>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0A1A2F',
+                        secondary: '#e97509',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+
+    <div id="hoverZone" class="fixed top-0 left-0 w-full h-6 z-40"></div>
+
+    <header id="mainHeader" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out bg-gradient-to-b from-white to-gray-100 dark:from-gray-900 dark:to-black shadow-md">
+        <div class="relative w-full border-b-4 border-gray-500 dark:border-orange-600">
+            <div class="max-w-7xl mx-auto px-6 py-4 relative flex items-center justify-between">
+                <div class="flex gap-3">
+                    <a href="/lab/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Lab</div>
+                    </a>
+                    <a href="/research/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Research</div>
+                    </a>
+                </div>
+                <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
+                    <img src="/images/logo.png" class="w-16 h-14 object-contain dark:brightness-90">
+                    <a href="/default/">
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-orange-500 hover:text-orange-500 dark:hover:text-orange-400 transition-colors">ARMI Lab</h1>
+                    </a>
+                </div>
+                <div class="text-sm text-gray-700 dark:text-gray-300 leading-tight">
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">A</span>utonomous</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">R</span>obotics</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">M</span>achine</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">I</span>ntelligence</div>
+                    <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">Research Laboratory</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="card-container shadow-2xl lg:p-12 transition duration-500 mt-40">
+
+        <h1 class="text-4xl font-bold mb-4 text-gray-800 dark:text-gray-100">(Modern C++) 5. Array, Vector and String</h1>
+
+        <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+            October 14, 2022
+        </div>
+
+        
+        <div class="flex gap-2 mb-6">
+            
+            <a href="/tags/#Modern C++" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-secondary hover:text-white transition-colors">
+                Modern C++
+            </a>
+            
+        </div>
+        
+
+        <hr class="mb-8 border-gray-300 dark:border-gray-700">
+
+        <div style="margin-bottom: 2rem;">
+            <a href="/research/" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #e97509; color: white; text-decoration: none; border-radius: 0.5rem; font-weight: 600; transition: all 0.3s;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Back
+            </a>
+        </div>
+
+        <div class="post-content">
+            <h1 id="array-definition">Array definition</h1>
+<p>In modern C++, arrays can be created using fixed-size containers such as <code class="language-plaintext highlighter-rouge">std::array</code> or variable-sized containers such as <code class="language-plaintext highlighter-rouge">std::vector</code>. <code class="language-plaintext highlighter-rouge">std::array</code> is a container that encapsulates fixed-size arrays and is part of the C++ Standard Library. It provides the same performance and accessibility as a C-style array, but with the benefits of a standard container, such as knowing its own size, supporting assignment, and random access iterators.</p>
+
+<p><strong><em>Here’s an example of how to create and initialize a <code class="language-plaintext highlighter-rouge">std::array</code>:</em></strong></p>
+
+<p class="filename">Array.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;array&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="mi">5</span><span class="o">&gt;</span> <span class="n">arr</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">};</span>
+
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">arr</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="c1">// Output; Elements in array: 1 2 3 4 5 </span>
+</code></pre></div></div>
+
+<p>Or a simple way</p>
+
+<p class="filename">Array.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="c1">// Declare and initialize an array</span>
+  <span class="kt">int</span> <span class="n">numbers</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">};</span>
+
+  <span class="c1">// Access and print array elements</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="c1">// Output; Elements in array: 1 2 3 4 5 </span>
+</code></pre></div></div>
+<h2 id="dynamic-array">Dynamic Array</h2>
+<p>In C++, a dynamic array is a resizable array that can be modified during program runtime. Unlike regular arrays, which have a fixed size, dynamic arrays can grow or shrink as needed. Dynamic arrays are created using the new keyword and can be deleted using the <code class="language-plaintext highlighter-rouge">delete</code> keyword</p>
+
+<p class="filename">Dynamic_Array.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="c1">// Create a dynamic array of 5 integers</span>
+  <span class="kt">int</span><span class="o">*</span> <span class="n">dynamicArray</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">int</span><span class="p">[</span><span class="mi">5</span><span class="p">];</span>
+
+  <span class="c1">// Initialize the dynamic array with values</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">dynamicArray</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="c1">// Print the contents of the dynamic array</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">dynamicArray</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span><span class="p">;</span> <span class="c1">//Output: 0 1 2 3 4</span>
+  <span class="p">}</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+  <span class="c1">// Modify an element of the dynamic array</span>
+  <span class="n">dynamicArray</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+
+  <span class="c1">// Print the modified dynamic array</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">dynamicArray</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span><span class="p">;</span> <span class="c1">////Output: 0 1 10 3 4 </span>
+  <span class="p">}</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+  <span class="c1">// Free up the memory used by the dynamic array</span>
+  <span class="k">delete</span><span class="p">[]</span> <span class="n">dynamicArray</span><span class="p">;</span>
+
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h1 id="vector-definition">Vector definition</h1>
+<p>In C++, a vector is a dynamic array-like container that can change in size. It is part of the C++ Standard Template Library (STL) and is defined in the <code class="language-plaintext highlighter-rouge">&lt;vector&gt;</code> header file. Vectors are similar to arrays, but they provide additional functionality, such as automatic resizing and various member functions for easy manipulation of the elements.</p>
+
+<p class="filename">Vector.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;vector&gt;</span><span class="cp">
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">vec</span><span class="p">;</span>                            <span class="c1">// No general way to initialize vector elements in C++03  </span>
+	<span class="n">vec</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span>                           <span class="c1">// Therefore we create an empty vector, then add elements</span>
+	<span class="n">vec</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>                           <span class="c1">// push_back adds a new element after the last element</span>
+	<span class="n">vec</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+	<span class="n">vec</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span>
+	<span class="n">vec</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+
+	<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Element with index 0 has value "</span> <span class="o">&lt;&lt;</span> <span class="n">vec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>     <span class="c1">// The first element in vec - this will be equal to 4</span>
+	<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Element with index 2 has value "</span> <span class="o">&lt;&lt;</span> <span class="n">vec</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>     <span class="c1">// The third element in vec - this will be equal to 3</span>
+	<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Element with index 4 has value "</span> <span class="o">&lt;&lt;</span> <span class="n">vec</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>     <span class="c1">// The fourth element in vec - this will be equal to 1</span>
+	
+	<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"The size of vector is :"</span> <span class="o">&lt;&lt;</span> <span class="n">vec</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+	<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span> <span class="o">&lt;&lt;</span> <span class="s">"Modifying element with index 2 to have value 6"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+	<span class="n">vec</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">6</span><span class="p">;</span>                                 <span class="c1">// Changes the third element in vec from 3 to 6</span>
+
+	
+	<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span> <span class="o">&lt;&lt;</span> <span class="s">"Printing out all elements: "</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+	
+	<span class="c1">// The size() member function returns the number of elements</span>
+	<span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">vec</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Element with index "</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="s">" has value "</span> <span class="o">&lt;&lt;</span> <span class="n">vec</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+	<span class="p">}</span>
+
+	<span class="c1">//Shorter way</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">vec1</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">};</span>
+	<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span> <span class="o">&lt;&lt;</span> <span class="s">"Printing out all elements: "</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+	
+	<span class="c1">// The size() member function returns the number of elements</span>
+	<span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">vec1</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Element with index "</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="s">" has value "</span> <span class="o">&lt;&lt;</span> <span class="n">vec1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+	<span class="p">}</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p class="filename">Output</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Element</span> <span class="n">with</span> <span class="n">index</span> <span class="mi">0</span> <span class="n">has</span> <span class="n">value</span> <span class="mi">4</span>
+<span class="n">Element</span> <span class="n">with</span> <span class="n">index</span> <span class="mi">2</span> <span class="n">has</span> <span class="n">value</span> <span class="mi">3</span>
+<span class="n">Element</span> <span class="n">with</span> <span class="n">index</span> <span class="mi">4</span> <span class="n">has</span> <span class="n">value</span> <span class="mi">1</span>
+<span class="n">The</span> <span class="n">size</span> <span class="n">of</span> <span class="n">vector</span> <span class="n">is</span> <span class="o">:</span><span class="mi">5</span>
+
+<span class="n">Modifying</span> <span class="n">element</span> <span class="n">with</span> <span class="n">index</span> <span class="mi">2</span> <span class="n">to</span> <span class="n">have</span> <span class="n">value</span> <span class="mi">6</span>
+
+<span class="n">Printing</span> <span class="n">out</span> <span class="n">all</span> <span class="n">elements</span><span class="o">:</span> 
+<span class="n">Element</span> <span class="n">with</span> <span class="n">index</span> <span class="mi">0</span> <span class="n">has</span> <span class="n">value</span> <span class="mi">4</span>
+<span class="n">Element</span> <span class="n">with</span> <span class="n">index</span> <span class="mi">1</span> <span class="n">has</span> <span class="n">value</span> <span class="mi">2</span>
+<span class="n">Element</span> <span class="n">with</span> <span class="n">index</span> <span class="mi">2</span> <span class="n">has</span> <span class="n">value</span> <span class="mi">6</span>
+<span class="n">Element</span> <span class="n">with</span> <span class="n">index</span> <span class="mi">3</span> <span class="n">has</span> <span class="n">value</span> <span class="mi">4</span>
+<span class="n">Element</span> <span class="n">with</span> <span class="n">index</span> <span class="mi">4</span> <span class="n">has</span> <span class="n">value</span> <span class="mi">1</span>
+
+<span class="n">Printing</span> <span class="n">out</span> <span class="n">all</span> <span class="n">elements</span><span class="o">:</span> 
+<span class="n">Element</span> <span class="n">with</span> <span class="n">index</span> <span class="mi">0</span> <span class="n">has</span> <span class="n">value</span> <span class="mi">0</span>
+<span class="n">Element</span> <span class="n">with</span> <span class="n">index</span> <span class="mi">1</span> <span class="n">has</span> <span class="n">value</span> <span class="mi">1</span>
+<span class="n">Element</span> <span class="n">with</span> <span class="n">index</span> <span class="mi">2</span> <span class="n">has</span> <span class="n">value</span> <span class="mi">2</span>
+<span class="n">Element</span> <span class="n">with</span> <span class="n">index</span> <span class="mi">3</span> <span class="n">has</span> <span class="n">value</span> <span class="mi">3</span>
+<span class="n">Element</span> <span class="n">with</span> <span class="n">index</span> <span class="mi">4</span> <span class="n">has</span> <span class="n">value</span> <span class="mi">4</span>
+</code></pre></div></div>
+<h2 id="vector-representation-push_back-pop_back--iterators-for-traversing-the-elements">Vector representation push_back(), pop_back(),  iterators for traversing the elements:</h2>
+<p class="filename">Vector_representation.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="cp">#include</span> <span class="cpf">&lt;vector&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">numbers</span><span class="p">;</span> <span class="c1">// Declaration</span>
+    <span class="n">numbers</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">};</span> <span class="c1">// -&gt; 1 2 3 4 5 </span>
+    <span class="n">numbers</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="mi">6</span><span class="p">);</span> <span class="c1">// Adding 6 to the end of the vector -&gt; 1 2 3 4 5 6 </span>
+    <span class="n">numbers</span><span class="p">.</span><span class="n">pop_back</span><span class="p">();</span> <span class="c1">// Removing the last element -&gt; 1 2 3 4 5 </span>
+    <span class="n">numbers</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">numbers</span><span class="p">.</span><span class="n">begin</span><span class="p">()</span> <span class="o">+</span> <span class="mi">2</span><span class="p">);</span> <span class="c1">// Removing the third element -&gt; 1 2 4 5 </span>
+    <span class="c1">//iterators for traversing the elements:</span>
+    <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="n">it</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span> <span class="n">it</span> <span class="o">!=</span> <span class="n">numbers</span><span class="p">.</span><span class="n">end</span><span class="p">();</span> <span class="o">++</span><span class="n">it</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="o">*</span><span class="n">it</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span><span class="p">;</span> <span class="c1">// Printing the elements -&gt; 1 2 4 5 </span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h1 id="string">String</h1>
+<p>In C++, a string is a sequence of characters used to store and manipulate text or other types of data. There are two main ways to represent strings in C++:</p>
+<ul>
+  <li>using C-style character arrays and the std::string class. C-style character arrays: These are one-dimensional arrays of characters terminated by a null character (‘\0’). C-style strings are inherited from the C language and are less advanced than the std::string class, but they are still widely used for their efficiency and simplicity. Here’s an example of a C-style string in C++:</li>
+</ul>
+
+<p class="filename">String.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kt">char</span> <span class="n">greeting</span><span class="p">[]</span> <span class="o">=</span> <span class="s">"Hello"</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Greeting message: "</span> <span class="o">&lt;&lt;</span> <span class="n">greeting</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span> <span class="c1">// Greeting message: Hello</span>
+    <span class="c1">//cout &lt;&lt; "Greeting size: " &lt;&lt; greeting.size() &lt;&lt; endl; // error: request for member 'size' in 'greeting', which is of non-class type 'char [6]'</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">std::string class</code>: This is a part of the C++ Standard Library and provides a more advanced and convenient way to work with strings. To use the std::string class, you need to include the <string> header. Here's an example of a std::string in C++:
+Example of ```std::string class```</string></li>
+</ul>
+
+<p class="filename">String.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string&gt;</span><span class="cp">
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">string</span> <span class="n">greeting</span> <span class="o">=</span> <span class="s">"Hello"</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Greeting message: "</span> <span class="o">&lt;&lt;</span> <span class="n">greeting</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>    <span class="c1">// Greeting message: Hello</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Greeting size: "</span> <span class="o">&lt;&lt;</span> <span class="n">greeting</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span><span class="c1">// Greeting size: 5</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<h2 id="string-search-with-strfind-function">String search with <code class="language-plaintext highlighter-rouge">str.find()</code> function</h2>
+
+<p class="filename">String_search.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string&gt;</span><span class="cp">
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="n">string</span> <span class="n">str</span> <span class="p">(</span><span class="s">"Hello world"</span><span class="p">);</span>
+	<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"The string is </span><span class="se">\"</span><span class="s">"</span> <span class="o">&lt;&lt;</span> <span class="n">str</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\"</span><span class="s">"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+	<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"First occurrence of </span><span class="se">\'</span><span class="s">o</span><span class="se">\'</span><span class="s"> is at index "</span> <span class="o">&lt;&lt;</span> <span class="n">str</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="sc">'o'</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>     <span class="c1">// Returns 4</span>
+	<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"First occurrence of </span><span class="se">\"</span><span class="s">or</span><span class="se">\"</span><span class="s"> is at index "</span> <span class="o">&lt;&lt;</span> <span class="n">str</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="s">"or"</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>   <span class="c1">// Returns 7</span>
+
+	<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Does 'O' occur in the string? "</span><span class="p">;</span>
+	
+	<span class="k">if</span> <span class="p">(</span><span class="n">str</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="sc">'O'</span><span class="p">)</span> <span class="o">==</span> <span class="n">string</span><span class="o">::</span><span class="n">npos</span><span class="p">)</span>
+		<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"No"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+	<span class="k">else</span>
+		<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Yes"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>Output</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>The string is "Hello world"
+First occurrence of 'o' is at index 4
+First occurrence of "or" is at index 7
+Does 'O' occur in the string? No
+</code></pre></div></div>
+
+<h1 id="references">References</h1>
+<ol>
+  <li>https://hsf-training.github.io/hsf-training-cpp-webpage/03-arrays-and-vectors/index.html</li>
+  <li>https://learn.microsoft.com/en-us/cpp/cpp/arrays-cpp?view=msvc-170</li>
+  <li>https://en.cppreference.com/w/cpp/container/array</li>
+  <li>https://cplusplus.com/doc/tutorial/dynamic/</li>
+  <li>https://cplusplus.com/reference/vector/vector/</li>
+  <li>https://www.programiz.com/cpp-programming/vectors</li>
+  <li>https://cplusplus.com/reference/string/string/</li>
+</ol>
+
+        </div>
+
+    </div>
+
+    <!-- Header scroll behavior -->
+    <script>
+        const header = document.getElementById("mainHeader");
+        const hoverZone = document.getElementById("hoverZone");
+        let lastScroll = 0;
+
+        window.addEventListener("scroll", () => {
+            const currentScroll = window.pageYOffset;
+
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                header.classList.add("-translate-y-full");
+            } else {
+                header.classList.remove("-translate-y-full");
+            }
+
+            lastScroll = currentScroll;
+        });
+
+        hoverZone.addEventListener("mouseenter", () => {
+            header.classList.remove("-translate-y-full");
+        });
+
+        
+    </script>
+
+    <!-- Theme Toggle -->
+    <button onclick="document.documentElement.classList.toggle('dark')"
+        class="fixed bottom-4 right-4 bg-white text-black p-3 border-4 border-gray-400 rounded-full shadow-lg text-sm font-semibold hover:bg-secondary transition-colors duration-300 dark:bg-gray-800 dark:text-white dark:border-orange-600 dark:hover:bg-secondary">
+        Toggle Theme
+    </button>
+
+</body>
+
+</html>

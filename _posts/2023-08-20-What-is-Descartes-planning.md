@@ -1,6 +1,6 @@
 ---
 layout: post
-category: blog
+category: research
 title: What is the Descartes path planning
 snippet: Explain and tutorial the Descartes path planning
 tags: [robotics, ROS, C++]
