@@ -9,7 +9,7 @@
     <!-- Configure Tailwind for Inter font and a modern color palette -->
     <style>
 
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
 
         /* ------------------------------
         COLOR SYSTEM
@@ -148,67 +148,35 @@
 
     <div id="hoverZone" class="fixed top-0 left-0 w-full h-6 z-40"></div>
 
-    <header id="mainHeader" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out bg-gradient-to-b from-white to-gray-200 dark:from-gray-900 dark:to-black">
-
-
-        <div class="relative w-full border-b-4 border-gray-500 dark:border-orange-600 p-8">
-
-            <div class="absolute top-[43%] left-[10%] -translate-x-1/2 -translate-y-1/2 z-50">
-
-                <!-- GO TO LAB PAGE -->
-                <a href="/_layouts/lab.html">
-
-                    <div class= "w-64 p-4 mt-6 bg-white border-4 rounded-full border-gray-400 text-center text-2xl shadow-md hover:bg-secondary transition-all duration-300 hover:border-gray-600 hover:shadow-xl hover:-translate-y-1 dark:bg-gray-900 dark:hover:bg-secondary dark:text-white dark:border-orange-500 dark:text-black">
-                    
-                    <strong>Lab</strong>
-
-                    </div>
-
-                </a>
-                
-                <!-- GO TO RESEARCH PAGE -->
-                <a href="/_layouts/research.html">
-
-                    <div class= "w-64 p-4 mt-6 bg-white border-4 rounded-full border-gray-400 text-center text-2xl shadow-md hover:bg-secondary transition-all duration-300 hover:border-gray-600 hover:shadow-xl hover:-translate-y-1 dark:bg-gray-900 dark:hover:bg-secondary dark:text-white dark:border-orange-500 dark:text-black">
-                    
-                    <strong>Research</strong>
-
-                    </div>
-
-                </a>
-                
-            
-            </div>
-            
-            <div class="flex justify-center translate-x-[10%]">  
-
-            <!-- LEFT SIDE (Logo + Title) -->
-                <div class="flex items-center">
-                    <img src="/images/logo.png" class="w-40 h-36 object-cover transition-colors dark:grayscale">
-                    <br>
-                    <h1 class="text-5xl font-extrabold text-gray-900 dark:text-gray-100 whitespace-nowrap ml-[10%] hover:transition-colors hover:duration-300 hover:text-orange-500 dark:text-orange-500 dark:hover:transition-colors dark:hover:duration-300 dark:hover:text-gray-200">
-                        
-                        <!-- RETURN TO DEFAULT PAGE -->
-                        <a href="/_layouts/default.html">ARMI Lab</a>
-                    </h1>
+    <header id="mainHeader" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out bg-gradient-to-b from-white to-gray-100 dark:from-gray-900 dark:to-black shadow-md">
+        <div class="relative w-full border-b-4 border-gray-500 dark:border-orange-600">
+            <div class="max-w-7xl mx-auto px-6 py-4 relative flex items-center justify-between">
+                <div class="flex gap-3">
+                    <a href="/_layouts/lab.html">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Lab</div>
+                    </a>
+                    <a href="/_layouts/research.html">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Research</div>
+                    </a>
                 </div>
-
-                <!-- RIGHT SIDE (Abbreviation) -->
-                <div class="text-2xl font-light text-gray-600 dark:text-gray-400 leading-tight ml-[20%]">
-                    <div><span class="text-orange-600 font-semibold">A</span>utonomous</div>
-                    <div><span class="text-orange-600 font-semibold">R</span>obotics</div>
-                    <div><span class="text-orange-600 font-semibold">M</span>achine</div>
-                    <div><span class="text-orange-600 font-semibold">I</span>ntelligence</div>
-                    <div class="text-gray-900 dark:text-gray-100">Research Laboratory</div>
+                <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
+                    <img src="/images/logo.png" class="w-16 h-14 object-contain dark:brightness-90">
+                    <a href="/_layouts/default.html">
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-orange-500 hover:text-orange-500 dark:hover:text-orange-400 transition-colors">ARMI Lab</h1>
+                    </a>
                 </div>
-
+                <div class="text-sm text-gray-700 dark:text-gray-300 leading-tight">
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">A</span>utonomous</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">R</span>obotics</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">M</span>achine</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">I</span>ntelligence</div>
+                    <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">Research Laboratory</div>
+                </div>
             </div>
-
         </div>
-
     </header>
 
-    <div class="card-container shadow-2xl lg:p-12 transition duration-500 mt-60">
+    <div class="card-container shadow-2xl lg:p-12 transition duration-500 mt-40">
 
         <h2 class="text-4xl font-bold mb-8 text-gray-800 dark:text-gray-100 border-l-4 border-secondary pl-4">
             About Us
