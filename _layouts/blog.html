@@ -228,7 +228,7 @@ permalink: /blog/
                 <input
                     type="text"
                     id="searchInput"
-                    placeholder="Search publications..."
+                    placeholder="Search by name or tags (e.g. AI ROS)..."
                     class="w-full px-6 py-3 pl-12 text-lg border-2 border-gray-400 rounded-lg focus:outline-none focus:border-secondary transition-colors duration-300 bg-white text-gray-800 dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:focus:border-orange-400"
                 />
                 <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -300,19 +300,21 @@ permalink: /blog/
 
         if (searchInput && postCards.length > 0) {
             searchInput.addEventListener("input", function() {
-                const searchTerm = this.value.toLowerCase().trim();
+                const input = this.value.toLowerCase().trim();
+                // Split by comma or space to support multiple tags
+                const searchTerms = input.split(/[,\s]+/).filter(t => t.length > 0);
 
                 postCards.forEach(card => {
-                    const title = card.querySelector(".post-title")?.textContent.toLowerCase() || "";
-                    const snippet = card.querySelector(".post-snippet")?.textContent.toLowerCase() || "";
-
-                    // Get all tags
+                    const title = card.querySelector(".post-title")?.textContent.trim().toLowerCase() || "";
                     const tagElements = card.querySelectorAll(".post-tag");
-                    const tags = Array.from(tagElements).map(tag => tag.textContent.toLowerCase()).join(" ");
+                    const tags = Array.from(tagElements).map(tag => tag.textContent.trim().toLowerCase());
 
-                    const searchableText = title + " " + snippet + " " + tags;
+                    // Post must match ALL search terms (by tag or title)
+                    const match = searchTerms.every(term =>
+                        tags.some(tag => tag.includes(term)) || title.includes(term)
+                    );
 
-                    if (searchTerm === "" || searchableText.includes(searchTerm)) {
+                    if (searchTerms.length === 0 || match) {
                         card.style.display = "flex";
                     } else {
                         card.style.display = "none";
