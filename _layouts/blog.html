@@ -186,7 +186,7 @@ permalink: /blog/
 
     <div id="hoverZone" class="fixed top-0 left-0 w-full h-6 z-40"></div>
 
-    <header id="mainHeader" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out bg-gradient-to-b from-white to-gray-100 dark:from-gray-900 dark:to-black shadow-md">
+    <header id="mainHeader" class="fixed top-0 left-0 w-full z-50 transition-transform duration-300 ease-in-out bg-gradient-to-b from-white to-gray-100 dark:from-gray-900 dark:to-black shadow-md">
         <div class="relative w-full border-b-4 border-gray-500 dark:border-orange-600">
             <div class="max-w-7xl mx-auto px-6 py-4 relative flex items-center justify-between">
                 <div class="flex gap-3">
@@ -200,7 +200,7 @@ permalink: /blog/
                 <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
                     <img src="/images/logo.png" class="w-16 h-14 object-contain dark:brightness-90">
                     <a href="/default/">
-                        <h1 class="text-3xl font-bold text-gray-900 dark:text-orange-500 hover:text-orange-500 dark:hover:text-orange-400 transition-colors">ARMI Lab</h1>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-orange-500 hover:text-orange-500 dark:hover:text-white transition-colors">ARMI Lab</h1>
                     </a>
                 </div>
                 <div class="text-sm text-gray-700 dark:text-gray-300 leading-tight">
@@ -253,7 +253,7 @@ permalink: /blog/
                         {% if post.tags %}
                         <div class="flex gap-2 mt-3 flex-wrap">
                             {% for tag in post.tags %}
-                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full cursor-pointer hover:bg-secondary hover:text-white dark:hover:bg-orange-500 dark:hover:text-white active:scale-95 transition-all" onclick="searchByTag(this.textContent.trim())">
                                 {{ tag }}
                             </span>
                             {% endfor %}
@@ -294,6 +294,14 @@ permalink: /blog/
             header.classList.remove("-translate-y-full");
         });
 
+        // Click tag to search
+        function searchByTag(tag) {
+            const input = document.getElementById("searchInput");
+            input.value = tag.toLowerCase();
+            input.dispatchEvent(new Event("input"));
+            input.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+
         // Search functionality
         const searchInput = document.getElementById("searchInput");
         const postCards = document.querySelectorAll(".post-card");
@@ -321,6 +329,14 @@ permalink: /blog/
                     }
                 });
             });
+        }
+
+        // Auto-search if ?tag= parameter is present (from post page tag clicks)
+        const urlParams = new URLSearchParams(window.location.search);
+        const tagParam = urlParams.get("tag");
+        if (tagParam && searchInput) {
+            searchInput.value = tagParam.toLowerCase();
+            searchInput.dispatchEvent(new Event("input"));
         }
     </script>
 
