@@ -1,6 +1,6 @@
 ---
 layout: post
-category: research
+category: blog
 title: Advanced tips for Python
 snippet: This tutorials will show some advanced tips when using python, which includes,  @property in Python , assert, and try-except in Python, The -> symbol in python,..
 tags: [python]

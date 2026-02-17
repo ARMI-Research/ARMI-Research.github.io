@@ -1,6 +1,6 @@
 ---
 layout: post
-category: research
+category: blog
 title: Header-only catkin package
 snippet: How to setup and use a header-only catkin package
 tags: [C++, robotics]

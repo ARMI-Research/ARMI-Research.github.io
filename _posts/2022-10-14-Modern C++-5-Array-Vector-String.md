@@ -1,6 +1,6 @@
 ---
 layout: post
-category: research
+category: blog
 title: (Modern C++) 5. Array, Vector and String
 snippet: This tutorial following the basic C++ course
 tags: [Modern C++]

@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapidly-Exploring Random Tree (RRT) - ARMI Research Laboratory</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+        :root {
+            --primary: #0A1A2F;
+            --secondary: #d46700;
+            --text-dark: #000000;
+            --text-light: #ffffff;
+            --bg-light: #ffffff;
+            --bg-dark: #0d1117;
+            --card-dark: #111827;
+        }
+
+        .dark {
+            color-scheme: dark;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .dark body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+        }
+
+        .card-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--bg-light);
+            border-radius: 2rem;
+            padding: 2.5rem;
+            border: 2px solid var(--primary);
+        }
+
+        .dark .card-container {
+            background-color: var(--card-dark);
+            border-color: var(--secondary);
+        }
+
+        .post-content h2 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+        }
+
+        .dark .post-content h2 {
+            color: var(--text-light);
+        }
+
+        .post-content h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--primary);
+        }
+
+        .dark .post-content h3 {
+            color: var(--text-light);
+        }
+
+        .post-content p {
+            margin-bottom: 1rem;
+            line-height: 1.75;
+        }
+
+        .post-content ul, .post-content ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .post-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .post-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        .post-content table th {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .dark .post-content table th {
+            background-color: var(--secondary);
+        }
+
+        .post-content table td {
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem;
+        }
+
+        .dark .post-content table td {
+            border-color: #374151;
+        }
+
+        .post-content table tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+
+        .dark .post-content table tr:nth-child(even) {
+            background-color: #1f2937;
+        }
+
+        .post-content code {
+            background-color: #f3f4f6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        .dark .post-content code {
+            background-color: #374151;
+        }
+
+        .post-content pre {
+            background-color: #1f2937 !important;
+            color: #f3f4f6 !important;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .post-content pre code {
+            background-color: transparent !important;
+            color: #f3f4f6 !important;
+            padding: 0;
+        }
+
+        .post-content .highlight {
+            background-color: #1f2937 !important;
+        }
+
+        .post-content .highlight pre {
+            background-color: #1f2937 !important;
+        }
+
+        .post-content .highlight code {
+            color: #f3f4f6 !important;
+        }
+
+        .post-content blockquote {
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+            margin: 1rem 0;
+            font-style: italic;
+            color: #6b7280;
+        }
+
+        .dark .post-content blockquote {
+            color: #9ca3af;
+        }
+
+        .post-content hr {
+            border: none;
+            border-top: 2px solid #e5e7eb;
+            margin: 2rem 0;
+        }
+
+        .dark .post-content hr {
+            border-top-color: #374151;
+        }
+
+        .post-content strong {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .dark .post-content strong {
+            color: var(--secondary);
+        }
+
+        .post-content a {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+
+        .post-content a:hover {
+            color: var(--primary);
+        }
+
+        .dark .post-content a:hover {
+            color: var(--text-light);
+        }
+    </style>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0A1A2F',
+                        secondary: '#e97509',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+
+    <div id="hoverZone" class="fixed top-0 left-0 w-full h-6 z-40"></div>
+
+    <header id="mainHeader" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out bg-gradient-to-b from-white to-gray-100 dark:from-gray-900 dark:to-black shadow-md">
+        <div class="relative w-full border-b-4 border-gray-500 dark:border-orange-600">
+            <div class="max-w-7xl mx-auto px-6 py-4 relative flex items-center justify-between">
+                <div class="flex gap-3">
+                    <a href="/lab/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Lab</div>
+                    </a>
+                    <a href="/blog/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Blog</div>
+
+                </div>
+                <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
+                    <img src="/images/logo.png" class="w-16 h-14 object-contain dark:brightness-90">
+                    <a href="/default/">
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-orange-500 hover:text-orange-500 dark:hover:text-orange-400 transition-colors">ARMI Lab</h1>
+                    </a>
+                </div>
+                <div class="text-sm text-gray-700 dark:text-gray-300 leading-tight">
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">A</span>utonomous</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">R</span>obotics</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">M</span>achine</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">I</span>ntelligence</div>
+                    <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">Research Laboratory</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="card-container shadow-2xl lg:p-12 transition duration-500 mt-40">
+
+        <h1 class="text-4xl font-bold mb-4 text-gray-800 dark:text-gray-100">Rapidly-Exploring Random Tree (RRT)</h1>
+
+        <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+            August 14, 2023
+        </div>
+
+        
+        <div class="flex gap-2 mb-6">
+            
+            <a href="/tags/#robotics" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-secondary hover:text-white transition-colors">
+                robotics
+            </a>
+            
+        </div>
+        
+
+        <hr class="mb-8 border-gray-300 dark:border-gray-700">
+
+        <div style="margin-bottom: 2rem;">
+            <a href="/blog/" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #e97509; color: white; text-decoration: none; border-radius: 0.5rem; font-weight: 600; transition: all 0.3s;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Back
+            </a>
+        </div>
+
+        <div class="post-content">
+            <p>The Rapidly Exploring Random Tree (RRT) algorithm is a popular path planning algorithm used in robotics. It efficiently searches nonconvex, high-dimensional spaces by randomly building a space-filling tree.</p>
+
+<div class="row">
+  <div class="col">
+    <!-- use case:
+include image.html url="/images/my-cat.jpg" description="My cat, Robert Downey Jr." width = "50%" hide="true"
+-->
+<!-- hide is used to hide content from mainbody but show up in the gallery. Exclude if not using -->
+
+<figure class="image">
+  <img src="/assets/RRT/RRT.png" alt="RRT Algorithms, blue point is the goal position, grey points are the vertices, edges are showed with green color and red line is the shortest path," style="width: 80%;" />
+  <figcaption class="caption">RRT Algorithms, blue point is the goal position, grey points are the vertices, edges are showed with green color and red line is the shortest path,</figcaption>
+</figure>
+
+
+  </div>
+  <div class="col">
+     <!-- use case:
+include image.html url="/images/my-cat.jpg" description="My cat, Robert Downey Jr." width = "50%" hide="true"
+-->
+<!-- hide is used to hide content from mainbody but show up in the gallery. Exclude if not using -->
+
+<figure class="image">
+  <img src="/assets/RRT/RRT_star.png" alt="RRT* Algorithms, blue point is the goal position, grey points are the vertices, edges are showed with green color and red line is the shortest path," style="width: 80%;" />
+  <figcaption class="caption">RRT* Algorithms, blue point is the goal position, grey points are the vertices, edges are showed with green color and red line is the shortest path,</figcaption>
+</figure>
+
+
+  </div>
+</div>
+
+<div class="row">
+  <div class="col">
+    <!-- use case:
+include image.html url="/images/my-cat.jpg" description="My cat, Robert Downey Jr." width = "50%" hide="true"
+-->
+<!-- hide is used to hide content from mainbody but show up in the gallery. Exclude if not using -->
+
+<figure class="image">
+  <img src="/assets/RRT/RRT_dark.gif" alt="RRT Algorithms in 3D, with random points in the spaces" style="width: 80%;" />
+  <figcaption class="caption">RRT Algorithms in 3D, with random points in the spaces</figcaption>
+</figure>
+
+
+  </div>
+  <div class="col">
+    <!-- use case:
+include image.html url="/images/my-cat.jpg" description="My cat, Robert Downey Jr." width = "50%" hide="true"
+-->
+<!-- hide is used to hide content from mainbody but show up in the gallery. Exclude if not using -->
+
+<figure class="image">
+  <img src="/assets/RRT/RRT_star_dark.gif" alt="RRT* Algorithms in 3D, with less points and more optimimal path" style="width: 80%;" />
+  <figcaption class="caption">RRT* Algorithms in 3D, with less points and more optimimal path</figcaption>
+</figure>
+
+
+  </div>
+</div>
+
+<ol>
+  <li>Intialize a <strong>Graph(Vertex, Edge)</strong>  with containing edges and vertices, initialized as (start_pos, end_pos).</li>
+  <li>Randomly generate points (vertex) in the space.</li>
+  <li>Check if the newly created vertex lies outside of an obstacle.</li>
+  <li>Find the nearest vertex to the closest available vertices in the tree.</li>
+  <li>Steering vertex to avoid obstacles when chaining the vertex to its closest neighbor.</li>
+  <li>Add new vertex and edge with nearest vertex into Graph</li>
+  <li>Repeat steps 1-5 until a node is generated within the goal region or a limit is reached.</li>
+</ol>
+
+<p>Variations of the RRT algorithm have been developed to improve its performance and convergence to an optimal solution. Some notable variations include:</p>
+
+<ul>
+  <li><strong>RRT</strong>: Rapidly-Exploring Random Tree, which is an algorithm designed to efficiently search nonconvex, high-dimensional spaces by randomly building a space-filling tree. The tree is constructed incrementally from samples drawn randomly from the search space and is inherently biased to grow towards large unsearched areas of the problem. RRTs were developed by Steven M. LaValle and James J. Kuffner Jr <a href="http://msl.cs.uiuc.edu/~lavalle/papers/Lav98c.pdf">pdf</a></li>
+</ul>
+
+<p>Snippet code of <strong>RRT</strong> in Python:</p>
+
+<p class="filename">RRT.py</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">RRT</span><span class="p">(</span><span class="n">startpos</span><span class="p">,</span> <span class="n">endpos</span><span class="p">,</span> <span class="n">n_iter</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">stepSize</span><span class="p">,</span> <span class="n">goal_radius</span><span class="p">,</span> <span class="n">obstacles</span><span class="p">):</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="nc">Graph</span><span class="p">(</span><span class="n">startpos</span><span class="p">,</span> <span class="n">endpos</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">n_iter</span><span class="p">):</span>
+        <span class="c1"># 1. Sample a random Vertice
+</span>        <span class="n">randvex</span> <span class="o">=</span> <span class="n">G</span><span class="p">.</span><span class="nf">randomPos</span><span class="p">()</span>
+
+        <span class="c1"># 2. Check vertex inside the Obstacles (if inside -&gt; True, otherwise: False)
+</span>        <span class="k">if</span> <span class="nf">isInObstacle</span><span class="p">(</span><span class="n">randvex</span><span class="p">,</span> <span class="n">obstacles</span><span class="p">):</span> 
+            <span class="k">continue</span>
+
+        <span class="c1"># 3. Find the near vertices
+</span>        <span class="n">nearvex</span><span class="p">,</span> <span class="n">nearidx</span> <span class="o">=</span> <span class="nf">nearest</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">randvex</span><span class="p">,</span> <span class="n">obstacles</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nearvex</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># 4. Steer steerVertex
+</span>        <span class="n">newvex</span> <span class="o">=</span> <span class="nf">steerVertex</span><span class="p">(</span><span class="n">randvex</span><span class="p">,</span> <span class="n">nearvex</span><span class="p">,</span> <span class="n">stepSize</span><span class="p">)</span>
+
+        <span class="c1"># 5. Add vertex and edge with nearest vertex
+</span>        <span class="n">newidx</span> <span class="o">=</span> <span class="n">G</span><span class="p">.</span><span class="nf">add_vertex</span><span class="p">(</span><span class="n">newvex</span><span class="p">)</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="nf">distance</span><span class="p">(</span><span class="n">newvex</span><span class="p">,</span> <span class="n">nearvex</span><span class="p">)</span>
+        <span class="n">G</span><span class="p">.</span><span class="nf">add_edge</span><span class="p">(</span><span class="n">newidx</span><span class="p">,</span> <span class="n">nearidx</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span>
+
+        <span class="c1">#6. check if the point reach the goal
+</span>        <span class="n">dist</span> <span class="o">=</span> <span class="nf">distance</span><span class="p">(</span><span class="n">newvex</span><span class="p">,</span> <span class="n">G</span><span class="p">.</span><span class="n">endpos</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">goal_radius</span><span class="p">:</span>
+            <span class="n">endidx</span> <span class="o">=</span> <span class="n">G</span><span class="p">.</span><span class="nf">add_vertex</span><span class="p">(</span><span class="n">G</span><span class="p">.</span><span class="n">endpos</span><span class="p">)</span>
+            <span class="n">G</span><span class="p">.</span><span class="nf">add_edge</span><span class="p">(</span><span class="n">newidx</span><span class="p">,</span> <span class="n">endidx</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span>
+            <span class="n">G</span><span class="p">.</span><span class="n">success</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="c1"># print('Found Goadl!')
+</span>            <span class="c1"># break
+</span>    <span class="n">end</span> <span class="o">=</span> <span class="nf">timer</span><span class="p">()</span>
+    <span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">Execution time RRT:</span><span class="sh">"</span><span class="p">,</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">,</span> <span class="sh">"</span><span class="s">seconds</span><span class="sh">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">G</span>
+</code></pre></div></div>
+
+<ul>
+  <li><strong>RRT</strong><em>: is a variant of the Rapidly Exploring Random Tree (RRT) algorithm, which is designed for efficiently searching nonconvex, high-dimensional spaces by randomly building a space-filling tree. While RRT gives a valid path but not necessarily the shortest path, RRT</em> is an optimized version of RRT that aims to achieve a shortest path by rewiring the tree in a way that a given such radius and always tries to find a shorter path from the randomly sampled node back to the start in the tree. This makes RRT* to give an optimal solution and makes it even more feasible for high dimensional problems. RRT* is particularly suitable for path planning problems that involve obstacles and differential constraints, but it is not suitable for non-holonomic vehicles. RRT* was developed by Sertac Karaman in paper Sampling-based Algorithms for Optimal Motion Planning <a href="https://arxiv.org/pdf/1105.1186.pdf">pdf</a></li>
+</ul>
+
+<p>Snippet code of <strong>RRT*</strong> in Python:</p>
+
+<p class="filename">RRT_star.py</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">RRT_star</span><span class="p">(</span><span class="n">startpos</span><span class="p">,</span> <span class="n">endpos</span><span class="p">,</span> <span class="n">n_iter</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">goal_radius</span><span class="p">,</span> <span class="n">stepSize</span><span class="p">,</span> <span class="n">obstacles</span><span class="p">):</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="nf">timer</span><span class="p">()</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="nc">Graph</span><span class="p">(</span><span class="n">startpos</span><span class="p">,</span> <span class="n">endpos</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">n_iter</span><span class="p">):</span>
+        <span class="c1"># 1. Sample a random Vertice
+</span>        <span class="n">randvex</span> <span class="o">=</span> <span class="n">G</span><span class="p">.</span><span class="nf">randomPos</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nf">isInObstacle</span><span class="p">(</span><span class="n">randvex</span><span class="p">,</span> <span class="n">obstacles</span><span class="p">):</span> <span class="c1">#check vertex inside the Sphere Obstacles
+</span>            <span class="k">continue</span>
+        <span class="c1"># 2. Find the near vertices
+</span>        <span class="n">nearvex</span><span class="p">,</span> <span class="n">nearidx</span> <span class="o">=</span> <span class="nf">nearest</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">randvex</span><span class="p">,</span> <span class="n">obstacles</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nearvex</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        
+        <span class="c1"># 3. Steer steerVertex
+</span>        <span class="n">newvex</span> <span class="o">=</span> <span class="nf">steerVertex</span><span class="p">(</span><span class="n">randvex</span><span class="p">,</span> <span class="n">nearvex</span><span class="p">,</span> <span class="n">stepSize</span><span class="p">)</span>
+        
+        <span class="c1">#4. Add vertex and edge with nearest vertex
+</span>        <span class="n">newidx</span> <span class="o">=</span> <span class="n">G</span><span class="p">.</span><span class="nf">add_vertex</span><span class="p">(</span><span class="n">newvex</span><span class="p">)</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="nf">distance</span><span class="p">(</span><span class="n">newvex</span><span class="p">,</span> <span class="n">nearvex</span><span class="p">)</span>
+        <span class="n">G</span><span class="p">.</span><span class="nf">add_edge</span><span class="p">(</span><span class="n">newidx</span><span class="p">,</span> <span class="n">nearidx</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span>
+        <span class="n">G</span><span class="p">.</span><span class="n">distances</span><span class="p">[</span><span class="n">newidx</span><span class="p">]</span> <span class="o">=</span> <span class="n">G</span><span class="p">.</span><span class="n">distances</span><span class="p">[</span><span class="n">nearidx</span><span class="p">]</span> <span class="o">+</span> <span class="n">dist</span>
+
+        <span class="c1"># 5. Rewire step: update nearby vertices distance (if shorter)
+</span>        <span class="k">for</span> <span class="n">vex</span> <span class="ow">in</span> <span class="n">G</span><span class="p">.</span><span class="n">vertices</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">vex</span> <span class="o">==</span> <span class="n">newvex</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">dist</span> <span class="o">=</span> <span class="nf">distance</span><span class="p">(</span><span class="n">vex</span><span class="p">,</span> <span class="n">newvex</span><span class="p">)</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="nc">Line</span><span class="p">(</span><span class="n">vex</span><span class="p">,</span> <span class="n">newvex</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nf">isThruObstacle</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">obstacles</span><span class="p">):</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="n">dist</span> <span class="o">&gt;</span> <span class="n">radius</span><span class="p">:</span>
+                <span class="k">continue</span>
+            
+            <span class="c1"># When dist &lt; radius implement this code
+</span>            <span class="n">idx</span> <span class="o">=</span> <span class="n">G</span><span class="p">.</span><span class="n">vex2idx</span><span class="p">[</span><span class="n">vex</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">G</span><span class="p">.</span><span class="n">distances</span><span class="p">[</span><span class="n">newidx</span><span class="p">]</span> <span class="o">+</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="n">G</span><span class="p">.</span><span class="n">distances</span><span class="p">[</span><span class="n">idx</span><span class="p">]:</span>
+                <span class="n">G</span><span class="p">.</span><span class="nf">add_edge</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">newidx</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span>
+                <span class="n">G</span><span class="p">.</span><span class="n">distances</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">G</span><span class="p">.</span><span class="n">distances</span><span class="p">[</span><span class="n">newidx</span><span class="p">]</span> <span class="o">+</span> <span class="n">dist</span>
+
+
+        <span class="c1"># 6. Check the goal
+</span>        <span class="n">dist</span> <span class="o">=</span> <span class="nf">distance</span><span class="p">(</span><span class="n">newvex</span><span class="p">,</span> <span class="n">G</span><span class="p">.</span><span class="n">endpos</span><span class="p">)</span>  
+        <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">goal_radius</span><span class="p">:</span>
+            <span class="n">endidx</span> <span class="o">=</span> <span class="n">G</span><span class="p">.</span><span class="nf">add_vertex</span><span class="p">(</span><span class="n">G</span><span class="p">.</span><span class="n">endpos</span><span class="p">)</span>
+            <span class="n">G</span><span class="p">.</span><span class="nf">add_edge</span><span class="p">(</span><span class="n">newidx</span><span class="p">,</span> <span class="n">endidx</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">G</span><span class="p">.</span><span class="n">distances</span><span class="p">[</span><span class="n">endidx</span><span class="p">]</span> <span class="o">=</span> <span class="nf">min</span><span class="p">(</span><span class="n">G</span><span class="p">.</span><span class="n">distances</span><span class="p">[</span><span class="n">endidx</span><span class="p">],</span> <span class="n">G</span><span class="p">.</span><span class="n">distances</span><span class="p">[</span><span class="n">newidx</span><span class="p">]</span><span class="o">+</span><span class="n">dist</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">G</span><span class="p">.</span><span class="n">distances</span><span class="p">[</span><span class="n">endidx</span><span class="p">]</span> <span class="o">=</span> <span class="n">G</span><span class="p">.</span><span class="n">distances</span><span class="p">[</span><span class="n">newidx</span><span class="p">]</span><span class="o">+</span><span class="n">dist</span>
+
+            <span class="n">G</span><span class="p">.</span><span class="n">success</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="nf">print</span><span class="p">(</span><span class="sh">'</span><span class="s">success</span><span class="sh">'</span><span class="p">)</span>
+            <span class="k">break</span>
+    <span class="k">return</span> <span class="n">G</span>
+
+</code></pre></div></div>
+
+<h2 id="references">References</h2>
+<ol>
+  <li>Depth First Search (DFS) Explained: Algorithm, Examples, and Code <a href="https://www.youtube.com/watch?v=PMMc4VsIacU">link</a></li>
+  <li>Depth First Search Wiki <a href="https://en.wikipedia.org/wiki/Depth-first_search">link</a></li>
+  <li>Depth First Search (DFS) in Python <a href="https://www.scaler.com/topics/dfs-python/">link</a></li>
+  <li>Udemy course the introduction sampling based motion planning algorithms <a href="https://www.udemy.com/course/an-introduction-to-sampling-based-motion-planning-algorithms/l">link</a></li>
+  <li>TreeNode - Nonlinear Data Structure <a href="https://www.codecademy.com/learn/nonlinear-data-structures-python/modules/trees-python/cheatsheet">Link</a></li>
+  <li>Useful Python Implementation of Rapidly-exploring random tree (RRT) Path-planning Algorithm from Fanjin Zeng <a href="https://gist.github.com/Fnjn/58e5eaa27a3dc004c3526ea82a92de80">link</a></li>
+</ol>
+
+        </div>
+
+    </div>
+
+    <!-- Header scroll behavior -->
+    <script>
+        const header = document.getElementById("mainHeader");
+        const hoverZone = document.getElementById("hoverZone");
+        let lastScroll = 0;
+
+        window.addEventListener("scroll", () => {
+            const currentScroll = window.pageYOffset;
+
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                header.classList.add("-translate-y-full");
+            } else {
+                header.classList.remove("-translate-y-full");
+            }
+
+            lastScroll = currentScroll;
+        });
+
+        hoverZone.addEventListener("mouseenter", () => {
+            header.classList.remove("-translate-y-full");
+        });
+
+        
+    </script>
+
+    <!-- Theme Toggle -->
+    <button onclick="document.documentElement.classList.toggle('dark')"
+        class="fixed bottom-4 right-4 bg-white text-black p-3 border-4 border-gray-400 rounded-full shadow-lg text-sm font-semibold hover:bg-secondary transition-colors duration-300 dark:bg-gray-800 dark:text-white dark:border-orange-600 dark:hover:bg-secondary">
+        Toggle Theme
+    </button>
+
+</body>
+
+</html>

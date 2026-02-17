@@ -1,6 +1,6 @@
 ---
 layout: post
-category: research
+category: blog
 title: (Algorithms C++) 1. Algorithms Overview C++
 snippet: This tutorial following the algorithms in C++
 tags: [Algorithms C++]

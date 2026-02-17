@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What is the Descartes path planning - ARMI Research Laboratory</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+        :root {
+            --primary: #0A1A2F;
+            --secondary: #d46700;
+            --text-dark: #000000;
+            --text-light: #ffffff;
+            --bg-light: #ffffff;
+            --bg-dark: #0d1117;
+            --card-dark: #111827;
+        }
+
+        .dark {
+            color-scheme: dark;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .dark body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+        }
+
+        .card-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--bg-light);
+            border-radius: 2rem;
+            padding: 2.5rem;
+            border: 2px solid var(--primary);
+        }
+
+        .dark .card-container {
+            background-color: var(--card-dark);
+            border-color: var(--secondary);
+        }
+
+        .post-content h2 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+        }
+
+        .dark .post-content h2 {
+            color: var(--text-light);
+        }
+
+        .post-content h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--primary);
+        }
+
+        .dark .post-content h3 {
+            color: var(--text-light);
+        }
+
+        .post-content p {
+            margin-bottom: 1rem;
+            line-height: 1.75;
+        }
+
+        .post-content ul, .post-content ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .post-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .post-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        .post-content table th {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .dark .post-content table th {
+            background-color: var(--secondary);
+        }
+
+        .post-content table td {
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem;
+        }
+
+        .dark .post-content table td {
+            border-color: #374151;
+        }
+
+        .post-content table tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+
+        .dark .post-content table tr:nth-child(even) {
+            background-color: #1f2937;
+        }
+
+        .post-content code {
+            background-color: #f3f4f6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        .dark .post-content code {
+            background-color: #374151;
+        }
+
+        .post-content pre {
+            background-color: #1f2937 !important;
+            color: #f3f4f6 !important;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .post-content pre code {
+            background-color: transparent !important;
+            color: #f3f4f6 !important;
+            padding: 0;
+        }
+
+        .post-content .highlight {
+            background-color: #1f2937 !important;
+        }
+
+        .post-content .highlight pre {
+            background-color: #1f2937 !important;
+        }
+
+        .post-content .highlight code {
+            color: #f3f4f6 !important;
+        }
+
+        .post-content blockquote {
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+            margin: 1rem 0;
+            font-style: italic;
+            color: #6b7280;
+        }
+
+        .dark .post-content blockquote {
+            color: #9ca3af;
+        }
+
+        .post-content hr {
+            border: none;
+            border-top: 2px solid #e5e7eb;
+            margin: 2rem 0;
+        }
+
+        .dark .post-content hr {
+            border-top-color: #374151;
+        }
+
+        .post-content strong {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .dark .post-content strong {
+            color: var(--secondary);
+        }
+
+        .post-content a {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+
+        .post-content a:hover {
+            color: var(--primary);
+        }
+
+        .dark .post-content a:hover {
+            color: var(--text-light);
+        }
+    </style>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0A1A2F',
+                        secondary: '#e97509',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+
+    <div id="hoverZone" class="fixed top-0 left-0 w-full h-6 z-40"></div>
+
+    <header id="mainHeader" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out bg-gradient-to-b from-white to-gray-100 dark:from-gray-900 dark:to-black shadow-md">
+        <div class="relative w-full border-b-4 border-gray-500 dark:border-orange-600">
+            <div class="max-w-7xl mx-auto px-6 py-4 relative flex items-center justify-between">
+                <div class="flex gap-3">
+                    <a href="/lab/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Lab</div>
+                    </a>
+                    <a href="/blog/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Blog</div>
+
+                </div>
+                <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
+                    <img src="/images/logo.png" class="w-16 h-14 object-contain dark:brightness-90">
+                    <a href="/default/">
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-orange-500 hover:text-orange-500 dark:hover:text-orange-400 transition-colors">ARMI Lab</h1>
+                    </a>
+                </div>
+                <div class="text-sm text-gray-700 dark:text-gray-300 leading-tight">
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">A</span>utonomous</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">R</span>obotics</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">M</span>achine</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">I</span>ntelligence</div>
+                    <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">Research Laboratory</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="card-container shadow-2xl lg:p-12 transition duration-500 mt-40">
+
+        <h1 class="text-4xl font-bold mb-4 text-gray-800 dark:text-gray-100">What is the Descartes path planning</h1>
+
+        <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+            August 20, 2023
+        </div>
+
+        
+        <div class="flex gap-2 mb-6">
+            
+            <a href="/tags/#robotics" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-secondary hover:text-white transition-colors">
+                robotics
+            </a>
+            
+            <a href="/tags/#ROS" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-secondary hover:text-white transition-colors">
+                ROS
+            </a>
+            
+            <a href="/tags/#C++" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-secondary hover:text-white transition-colors">
+                C++
+            </a>
+            
+        </div>
+        
+
+        <hr class="mb-8 border-gray-300 dark:border-gray-700">
+
+        <div style="margin-bottom: 2rem;">
+            <a href="/blog/" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #e97509; color: white; text-decoration: none; border-radius: 0.5rem; font-weight: 600; transition: all 0.3s;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Back
+            </a>
+        </div>
+
+        <div class="post-content">
+            <!-- use case:
+include image.html url="/images/my-cat.jpg" description="My cat, Robert Downey Jr." width = "50%" hide="true"
+-->
+<!-- hide is used to hide content from mainbody but show up in the gallery. Exclude if not using -->
+
+<figure class="image">
+  <img src="/assets/2023-08-19-What-is-Descartes-planning/Puzzle_Piece_Demo.gif" alt=" Descartes Descartes Motion Planner Puzzle Piece " style="width: 80%;" />
+  <figcaption class="caption"> Descartes Descartes Motion Planner Puzzle Piece </figcaption>
+</figure>
+
+<p>Descartes is a ROS-Industrial project that performs path-planning on under-defined Cartesian trajectories. It uses trajectory points, robot models, and planners to generate a joint-trajectory that complies with the constraints of a given process. Trajectory points define an individual point in time along a path, robot models define the physical characteristics of a robot that must complete a given trajectory, and planners are responsible for finding valid and optimal solutions through a sequence of trajectory points for a given robot model. Each of these major components has a separate package which provides reference implementations. More information can be found in the ROSCon 2015 talk by Shaun Edwards entitled, <a href="https://roscon.ros.org/2015/presentations/ROSCon_Descartes.pdf">“The Descartes Planning Library for Semi-Constrained Cartesian Trajectories”</a></p>
+
+<p>ROS Link: <a href="http://wiki.ros.org/descartes">http://wiki.ros.org/descartes</a></p>
+
+<p>Descartes planning library for semi-constrained trajectories
+<strong>• Requirements</strong>
+– Generate common sense plans</p>
+
+<p>– Find easy solutions fast, hard solutions
+with time</p>
+
+<p>– Handle hybrid trajectories (joint,
+Cartesian, specialized points)</p>
+
+<p>– Fast re-planning/cached planning</p>
+
+<h2 id="key-features">Key Features</h2>
+
+<!-- use case:
+include image.html url="/images/my-cat.jpg" description="My cat, Robert Downey Jr." width = "50%" hide="true"
+-->
+<!-- hide is used to hide content from mainbody but show up in the gallery. Exclude if not using -->
+
+<figure class="image">
+  <img src="/assets/2023-08-19-What-is-Descartes-planning/Descartes_planning_2.png" alt=" Descartes is a ROS-Industrial project that performs path-planning on under-defined Cartesian trajectories " style="width: 100%;" />
+  <figcaption class="caption"> Descartes is a ROS-Industrial project that performs path-planning on under-defined Cartesian trajectories </figcaption>
+</figure>
+
+<p>Descartes, as a path planning library, is often compared to MoveIt. However, it differs from MoveIt in several key ways:</p>
+
+<ul>
+  <li>
+    <p><strong>Cartesian Planning</strong>: While MoveIt plans free space motion (i.e. move from A to B), Descartes plans robot joint motion for semi-constrained Cartesian paths (i.e. ones whose waypoints may have less than a fully specified 6DOF pose).</p>
+  </li>
+  <li>
+    <p><strong>Efficient, Repeatable, Scale-able Planning</strong>: The paths that result from Descartes appear very similar to human generated paths, but without all the effort. The plans are also repeatable and scale-able to the complexity of the problem (easy paths are planned very quickly, hard paths take time but are still solved).</p>
+  </li>
+  <li>
+    <p><strong>Dynamic Re-planning</strong>: Path planning structures are maintained in memory after planning is complete. When changes are made to the desired path, an updated robot joint trajectory can be generated nearly instantaneously.</p>
+  </li>
+  <li>
+    <p><strong>Offline Planning</strong>: Similar to MoveIt, but different than other planners, Descartes is primarily focused on offline or sense/plan/act applications. Real-time planning is not a feature of Descartes.</p>
+  </li>
+</ul>
+
+<h2 id="installation">Installation</h2>
+
+<p>Install all ROS dependences</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://github.com/ros-industrial-consortium/descartes
+https://github.com/ros-industrial-consortium/descartes_tutorials/
+https://github.com/ros-industrial/industrial_core
+https://github.com/ros-industrial/abb
+</code></pre></div></div>
+<p>Running</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>roslaunch descartes_tutorials setup.launch
+rosrun descartes_tutorials tutorial1
+</code></pre></div></div>
+<p>Robot ABB will execute a line by using Descartes planning</p>
+
+<!-- use case:
+include image.html url="/images/my-cat.jpg" description="My cat, Robert Downey Jr." width = "50%" hide="true"
+-->
+<!-- hide is used to hide content from mainbody but show up in the gallery. Exclude if not using -->
+
+<figure class="image">
+  <img src="/assets/2023-08-19-What-is-Descartes-planning/Descartes_planning.gif" alt=" Descartes is a ROS-Industrial project that performs path-planning on under-defined Cartesian trajectories " style="width: 100%;" />
+  <figcaption class="caption"> Descartes is a ROS-Industrial project that performs path-planning on under-defined Cartesian trajectories </figcaption>
+</figure>
+
+<h2 id="what-are-the-advantages-of-descartes-path-planning-over-other-planners">What are the advantages of descartes’ path planning over other planners</h2>
+<p>The advantages of Descartes’ path planning over other planners include:</p>
+
+<ul>
+  <li>
+    <p>Semi-Constrained Cartesian Paths: Descartes plans robot joint motion for semi-constrained Cartesian paths, allowing for planning in scenarios where waypoints may have less than a fully specified 6DOF pose</p>
+  </li>
+  <li>
+    <p>Efficient and Repeatable Planning: The paths generated by Descartes are efficient, repeatable, and scalable to the complexity of the problem. They resemble human-generated paths without the same level of effort</p>
+  </li>
+  <li>
+    <p>Dynamic Re-planning: Descartes maintains path planning structures in memory, enabling the generation of an updated robot joint trajectory nearly instantaneously when changes are made to the desired path</p>
+  </li>
+  <li>
+    <p>Offline Planning Focus: Descartes is primarily focused on offline or sense/plan/act applications, making it suitable for applications where real-time planning is not a requirement</p>
+  </li>
+  <li>
+    <p>Path Optimization and Collision Avoidance: Descartes offers path optimization, collision avoidance, and a plug-in architecture, making it suitable for various robotic applications.</p>
+  </li>
+</ul>
+
+<p>These advantages position Descartes as a suitable choice for applications requiring efficient, repeatable, and scalable path planning in semi-constrained Cartesian environments, where real-time planning is not a necessity</p>
+
+<div class="embed-container">
+    <iframe width="640" height="390" src="https://www.youtube.com/embed/IFZOyh4kpOQ" frameborder="0" allowfullscreen=""></iframe>
+</div>
+<style>
+.embed-container {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+  max-width: 100%;
+}
+.embed-container iframe,
+.embed-container object,
+.embed-container embed {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+</style>
+
+<h1 id="references">References</h1>
+
+<ol>
+  <li><a href="https://picknik.ai/cartesian%20planners/moveit/motion%20planning/2021/01/07/guide-to-cartesian-planners-in-moveit.html">https://picknik.ai/cartesian%20planners/moveit/motion%20planning/2021/01/07/guide-to-cartesian-planners-in-moveit.html</a></li>
+  <li><a href="http://wiki.ros.org/descartes">http://wiki.ros.org/descartes</a></li>
+</ol>
+
+        </div>
+
+    </div>
+
+    <!-- Header scroll behavior -->
+    <script>
+        const header = document.getElementById("mainHeader");
+        const hoverZone = document.getElementById("hoverZone");
+        let lastScroll = 0;
+
+        window.addEventListener("scroll", () => {
+            const currentScroll = window.pageYOffset;
+
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                header.classList.add("-translate-y-full");
+            } else {
+                header.classList.remove("-translate-y-full");
+            }
+
+            lastScroll = currentScroll;
+        });
+
+        hoverZone.addEventListener("mouseenter", () => {
+            header.classList.remove("-translate-y-full");
+        });
+
+        
+    </script>
+
+    <!-- Theme Toggle -->
+    <button onclick="document.documentElement.classList.toggle('dark')"
+        class="fixed bottom-4 right-4 bg-white text-black p-3 border-4 border-gray-400 rounded-full shadow-lg text-sm font-semibold hover:bg-secondary transition-colors duration-300 dark:bg-gray-800 dark:text-white dark:border-orange-600 dark:hover:bg-secondary">
+        Toggle Theme
+    </button>
+
+</body>
+
+</html>

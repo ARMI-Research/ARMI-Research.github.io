@@ -1,6 +1,6 @@
 ---
 layout: post
-category: research
+category: blog
 title: 3D Rigid Body Motion by using Eigen in C++
 snippet: Learn the rigid body geometry in 3D and Eigen library in matrix and geometry module.
 tags: [C++, robotics, math]

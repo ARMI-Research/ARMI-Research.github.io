@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluate the reach capability of a robot system - ARMI Research Laboratory</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- KaTeX for mathematical equations -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+        :root {
+            --primary: #0A1A2F;
+            --secondary: #d46700;
+            --text-dark: #000000;
+            --text-light: #ffffff;
+            --bg-light: #ffffff;
+            --bg-dark: #0d1117;
+            --card-dark: #111827;
+        }
+
+        .dark {
+            color-scheme: dark;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .dark body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+        }
+
+        .card-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--bg-light);
+            border-radius: 2rem;
+            padding: 2.5rem;
+            border: 2px solid var(--primary);
+        }
+
+        .dark .card-container {
+            background-color: var(--card-dark);
+            border-color: var(--secondary);
+        }
+
+        .post-content h2 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+        }
+
+        .dark .post-content h2 {
+            color: var(--text-light);
+        }
+
+        .post-content h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--primary);
+        }
+
+        .dark .post-content h3 {
+            color: var(--text-light);
+        }
+
+        .post-content p {
+            margin-bottom: 1rem;
+            line-height: 1.75;
+        }
+
+        .post-content ul, .post-content ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .post-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .post-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        .post-content table th {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .dark .post-content table th {
+            background-color: var(--secondary);
+        }
+
+        .post-content table td {
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem;
+        }
+
+        .dark .post-content table td {
+            border-color: #374151;
+        }
+
+        .post-content table tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+
+        .dark .post-content table tr:nth-child(even) {
+            background-color: #1f2937;
+        }
+
+        .post-content code {
+            background-color: #f3f4f6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        .dark .post-content code {
+            background-color: #374151;
+        }
+
+        .post-content pre {
+            background-color: #1f2937 !important;
+            color: #f3f4f6 !important;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .post-content pre code {
+            background-color: transparent !important;
+            color: #f3f4f6 !important;
+            padding: 0;
+        }
+
+        .post-content .highlight {
+            background-color: #1f2937 !important;
+        }
+
+        .post-content .highlight pre {
+            background-color: #1f2937 !important;
+        }
+
+        .post-content .highlight code {
+            color: #f3f4f6 !important;
+        }
+
+        .post-content blockquote {
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+            margin: 1rem 0;
+            font-style: italic;
+            color: #6b7280;
+        }
+
+        .dark .post-content blockquote {
+            color: #9ca3af;
+        }
+
+        .post-content hr {
+            border: none;
+            border-top: 2px solid #e5e7eb;
+            margin: 2rem 0;
+        }
+
+        .dark .post-content hr {
+            border-top-color: #374151;
+        }
+
+        .post-content strong {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .dark .post-content strong {
+            color: var(--secondary);
+        }
+
+        .post-content a {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+
+        .post-content a:hover {
+            color: var(--primary);
+        }
+
+        .dark .post-content a:hover {
+            color: var(--text-light);
+        }
+    </style>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0A1A2F',
+                        secondary: '#e97509',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+
+    <div id="hoverZone" class="fixed top-0 left-0 w-full h-6 z-40"></div>
+
+    <header id="mainHeader" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out bg-gradient-to-b from-white to-gray-100 dark:from-gray-900 dark:to-black shadow-md">
+        <div class="relative w-full border-b-4 border-gray-500 dark:border-orange-600">
+            <div class="max-w-7xl mx-auto px-6 py-4 relative flex items-center justify-between">
+                <div class="flex gap-3">
+                    <a href="/lab/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Lab</div>
+                    </a>
+                    <a href="/blog/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Blog</div>
+
+                </div>
+                <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
+                    <img src="/images/logo.png" class="w-16 h-14 object-contain dark:brightness-90">
+                    <a href="/default/">
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-orange-500 hover:text-orange-500 dark:hover:text-orange-400 transition-colors">ARMI Lab</h1>
+                    </a>
+                </div>
+                <div class="text-sm text-gray-700 dark:text-gray-300 leading-tight">
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">A</span>utonomous</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">R</span>obotics</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">M</span>achine</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">I</span>ntelligence</div>
+                    <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">Research Laboratory</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="card-container shadow-2xl lg:p-12 transition duration-500 mt-40">
+
+        <h1 class="text-4xl font-bold mb-4 text-gray-800 dark:text-gray-100">Evaluate the reach capability of a robot system</h1>
+
+        <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+            January 11, 2024
+        </div>
+
+        
+        <div class="flex gap-2 mb-6">
+            
+            <a href="/tags/#robotics" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-secondary hover:text-white transition-colors">
+                robotics
+            </a>
+            
+            <a href="/tags/#ROS" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-secondary hover:text-white transition-colors">
+                ROS
+            </a>
+            
+        </div>
+        
+
+        <hr class="mb-8 border-gray-300 dark:border-gray-700">
+
+        <div style="margin-bottom: 2rem;">
+            <a href="/blog/" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #e97509; color: white; text-decoration: none; border-radius: 0.5rem; font-weight: 600; transition: all 0.3s;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Back
+            </a>
+        </div>
+
+        <div class="post-content">
+            <p><strong>Quantitatively evaluate the reach capability</strong></p>
+
+<!-- use case:
+include image.html url="/images/my-cat.jpg" description="My cat, Robert Downey Jr." width = "50%" hide="true"
+-->
+<!-- hide is used to hide content from mainbody but show up in the gallery. Exclude if not using -->
+
+<figure class="image">
+  <img src="/assets/2024-01-11-Reach-package-quantitatively-reach-analysis/reach_study_demo.gif" alt=" a ROS package is a tool that allows users to visualize and quantitatively evaluate the reach capability of a robot system for a given workpiece " style="width: 90%;" />
+  <figcaption class="caption"> a ROS package is a tool that allows users to visualize and quantitatively evaluate the reach capability of a robot system for a given workpiece </figcaption>
+</figure>
+
+<p>The ROS package is a tool that allows users to visualize and quantitatively evaluate the reach capability of a robot system for a given workpiece. It contains ROS-based plugins for kinematics, evaluation, and display interfaces. The package can be used to calculate a numerical “fitness” score of an inverse kinematics (IK) solution at a given Cartesian target pose, with higher values indicating better reachability. The package can also generate a point cloud of target points on the workpiece and create a configuration YAML file defining the parameters of the reach study and the configuration of the interface plugins. The package can be installed by cloning the repository into a catkin workspace and installing the dependencies. The ROS package can be used with ROS1 infrastructure and plugins, or with ROS2-based plugins.</p>
+
+<h2 id="i-how-to-use-this-ros-package">I. How to use this ros package</h2>
+
+<p>The package can also generate a point cloud of target points on the workpiece and create a configuration YAML file defining the parameters of the reach study and the configuration of the interface plugins. The package contains ROS-based plugins for kinematics, evaluation, and display interfaces. The interfaces described above are exposed as plugins using the boost_plugin_loader library to support custom implementations.</p>
+
+<p>To use this, follow these general steps:</p>
+
+<ol>
+  <li>Install the reach ros package</li>
+  <li>Prepare necessary files for your robot system, such as URDF, SRDF, kinematics file, joint limits file, etc.</li>
+  <li>Generate a mesh model of the workpiece if needed.</li>
+  <li>Create a point cloud of the target points on the workpiece using a command line tool like PCL 1.8:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pcl_mesh_sampling &lt;workpiece_mesh&gt;.ply &lt;output_cloud&gt;.pcd -n_samples &lt;number of samples&gt; -leaf_size &lt;leaf_size&gt;
+</code></pre></div>    </div>
+  </li>
+  <li>Create a configuration YAML file defining the parameters of the reach study and the configuration of the interface plugins.</li>
+  <li>Run the setup launch file and the reach study analysis.</li>
+</ol>
+
+<h2 id="ii-result-of-this-ros-package">II. Result of this ros package</h2>
+
+<p>This package is a tool that allows users to visualize and quantitatively evaluate the reach capability of a robot system for a given workpiece. The reach_ros and reach_ros2 repositories provide ROS-based plugins, capability demos, and general usage instructions for the reach package</p>
+
+<div class="embed-container">
+    <iframe width="640" height="390" src="https://www.youtube.com/embed/vbiBiJssqnM" frameborder="0" allowfullscreen=""></iframe>
+</div>
+<style>
+.embed-container {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+  max-width: 100%;
+}
+.embed-container iframe,
+.embed-container object,
+.embed-container embed {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+</style>
+
+<h2 id="references">References</h2>
+<ol>
+  <li><a href="https://github.com/ros-industrial/reach">GitHub</a></li>
+</ol>
+
+        </div>
+
+    </div>
+
+    <!-- Header scroll behavior -->
+    <script>
+        const header = document.getElementById("mainHeader");
+        const hoverZone = document.getElementById("hoverZone");
+        let lastScroll = 0;
+
+        window.addEventListener("scroll", () => {
+            const currentScroll = window.pageYOffset;
+
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                header.classList.add("-translate-y-full");
+            } else {
+                header.classList.remove("-translate-y-full");
+            }
+
+            lastScroll = currentScroll;
+        });
+
+        hoverZone.addEventListener("mouseenter", () => {
+            header.classList.remove("-translate-y-full");
+        });
+
+        
+        // Render KaTeX
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\[", right: "\\]", display: true},
+                    {left: "\\(", right: "\\)", display: false}
+                ]
+            });
+        });
+        
+    </script>
+
+    <!-- Theme Toggle -->
+    <button onclick="document.documentElement.classList.toggle('dark')"
+        class="fixed bottom-4 right-4 bg-white text-black p-3 border-4 border-gray-400 rounded-full shadow-lg text-sm font-semibold hover:bg-secondary transition-colors duration-300 dark:bg-gray-800 dark:text-white dark:border-orange-600 dark:hover:bg-secondary">
+        Toggle Theme
+    </button>
+
+</body>
+
+</html>

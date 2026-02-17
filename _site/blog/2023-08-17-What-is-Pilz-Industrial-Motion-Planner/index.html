@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What is the Pilz Industrial Motion Planner? - ARMI Research Laboratory</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+        :root {
+            --primary: #0A1A2F;
+            --secondary: #d46700;
+            --text-dark: #000000;
+            --text-light: #ffffff;
+            --bg-light: #ffffff;
+            --bg-dark: #0d1117;
+            --card-dark: #111827;
+        }
+
+        .dark {
+            color-scheme: dark;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .dark body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+        }
+
+        .card-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--bg-light);
+            border-radius: 2rem;
+            padding: 2.5rem;
+            border: 2px solid var(--primary);
+        }
+
+        .dark .card-container {
+            background-color: var(--card-dark);
+            border-color: var(--secondary);
+        }
+
+        .post-content h2 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+        }
+
+        .dark .post-content h2 {
+            color: var(--text-light);
+        }
+
+        .post-content h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--primary);
+        }
+
+        .dark .post-content h3 {
+            color: var(--text-light);
+        }
+
+        .post-content p {
+            margin-bottom: 1rem;
+            line-height: 1.75;
+        }
+
+        .post-content ul, .post-content ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .post-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .post-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        .post-content table th {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .dark .post-content table th {
+            background-color: var(--secondary);
+        }
+
+        .post-content table td {
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem;
+        }
+
+        .dark .post-content table td {
+            border-color: #374151;
+        }
+
+        .post-content table tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+
+        .dark .post-content table tr:nth-child(even) {
+            background-color: #1f2937;
+        }
+
+        .post-content code {
+            background-color: #f3f4f6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        .dark .post-content code {
+            background-color: #374151;
+        }
+
+        .post-content pre {
+            background-color: #1f2937 !important;
+            color: #f3f4f6 !important;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .post-content pre code {
+            background-color: transparent !important;
+            color: #f3f4f6 !important;
+            padding: 0;
+        }
+
+        .post-content .highlight {
+            background-color: #1f2937 !important;
+        }
+
+        .post-content .highlight pre {
+            background-color: #1f2937 !important;
+        }
+
+        .post-content .highlight code {
+            color: #f3f4f6 !important;
+        }
+
+        .post-content blockquote {
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+            margin: 1rem 0;
+            font-style: italic;
+            color: #6b7280;
+        }
+
+        .dark .post-content blockquote {
+            color: #9ca3af;
+        }
+
+        .post-content hr {
+            border: none;
+            border-top: 2px solid #e5e7eb;
+            margin: 2rem 0;
+        }
+
+        .dark .post-content hr {
+            border-top-color: #374151;
+        }
+
+        .post-content strong {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .dark .post-content strong {
+            color: var(--secondary);
+        }
+
+        .post-content a {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+
+        .post-content a:hover {
+            color: var(--primary);
+        }
+
+        .dark .post-content a:hover {
+            color: var(--text-light);
+        }
+    </style>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0A1A2F',
+                        secondary: '#e97509',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+
+    <div id="hoverZone" class="fixed top-0 left-0 w-full h-6 z-40"></div>
+
+    <header id="mainHeader" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out bg-gradient-to-b from-white to-gray-100 dark:from-gray-900 dark:to-black shadow-md">
+        <div class="relative w-full border-b-4 border-gray-500 dark:border-orange-600">
+            <div class="max-w-7xl mx-auto px-6 py-4 relative flex items-center justify-between">
+                <div class="flex gap-3">
+                    <a href="/lab/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Lab</div>
+                    </a>
+                    <a href="/blog/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Blog</div>
+
+                </div>
+                <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
+                    <img src="/images/logo.png" class="w-16 h-14 object-contain dark:brightness-90">
+                    <a href="/default/">
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-orange-500 hover:text-orange-500 dark:hover:text-orange-400 transition-colors">ARMI Lab</h1>
+                    </a>
+                </div>
+                <div class="text-sm text-gray-700 dark:text-gray-300 leading-tight">
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">A</span>utonomous</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">R</span>obotics</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">M</span>achine</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">I</span>ntelligence</div>
+                    <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">Research Laboratory</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="card-container shadow-2xl lg:p-12 transition duration-500 mt-40">
+
+        <h1 class="text-4xl font-bold mb-4 text-gray-800 dark:text-gray-100">What is the Pilz Industrial Motion Planner?</h1>
+
+        <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+            August 17, 2023
+        </div>
+
+        
+        <div class="flex gap-2 mb-6">
+            
+            <a href="/tags/#robotics" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-secondary hover:text-white transition-colors">
+                robotics
+            </a>
+            
+        </div>
+        
+
+        <hr class="mb-8 border-gray-300 dark:border-gray-700">
+
+        <div style="margin-bottom: 2rem;">
+            <a href="/blog/" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #e97509; color: white; text-decoration: none; border-radius: 0.5rem; font-weight: 600; transition: all 0.3s;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Back
+            </a>
+        </div>
+
+        <div class="post-content">
+            <p>The Pilz Industrial Motion Planner is a trajectory 
+generator used in robotics applications, specifically with the MoveIt 
+motion planning framework. Here are some key points about the Pilz Industrial Motion Planner:</p>
+
+<ul>
+  <li>
+    <p>It provides a trajectory generator to plan standard robot motions like PTP (point-to-point), LIN (linear), and CIRC (circular)</p>
+  </li>
+  <li>
+    <p>The planner is a plugin for the MoveIt PlannerManager interface, allowing users to access its trajectory generation
+functionalities through the MoveGroup user interface</p>
+  </li>
+  <li>
+    <p>The planner generates linear Cartesian trajectories
+between goal and start poses, using Cartesian limits to generate a
+trapezoidal velocity profile.</p>
+  </li>
+  <li>
+    <p>It does not consider obstacle avoidance and only tests the trajectory for collision validity after computation.</p>
+  </li>
+  <li>
+    <p>The Pilz Industrial Motion Planner is designed to support solving for circular or linear motions in a rapid and predictable way</p>
+  </li>
+</ul>
+
+<p>It is worth noting that the Pilz Industrial Motion 
+Planner is implemented by Pilz GmbH &amp; Co. KG and is part of the 
+ROSIN FTP (ROS-Industrial Quality-Assured Robot Software Components). It is used in conjunction with the Robot Operating System (ROS), an open-source framework for robotics applications</p>
+
+<h2 id="advantages-of-using-the-pilz-industrial-motion-planner">Advantages of using the Pilz Industrial Motion Planner:</h2>
+
+<ul>
+  <li>Rapid and predictable trajectory generation: The Pilz Industrial Motion Planner is designed to support solving for circular
+or linear motions in a rapid and predictable way. This can be advantageous for applications that require quick and reliable trajectory planning.</li>
+  <li>Integration with MoveIt and ROS: The Pilz Industrial
+Motion Planner is a plugin for the MoveIt PlannerManager interface,
+allowing users to access its trajectory generation functionalities
+through the MoveGroup user interface. It is also part of the ROSIN FTP (ROS-Industrial Quality-Assured Robot
+Software Components) and is used in conjunction with the Robot Operating System (ROS) . This integration can provide users with a powerful and flexible platform for robotics applications.</li>
+  <li>Support for linear Cartesian trajectories: The Pilz
+Industrial Motion Planner generates linear Cartesian trajectories
+between goal and start poses, using Cartesian limits to generate a
+trapezoidal velocity profile. This can be useful for applications that require precise and controlled linear motion.</li>
+  <li>Python API for intuitive programming: The
+pilz_robot_programming package provides a Python API for intuitive
+programming of a MoveIt! enabled robot. This can make it easier for users to program and control their robots using the Pilz Industrial Motion Planner.</li>
+  <li>Compatibility with hardware from various
+manufacturers: The ROS packages, including the Pilz Industrial Motion
+Planner, are compatible with the hardware of various manufacturers. This can provide users with greater flexibility and choice when selecting hardware for their robotics applications.
+    <h2 id="architecture-of-pilz-industrial-motion-planner-pdf">Architecture of Pilz Industrial Motion Planner <a href="https://picknik.ai/docs/moveit_workshop_macau_2019/pilz_industrial_motion.pdf">pdf</a></h2>
+  </li>
+</ul>
+
+<p><!-- use case:
+include image.html url="/images/my-cat.jpg" description="My cat, Robert Downey Jr." width = "50%" hide="true"
+-->
+<!-- hide is used to hide content from mainbody but show up in the gallery. Exclude if not using --></p>
+
+<figure class="image">
+  <img src="/assets/2023-08-17-pilz-motion-planner/Pilz_Architecture.png" alt="Architecture of Pilz Industrial Motion Planner" style="width: 80%;" />
+  <figcaption class="caption">Architecture of Pilz Industrial Motion Planner</figcaption>
+</figure>
+
+<p>Block digram in ROS code:</p>
+
+<h2 id="install-the-pilz">Install the Pilz</h2>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/TriKnight/pilz_industrial_motion/tree/noetic-devel
+</code></pre></div></div>
+<p class="filename">## Example code Pilz Motion planner with ROS
+Pilz_demo.py</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="n">geometry_msgs.msg</span> <span class="kn">import</span> <span class="n">Point</span>
+<span class="kn">from</span> <span class="n">pilz_robot_programming</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="n">math</span>
+<span class="kn">import</span> <span class="n">rospy</span>
+
+<span class="n">__REQUIRED_API_VERSION__</span> <span class="o">=</span> <span class="sh">"</span><span class="s">1</span><span class="sh">"</span>
+
+
+<span class="k">def</span> <span class="nf">start_program</span><span class="p">():</span>
+    <span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">Executing </span><span class="sh">"</span> <span class="o">+</span> <span class="n">__file__</span><span class="p">)</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="nc">Robot</span><span class="p">(</span><span class="n">__REQUIRED_API_VERSION__</span><span class="p">)</span>
+
+    <span class="c1"># Simple ptp movement
+</span>    <span class="n">r</span><span class="p">.</span><span class="nf">move</span><span class="p">(</span><span class="nc">Ptp</span><span class="p">(</span><span class="n">goal</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">vel_scale</span><span class="o">=</span><span class="mf">0.4</span><span class="p">))</span>
+
+    <span class="n">start_joint_values</span> <span class="o">=</span> <span class="n">r</span><span class="p">.</span><span class="nf">get_current_joint_states</span><span class="p">()</span>
+
+    <span class="c1"># Relative ptp movement
+</span>    <span class="n">r</span><span class="p">.</span><span class="nf">move</span><span class="p">(</span><span class="nc">Ptp</span><span class="p">(</span><span class="n">goal</span><span class="o">=</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">relative</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">vel_scale</span><span class="o">=</span><span class="mf">0.2</span><span class="p">))</span>
+    <span class="n">r</span><span class="p">.</span><span class="nf">move</span><span class="p">(</span><span class="nc">Ptp</span><span class="p">(</span><span class="n">goal</span><span class="o">=</span><span class="nc">Pose</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="nc">Point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.1</span><span class="p">)),</span> <span class="n">relative</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+    <span class="n">r</span><span class="p">.</span><span class="nf">move</span><span class="p">(</span><span class="nc">Ptp</span><span class="p">(</span><span class="n">goal</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">relative</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">acc_scale</span><span class="o">=</span><span class="mf">0.2</span><span class="p">))</span>
+
+    <span class="n">pose_after_relative</span> <span class="o">=</span> <span class="n">r</span><span class="p">.</span><span class="nf">get_current_pose</span><span class="p">()</span>
+
+    <span class="c1"># Simple Lin movement
+</span>    <span class="n">r</span><span class="p">.</span><span class="nf">move</span><span class="p">(</span><span class="nc">Lin</span><span class="p">(</span><span class="n">goal</span><span class="o">=</span><span class="nc">Pose</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="nc">Point</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">)),</span> <span class="n">vel_scale</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">acc_scale</span><span class="o">=</span><span class="mf">0.1</span><span class="p">))</span>
+
+    <span class="c1"># Relative Lin movement
+</span>    <span class="n">r</span><span class="p">.</span><span class="nf">move</span><span class="p">(</span><span class="nc">Lin</span><span class="p">(</span><span class="n">goal</span><span class="o">=</span><span class="nc">Pose</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="nc">Point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">orientation</span><span class="o">=</span><span class="nf">from_euler</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">math</span><span class="p">.</span><span class="nf">radians</span><span class="p">(</span><span class="mi">15</span><span class="p">))),</span> <span class="n">relative</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+           <span class="n">vel_scale</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">acc_scale</span><span class="o">=</span><span class="mf">0.1</span><span class="p">))</span>
+    <span class="n">r</span><span class="p">.</span><span class="nf">move</span><span class="p">(</span><span class="nc">Lin</span><span class="p">(</span><span class="n">goal</span><span class="o">=</span><span class="nc">Pose</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="nc">Point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span> <span class="n">relative</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+           <span class="n">vel_scale</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">acc_scale</span><span class="o">=</span><span class="mf">0.1</span><span class="p">))</span>
+
+    <span class="c1"># Circ movement
+</span>    <span class="n">r</span><span class="p">.</span><span class="nf">move</span><span class="p">(</span><span class="nc">Circ</span><span class="p">(</span><span class="n">goal</span><span class="o">=</span><span class="nc">Pose</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="nc">Point</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">)),</span> <span class="n">center</span><span class="o">=</span><span class="nc">Point</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">),</span> <span class="n">acc_scale</span><span class="o">=</span><span class="mf">0.1</span><span class="p">))</span>
+
+    <span class="c1"># Move robot with stored pose
+</span>    <span class="n">r</span><span class="p">.</span><span class="nf">move</span><span class="p">(</span><span class="nc">Ptp</span><span class="p">(</span><span class="n">goal</span><span class="o">=</span><span class="n">pose_after_relative</span><span class="p">,</span> <span class="n">vel_scale</span><span class="o">=</span><span class="mf">0.2</span><span class="p">))</span>
+
+    <span class="c1"># Repeat the previous steps with a sequence command
+</span>    <span class="n">sequence</span> <span class="o">=</span> <span class="nc">Sequence</span><span class="p">()</span>
+    <span class="n">sequence</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="nc">Lin</span><span class="p">(</span><span class="n">goal</span><span class="o">=</span><span class="nc">Pose</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="nc">Point</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">)),</span> <span class="n">vel_scale</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">acc_scale</span><span class="o">=</span><span class="mf">0.1</span><span class="p">))</span>
+    <span class="n">sequence</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="nc">Circ</span><span class="p">(</span><span class="n">goal</span><span class="o">=</span><span class="nc">Pose</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="nc">Point</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">)),</span> <span class="n">center</span><span class="o">=</span><span class="nc">Point</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">),</span> <span class="n">acc_scale</span><span class="o">=</span><span class="mf">0.1</span><span class="p">))</span>
+    <span class="n">sequence</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="nc">Ptp</span><span class="p">(</span><span class="n">goal</span><span class="o">=</span><span class="n">pose_after_relative</span><span class="p">,</span> <span class="n">vel_scale</span><span class="o">=</span><span class="mf">0.2</span><span class="p">))</span>
+
+    <span class="n">r</span><span class="p">.</span><span class="nf">move</span><span class="p">(</span><span class="n">sequence</span><span class="p">)</span>
+
+    <span class="c1"># Move to start goal for sequence demonstration
+</span>    <span class="n">r</span><span class="p">.</span><span class="nf">move</span><span class="p">(</span><span class="nc">Ptp</span><span class="p">(</span><span class="n">goal</span><span class="o">=</span><span class="n">start_joint_values</span><span class="p">))</span>
+
+    <span class="c1"># Blend sequence
+</span>    <span class="n">blend_sequence</span> <span class="o">=</span> <span class="nc">Sequence</span><span class="p">()</span>
+    <span class="n">blend_sequence</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="nc">Lin</span><span class="p">(</span><span class="n">goal</span><span class="o">=</span><span class="nc">Pose</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="nc">Point</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">)),</span> <span class="n">acc_scale</span><span class="o">=</span><span class="mf">0.05</span><span class="p">),</span> <span class="n">blend_radius</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+    <span class="n">blend_sequence</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="nc">Lin</span><span class="p">(</span><span class="n">goal</span><span class="o">=</span><span class="nc">Pose</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="nc">Point</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">)),</span> <span class="n">acc_scale</span><span class="o">=</span><span class="mf">0.05</span><span class="p">))</span>
+
+    <span class="n">r</span><span class="p">.</span><span class="nf">move</span><span class="p">(</span><span class="n">blend_sequence</span><span class="p">)</span>
+
+    <span class="c1"># Move with custom reference frame
+</span>    <span class="n">r</span><span class="p">.</span><span class="nf">move</span><span class="p">(</span><span class="nc">Ptp</span><span class="p">(</span><span class="n">goal</span><span class="o">=</span><span class="nc">PoseStamped</span><span class="p">(</span><span class="n">header</span><span class="o">=</span><span class="nc">Header</span><span class="p">(</span><span class="n">frame_id</span><span class="o">=</span><span class="sh">"</span><span class="s">prbt_tcp</span><span class="sh">"</span><span class="p">),</span>
+                                <span class="n">pose</span><span class="o">=</span><span class="nc">Pose</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="nc">Point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)))))</span>
+    <span class="n">r</span><span class="p">.</span><span class="nf">move</span><span class="p">(</span><span class="nc">Ptp</span><span class="p">(</span><span class="n">goal</span><span class="o">=</span><span class="nc">Pose</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="nc">Point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span> <span class="n">reference_frame</span><span class="o">=</span><span class="sh">"</span><span class="s">prbt_link_3</span><span class="sh">"</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+
+    <span class="c1"># Create and execute an invalid ptp command with out of bound joint values
+</span>    <span class="k">try</span><span class="p">:</span>
+        <span class="n">r</span><span class="p">.</span><span class="nf">move</span><span class="p">(</span><span class="nc">Ptp</span><span class="p">(</span><span class="n">goal</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
+    <span class="k">except</span> <span class="n">RobotMoveFailed</span><span class="p">:</span>
+        <span class="n">rospy</span><span class="p">.</span><span class="nf">loginfo</span><span class="p">(</span><span class="sh">"</span><span class="s">Ptp command did fail as expected.</span><span class="sh">"</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="sh">"</span><span class="s">__main__</span><span class="sh">"</span><span class="p">:</span>
+    <span class="c1"># Init a ros node
+</span>    <span class="n">rospy</span><span class="p">.</span><span class="nf">init_node</span><span class="p">(</span><span class="sh">'</span><span class="s">robot_program_node</span><span class="sh">'</span><span class="p">)</span>
+
+    <span class="nf">start_program</span><span class="p">()</span>
+</code></pre></div></div>
+
+<h2 id="troubleshouting">Troubleshouting</h2>
+<h3 id="error-1-modulenotfounderror-no-module-named-pykdl">Error 1. ModuleNotFoundError: No module named ‘PyKDL’</h3>
+<ol>
+  <li>Install PyKDL <code class="language-plaintext highlighter-rouge">sudo apt install python3-pykdl</code>. This installs a library to<code class="language-plaintext highlighter-rouge">/usr/lib/python3/dist-packages/PyKDLcpython-38-x86_64-linux-gnu.so</code></li>
+  <li>Copy this file to Anaconda environment
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cp ./build/devel/lib/python3/dist-packages/PyKDL.so ~/miniconda3/envs/[your_env]/lib/python3.8/lib-dynload
+</code></pre></div>    </div>
+  </li>
+  <li>Check PyKDL is available.
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python -c "import PyKDL"
+</code></pre></div>    </div>
+  </li>
+  <li>Install SIP
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo apt-get install python-sip
+</code></pre></div>    </div>
+    <h1 id="references">References</h1>
+  </li>
+  <li><a href="https://ros-planning.github.io/moveit_tutorials/doc/pilz_industrial_motion_planner/pilz_industrial_motion_planner.html">ROS Planning Pilz Motion planner</a></li>
+  <li><a href="https://moveit.ros.org/moveit/pilz/motion%20planner/2020/12/17/Pilz-Plugin-for-MoveIt.html">Moveit Pilz Motion Planner</a>.</li>
+  <li><a href="https://github.com/PilzDE/pilz_industrial_motion">Github pilz_industrial_motion</a></li>
+  <li><a href="https://www.pilz.com/en-US/products/robotics/ros-modules">Pilz Main Page</a></li>
+</ol>
+
+        </div>
+
+    </div>
+
+    <!-- Header scroll behavior -->
+    <script>
+        const header = document.getElementById("mainHeader");
+        const hoverZone = document.getElementById("hoverZone");
+        let lastScroll = 0;
+
+        window.addEventListener("scroll", () => {
+            const currentScroll = window.pageYOffset;
+
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                header.classList.add("-translate-y-full");
+            } else {
+                header.classList.remove("-translate-y-full");
+            }
+
+            lastScroll = currentScroll;
+        });
+
+        hoverZone.addEventListener("mouseenter", () => {
+            header.classList.remove("-translate-y-full");
+        });
+
+        
+    </script>
+
+    <!-- Theme Toggle -->
+    <button onclick="document.documentElement.classList.toggle('dark')"
+        class="fixed bottom-4 right-4 bg-white text-black p-3 border-4 border-gray-400 rounded-full shadow-lg text-sm font-semibold hover:bg-secondary transition-colors duration-300 dark:bg-gray-800 dark:text-white dark:border-orange-600 dark:hover:bg-secondary">
+        Toggle Theme
+    </button>
+
+</body>
+
+</html>

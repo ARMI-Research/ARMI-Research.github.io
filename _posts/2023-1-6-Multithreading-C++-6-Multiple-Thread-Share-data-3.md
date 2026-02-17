@@ -1,6 +1,6 @@
 ---
 layout: post
-category: research
+category: blog
 title: (Multithreading C++) 6. Deadlock and Livelock
 snippet: This tutorial in series of Mutex and Multiple Threads working with Share data.
 tags: [Multithreading C++]

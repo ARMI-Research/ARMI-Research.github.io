@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What is the MoveGroupCommander in Moveit - ARMI Research Laboratory</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+        :root {
+            --primary: #0A1A2F;
+            --secondary: #d46700;
+            --text-dark: #000000;
+            --text-light: #ffffff;
+            --bg-light: #ffffff;
+            --bg-dark: #0d1117;
+            --card-dark: #111827;
+        }
+
+        .dark {
+            color-scheme: dark;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .dark body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+        }
+
+        .card-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--bg-light);
+            border-radius: 2rem;
+            padding: 2.5rem;
+            border: 2px solid var(--primary);
+        }
+
+        .dark .card-container {
+            background-color: var(--card-dark);
+            border-color: var(--secondary);
+        }
+
+        .post-content h2 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+        }
+
+        .dark .post-content h2 {
+            color: var(--text-light);
+        }
+
+        .post-content h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--primary);
+        }
+
+        .dark .post-content h3 {
+            color: var(--text-light);
+        }
+
+        .post-content p {
+            margin-bottom: 1rem;
+            line-height: 1.75;
+        }
+
+        .post-content ul, .post-content ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .post-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .post-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        .post-content table th {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .dark .post-content table th {
+            background-color: var(--secondary);
+        }
+
+        .post-content table td {
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem;
+        }
+
+        .dark .post-content table td {
+            border-color: #374151;
+        }
+
+        .post-content table tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+
+        .dark .post-content table tr:nth-child(even) {
+            background-color: #1f2937;
+        }
+
+        .post-content code {
+            background-color: #f3f4f6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        .dark .post-content code {
+            background-color: #374151;
+        }
+
+        .post-content pre {
+            background-color: #1f2937 !important;
+            color: #f3f4f6 !important;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .post-content pre code {
+            background-color: transparent !important;
+            color: #f3f4f6 !important;
+            padding: 0;
+        }
+
+        .post-content .highlight {
+            background-color: #1f2937 !important;
+        }
+
+        .post-content .highlight pre {
+            background-color: #1f2937 !important;
+        }
+
+        .post-content .highlight code {
+            color: #f3f4f6 !important;
+        }
+
+        .post-content blockquote {
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+            margin: 1rem 0;
+            font-style: italic;
+            color: #6b7280;
+        }
+
+        .dark .post-content blockquote {
+            color: #9ca3af;
+        }
+
+        .post-content hr {
+            border: none;
+            border-top: 2px solid #e5e7eb;
+            margin: 2rem 0;
+        }
+
+        .dark .post-content hr {
+            border-top-color: #374151;
+        }
+
+        .post-content strong {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .dark .post-content strong {
+            color: var(--secondary);
+        }
+
+        .post-content a {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+
+        .post-content a:hover {
+            color: var(--primary);
+        }
+
+        .dark .post-content a:hover {
+            color: var(--text-light);
+        }
+    </style>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0A1A2F',
+                        secondary: '#e97509',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+
+    <div id="hoverZone" class="fixed top-0 left-0 w-full h-6 z-40"></div>
+
+    <header id="mainHeader" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out bg-gradient-to-b from-white to-gray-100 dark:from-gray-900 dark:to-black shadow-md">
+        <div class="relative w-full border-b-4 border-gray-500 dark:border-orange-600">
+            <div class="max-w-7xl mx-auto px-6 py-4 relative flex items-center justify-between">
+                <div class="flex gap-3">
+                    <a href="/lab/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Lab</div>
+                    </a>
+                    <a href="/blog/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Blog</div>
+
+                </div>
+                <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
+                    <img src="/images/logo.png" class="w-16 h-14 object-contain dark:brightness-90">
+                    <a href="/default/">
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-orange-500 hover:text-orange-500 dark:hover:text-orange-400 transition-colors">ARMI Lab</h1>
+                    </a>
+                </div>
+                <div class="text-sm text-gray-700 dark:text-gray-300 leading-tight">
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">A</span>utonomous</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">R</span>obotics</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">M</span>achine</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">I</span>ntelligence</div>
+                    <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">Research Laboratory</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="card-container shadow-2xl lg:p-12 transition duration-500 mt-40">
+
+        <h1 class="text-4xl font-bold mb-4 text-gray-800 dark:text-gray-100">What is the MoveGroupCommander in Moveit</h1>
+
+        <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+            August 18, 2023
+        </div>
+
+        
+        <div class="flex gap-2 mb-6">
+            
+            <a href="/tags/#robotics" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-secondary hover:text-white transition-colors">
+                robotics
+            </a>
+            
+            <a href="/tags/#ROS" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-secondary hover:text-white transition-colors">
+                ROS
+            </a>
+            
+            <a href="/tags/#python" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-secondary hover:text-white transition-colors">
+                python
+            </a>
+            
+        </div>
+        
+
+        <hr class="mb-8 border-gray-300 dark:border-gray-700">
+
+        <div style="margin-bottom: 2rem;">
+            <a href="/blog/" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #e97509; color: white; text-decoration: none; border-radius: 0.5rem; font-weight: 600; transition: all 0.3s;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Back
+            </a>
+        </div>
+
+        <div class="post-content">
+            <p>The <code class="language-plaintext highlighter-rouge">moveit_commander.MoveGroupCommander()</code> is a class in the MoveIt! package for ROS (Robot Operating System) that provides a simple Python interface to a planning group, which is a group of joints on a robot. It can be used to plan and execute motions, set joint or pose goals, create motion plans, move the robot, add objects into the environment, and attach/detach objects from the robot. The group_name parameter specifies the name of the planning group that the MoveGroupCommander will interface with. <a href="https://ros-planning.github.io/moveit_tutorials/doc/move_group_python_interface/move_group_python_interface_tutorial.html">move_group_python_interface_tutorial</a></p>
+
+<h2 id="demo-movegroupcommander-for-simple-pick-place-with-ros-for-ur10e-robot">Demo MoveGroupCommander for simple Pick Place with ROS for UR10e robot</h2>
+
+<div class="embed-container">
+    <iframe width="640" height="390" src="https://www.youtube.com/embed/AS_NM3QjeUI" frameborder="0" allowfullscreen=""></iframe>
+</div>
+<style>
+.embed-container {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+  max-width: 100%;
+}
+.embed-container iframe,
+.embed-container object,
+.embed-container embed {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+</style>
+
+<h2 id="how-to-use-movegroupcommander">How to use MoveGroupCommander</h2>
+<p>To use MoveGroupCommander in MoveIt!, follow these steps:</p>
+<ul>
+  <li>Create an instance of MoveGroupCommander: Instantiate the MoveGroupCommander class with the desired group name and robot description. For example:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>from moveit_commander.move_group import MoveGroupCommander
+move_group = MoveGroupCommander("my_robot_group", robot_description="robot_description")
+</code></pre></div>    </div>
+  </li>
+  <li>Set the start state: Specify the initial joint values for the robot group using the set_start_state method. For example:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>move_group.set_start_state(moveit_msgs.RobotState(joint_values=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]))
+</code></pre></div>    </div>
+  </li>
+  <li>Plan a motion: Use the plan method to plan a motion for the robot group. For example:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>move_group.plan()
+</code></pre></div>    </div>
+  </li>
+  <li>Execute the motion: Use the go method to execute the planned motion. For example:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>move_group.go()
+</code></pre></div>    </div>
+  </li>
+  <li>Attach an object to a link: Use the attach_object method to attach an object to a specific link. For example:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>move_group.attach_object("my_object", "my_robot_group/my_link")
+</code></pre></div>    </div>
+  </li>
+  <li>Detach an object from a link: Use the detach_object method to detach an object from a specific link. For example:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>move_group.detach_object("my_object")
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h2 id="here-is-an-example-code-for-using-movegroupcommander-in-moveit">Here is an example code for using MoveGroupCommander in MoveIt!:</h2>
+<p>Set the pose of the end-effector, if one is available. The expected input is a Pose message, a PoseStamped message or a list of 6 floats: [x, y, z, rot_x, rot_y, rot_z] or a list of 7 floats [x, y, z, qx, qy, qz, qw]</p>
+
+<p class="filename">MovegroupCommander.py</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">sys</span>
+<span class="kn">import</span> <span class="n">copy</span>
+<span class="kn">import</span> <span class="n">rospy</span>
+<span class="kn">import</span> <span class="n">moveit_commander</span>
+<span class="kn">import</span> <span class="n">moveit_msgs.msg</span>
+<span class="kn">import</span> <span class="n">geometry_msgs.msg</span>
+
+<span class="c1"># Initialize moveit_commander and rospy
+</span><span class="n">moveit_commander</span><span class="p">.</span><span class="nf">roscpp_initialize</span><span class="p">(</span><span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">)</span>
+<span class="n">rospy</span><span class="p">.</span><span class="nf">init_node</span><span class="p">(</span><span class="sh">'</span><span class="s">move_group_python_interface</span><span class="sh">'</span><span class="p">,</span> <span class="n">anonymous</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># Instantiate a RobotCommander object
+</span><span class="n">robot</span> <span class="o">=</span> <span class="n">moveit_commander</span><span class="p">.</span><span class="nc">RobotCommander</span><span class="p">()</span>
+
+<span class="c1"># Instantiate a PlanningSceneInterface object
+</span><span class="n">scene</span> <span class="o">=</span> <span class="n">moveit_commander</span><span class="p">.</span><span class="nc">PlanningSceneInterface</span><span class="p">()</span>
+
+<span class="c1"># Instantiate a MoveGroupCommander object
+</span><span class="n">group</span> <span class="o">=</span> <span class="n">moveit_commander</span><span class="p">.</span><span class="nc">MoveGroupCommander</span><span class="p">(</span><span class="sh">"</span><span class="s">my_robot_group</span><span class="sh">"</span><span class="p">)</span>
+
+<span class="c1"># Set the start state
+</span><span class="n">group</span><span class="p">.</span><span class="nf">set_start_state_to_current_state</span><span class="p">()</span>
+
+<span class="c1"># Set the pose target
+</span><span class="n">pose_target</span> <span class="o">=</span> <span class="n">geometry_msgs</span><span class="p">.</span><span class="n">msg</span><span class="p">.</span><span class="nc">Pose</span><span class="p">()</span>
+<span class="n">pose_target</span><span class="p">.</span><span class="n">orientation</span><span class="p">.</span><span class="n">w</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">pose_target</span><span class="p">.</span><span class="n">position</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">pose_target</span><span class="p">.</span><span class="n">position</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="n">pose_target</span><span class="p">.</span><span class="n">position</span><span class="p">.</span><span class="n">z</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">group</span><span class="p">.</span><span class="nf">set_pose_target</span><span class="p">(</span><span class="n">pose_target</span><span class="p">)</span>
+
+<span class="c1"># Plan and execute the motion
+</span><span class="n">plan</span> <span class="o">=</span> <span class="n">group</span><span class="p">.</span><span class="nf">go</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># Print the execution result
+</span><span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">Execution result: </span><span class="sh">"</span><span class="p">,</span> <span class="n">plan</span><span class="p">)</span>
+
+<span class="c1"># Clean up
+</span><span class="n">moveit_commander</span><span class="p">.</span><span class="nf">roscpp_shutdown</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>This code initializes moveit_commander and rospy, creates instances of <code class="language-plaintext highlighter-rouge">RobotCommander, PlanningSceneInterface,</code> and <code class="language-plaintext highlighter-rouge">MoveGroupCommander</code>, sets the start state, sets the pose target, plans and executes the motion, and prints the execution result. Finally, it shuts down <code class="language-plaintext highlighter-rouge">moveit_commander</code> and <code class="language-plaintext highlighter-rouge">rospy</code>. Note that you need to replace <code class="language-plaintext highlighter-rouge">"my_robot_group"</code> with the name of your planning group.</p>
+
+<h2 id="here-is-an-example-code-for-using-movegroupcommanderset_pose_targets-in-moveit">Here is an example code for using MoveGroupCommander.set_pose_targets in MoveIt!:</h2>
+<p>The moveit_commander.move_group.MoveGroupCommander.set_pose_targets() method is used to set multiple pose targets for the end-effector. The expected input is <strong>a list of poses</strong>, where each pose can be a Pose message, a list of 6 floats <code class="language-plaintext highlighter-rouge">[x, y, z, rot_x, rot_y, rot_z], or a list of 7 floats [x, y, z, qx, qy, qz, qw]</code></p>
+
+<p class="filename">MovegroupCommander.py</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">moveit_commander</span>
+<span class="kn">import</span> <span class="n">geometry_msgs.msg</span>
+
+<span class="c1"># Initialize the moveit_commander
+</span><span class="n">moveit_commander</span><span class="p">.</span><span class="nf">roscpp_initialize</span><span class="p">(</span><span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">)</span>
+<span class="n">rospy</span><span class="p">.</span><span class="nf">init_node</span><span class="p">(</span><span class="sh">'</span><span class="s">move_group_python_interface</span><span class="sh">'</span><span class="p">,</span> <span class="n">anonymous</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># Instantiate a MoveGroupCommander object
+</span><span class="n">group</span> <span class="o">=</span> <span class="n">moveit_commander</span><span class="p">.</span><span class="nc">MoveGroupCommander</span><span class="p">(</span><span class="sh">"</span><span class="s">manipulator</span><span class="sh">"</span><span class="p">)</span>
+
+<span class="c1"># Create a list of pose targets
+</span><span class="n">pose_targets</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">pose_target</span> <span class="o">=</span> <span class="n">geometry_msgs</span><span class="p">.</span><span class="n">msg</span><span class="p">.</span><span class="nc">Pose</span><span class="p">()</span>
+<span class="n">pose_target</span><span class="p">.</span><span class="n">orientation</span><span class="p">.</span><span class="n">w</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">pose_target</span><span class="p">.</span><span class="n">position</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">pose_target</span><span class="p">.</span><span class="n">position</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="n">pose_target</span><span class="p">.</span><span class="n">position</span><span class="p">.</span><span class="n">z</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">pose_targets</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">pose_target</span><span class="p">)</span>
+
+<span class="n">pose_target</span> <span class="o">=</span> <span class="n">geometry_msgs</span><span class="p">.</span><span class="n">msg</span><span class="p">.</span><span class="nc">Pose</span><span class="p">()</span>
+<span class="n">pose_target</span><span class="p">.</span><span class="n">orientation</span><span class="p">.</span><span class="n">w</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">pose_target</span><span class="p">.</span><span class="n">position</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">pose_target</span><span class="p">.</span><span class="n">position</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">pose_target</span><span class="p">.</span><span class="n">position</span><span class="p">.</span><span class="n">z</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">pose_targets</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">pose_target</span><span class="p">)</span>
+
+<span class="c1"># Set the pose targets
+</span><span class="n">group</span><span class="p">.</span><span class="nf">set_pose_targets</span><span class="p">(</span><span class="n">pose_targets</span><span class="p">)</span>
+
+<span class="c1"># Plan and execute the motion
+</span><span class="n">plan</span> <span class="o">=</span> <span class="n">group</span><span class="p">.</span><span class="nf">go</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># Clean up
+</span><span class="n">moveit_commander</span><span class="p">.</span><span class="nf">roscpp_shutdown</span><span class="p">()</span>
+</code></pre></div></div>
+
+<h2 id="how-to-use-moveit_commander-with-ompl-planner">How to use moveit_commander with OMPL planner</h2>
+<p>To use <code class="language-plaintext highlighter-rouge">moveit_commander</code> with an <code class="language-plaintext highlighter-rouge">OMPL planner</code>, you can set the planner id for the <code class="language-plaintext highlighter-rouge">MoveGroupCommander's</code> planning interface. Here’s an example of how to do this in Python:</p>
+
+<p class="filename">MovegroupCommander.py</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">moveit_commander</span>
+<span class="kn">from</span> <span class="n">moveit_commander</span> <span class="kn">import</span> <span class="n">PlanningSceneInterface</span>
+<span class="kn">from</span> <span class="n">moveit_commander</span> <span class="kn">import</span> <span class="n">roscpp_initialize</span><span class="p">,</span> <span class="n">roscpp_shutdown</span>
+<span class="kn">import</span> <span class="n">rospy</span>
+
+<span class="c1"># Initialize moveit_commander
+</span><span class="nf">roscpp_initialize</span><span class="p">(</span><span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">)</span>
+<span class="n">rospy</span><span class="p">.</span><span class="nf">init_node</span><span class="p">(</span><span class="sh">'</span><span class="s">move_group_python_interface</span><span class="sh">'</span><span class="p">,</span> <span class="n">anonymous</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># Instantiate a RobotCommander object
+</span><span class="n">robot</span> <span class="o">=</span> <span class="n">moveit_commander</span><span class="p">.</span><span class="nc">RobotCommander</span><span class="p">()</span>
+
+<span class="c1"># Instantiate a PlanningSceneInterface object
+</span><span class="n">scene</span> <span class="o">=</span> <span class="nc">PlanningSceneInterface</span><span class="p">()</span>
+
+<span class="c1"># Instantiate a MoveGroupCommander object
+</span><span class="n">group</span> <span class="o">=</span> <span class="n">moveit_commander</span><span class="p">.</span><span class="nc">MoveGroupCommander</span><span class="p">(</span><span class="sh">"</span><span class="s">arm</span><span class="sh">"</span><span class="p">)</span>
+
+<span class="c1"># Set the planner id
+</span><span class="n">group</span><span class="p">.</span><span class="nf">set_planner_id</span><span class="p">(</span><span class="sh">"</span><span class="s">RRTConnectkConfigDefault</span><span class="sh">"</span><span class="p">)</span>
+
+<span class="c1"># Set the planning time
+</span><span class="n">group</span><span class="p">.</span><span class="nf">set_planning_time</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="c1"># Set the start state
+</span><span class="n">group</span><span class="p">.</span><span class="nf">set_start_state_to_current_state</span><span class="p">()</span>
+
+<span class="c1"># Set the goal
+</span><span class="n">group</span><span class="p">.</span><span class="nf">set_pose_target</span><span class="p">(</span><span class="n">pose_target</span><span class="p">)</span>
+
+<span class="c1"># Plan and execute the motion
+</span><span class="n">plan</span> <span class="o">=</span> <span class="n">group</span><span class="p">.</span><span class="nf">go</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># Print the execution result
+</span><span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">Execution result: </span><span class="sh">"</span><span class="p">,</span> <span class="n">plan</span><span class="p">)</span>
+
+<span class="c1"># Clean up
+</span><span class="nf">roscpp_shutdown</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>In this example, the set_planner_id method is used to set the planner to “RRTConnectkConfigDefault”, which is an OMPL planner. The set_planning_time method is used to set the maximum time the planner is allowed to run. After setting the planner and planning time, the rest of the code is similar to using MoveGroupCommander without an OMPL planner.</p>
+
+<h2 id="here-is-an-example-code-for-using-movegroupcommandershift_pose_target-in-moveit">Here is an example code for using MoveGroupCommander.shift_pose_target() in MoveIt!:</h2>
+
+<p>The <code class="language-plaintext highlighter-rouge">moveit_commander.move_group.MoveGroupCommander.shift_pose_target()</code> method is used to modify the position of the end effector along a specific axis and set the new pose as the pose target. However, it does not directly support shifting the pose in multiple axes in a single call. To achieve the desired effect of shifting the pose in both the X and Z axes, multiple calls to shift_pose_target() would be needed.</p>
+
+<p class="filename">MovegroupCommander_shift_pose_target.py</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="kn">import</span> <span class="n">moveit_commander</span>
+
+<span class="c1"># Initialize the moveit_commander
+</span><span class="n">moveit_commander</span><span class="p">.</span><span class="nf">roscpp_initialize</span><span class="p">(</span><span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">)</span>
+<span class="n">rospy</span><span class="p">.</span><span class="nf">init_node</span><span class="p">(</span><span class="sh">'</span><span class="s">move_group_python_interface</span><span class="sh">'</span><span class="p">,</span> <span class="n">anonymous</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># Instantiate a MoveGroupCommander object
+</span><span class="n">group</span> <span class="o">=</span> <span class="n">moveit_commander</span><span class="p">.</span><span class="nc">MoveGroupCommander</span><span class="p">(</span><span class="sh">"</span><span class="s">manipulator</span><span class="sh">"</span><span class="p">)</span>
+
+<span class="c1"># Get the current pose target
+</span><span class="n">current_pose</span> <span class="o">=</span> <span class="n">group</span><span class="p">.</span><span class="nf">get_current_pose</span><span class="p">().</span><span class="n">pose</span>
+
+<span class="c1"># Shift the pose target along the X axis by 0.2
+</span><span class="n">group</span><span class="p">.</span><span class="nf">shift_pose_target</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+
+<span class="c1"># Shift the pose target along the Z axis by 0.2
+</span><span class="n">group</span><span class="p">.</span><span class="nf">shift_pose_target</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+
+<span class="c1"># Plan and execute the motion
+</span><span class="n">plan</span> <span class="o">=</span> <span class="n">group</span><span class="p">.</span><span class="nf">go</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># Clean up
+</span><span class="n">moveit_commander</span><span class="p">.</span><span class="nf">roscpp_shutdown</span><span class="p">()</span>
+</code></pre></div></div>
+<p>In this example, the current pose target is retrieved, and then the pose target is shifted along the X axis by 0.2 and along the Z axis by 0.2 in separate calls to shift_pose_target(). Finally, the motion is planned and executed.</p>
+
+<h2 id="here-is-an-example-code-for-using-movegroupcommanderset_rpy_target-in-moveit">Here is an example code for using MoveGroupCommander.set_rpy_target() in MoveIt!:</h2>
+<p>The moveit_commander.move_group.MoveGroupCommander.set_rpy_target() method is used to specify a target orientation for the end-effector using roll, pitch, and yaw angles. Here’s an example of how to use it:</p>
+
+<p class="filename">MovegroupCommander_set_rpy_target.py</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">moveit_commander</span>
+<span class="kn">import</span> <span class="n">geometry_msgs.msg</span>
+
+<span class="c1"># Initialize the moveit_commander
+</span><span class="n">moveit_commander</span><span class="p">.</span><span class="nf">roscpp_initialize</span><span class="p">(</span><span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">)</span>
+<span class="n">rospy</span><span class="p">.</span><span class="nf">init_node</span><span class="p">(</span><span class="sh">'</span><span class="s">move_group_python_interface</span><span class="sh">'</span><span class="p">,</span> <span class="n">anonymous</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># Instantiate a MoveGroupCommander object
+</span><span class="n">group</span> <span class="o">=</span> <span class="n">moveit_commander</span><span class="p">.</span><span class="nc">MoveGroupCommander</span><span class="p">(</span><span class="sh">"</span><span class="s">manipulator</span><span class="sh">"</span><span class="p">)</span>
+
+<span class="c1"># Create a pose target
+</span><span class="n">pose_target</span> <span class="o">=</span> <span class="n">geometry_msgs</span><span class="p">.</span><span class="n">msg</span><span class="p">.</span><span class="nc">Pose</span><span class="p">()</span>
+<span class="n">pose_target</span><span class="p">.</span><span class="n">orientation</span><span class="p">.</span><span class="n">w</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">pose_target</span><span class="p">.</span><span class="n">position</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">pose_target</span><span class="p">.</span><span class="n">position</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="n">pose_target</span><span class="p">.</span><span class="n">position</span><span class="p">.</span><span class="n">z</span> <span class="o">=</span> <span class="mf">0.5</span>
+
+<span class="c1"># Set the pose target
+</span><span class="n">group</span><span class="p">.</span><span class="nf">set_pose_target</span><span class="p">(</span><span class="n">pose_target</span><span class="p">)</span>
+
+<span class="c1"># Specify a target orientation using roll, pitch, and yaw angles
+</span><span class="n">group</span><span class="p">.</span><span class="nf">set_rpy_target</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.57</span><span class="p">])</span>
+
+<span class="c1"># Plan and execute the motion
+</span><span class="n">plan</span> <span class="o">=</span> <span class="n">group</span><span class="p">.</span><span class="nf">go</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># Clean up
+</span><span class="n">moveit_commander</span><span class="p">.</span><span class="nf">roscpp_shutdown</span><span class="p">()</span>
+</code></pre></div></div>
+<p>In this example, a pose target is set for the end-effector, and then a target orientation is specified using roll, pitch, and yaw angles. The motion is planned and executed using the specified target orientation.</p>
+
+<h2 id="here-is-an-example-code-for-using-movegroupcommanderset_path_constraints-in-moveit">Here is an example code for using MoveGroupCommander.set_path_constraints() in MoveIt!:</h2>
+<p>The <code class="language-plaintext highlighter-rouge">moveit_commander.move_group.MoveGroupCommander.set_path_constraints()</code> method is used to set the path constraints for the motion planning of the MoveGroupCommander’s planning group. Path constraints can be used to restrict the motion of the robot, for example, by specifying that a certain link must stay within a certain distance of a certain pose or that a certain link must stay within a certain orientation range.</p>
+
+<p class="filename">MovegroupCommander_set_path_constraints.py</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">moveit_commander</span>
+<span class="kn">import</span> <span class="n">moveit_msgs.msg</span>
+
+<span class="c1"># Initialize the moveit_commander
+</span><span class="n">moveit_commander</span><span class="p">.</span><span class="nf">roscpp_initialize</span><span class="p">(</span><span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">)</span>
+<span class="n">rospy</span><span class="p">.</span><span class="nf">init_node</span><span class="p">(</span><span class="sh">'</span><span class="s">move_group_python_interface</span><span class="sh">'</span><span class="p">,</span> <span class="n">anonymous</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># Instantiate a MoveGroupCommander object
+</span><span class="n">group</span> <span class="o">=</span> <span class="n">moveit_commander</span><span class="p">.</span><span class="nc">MoveGroupCommander</span><span class="p">(</span><span class="sh">"</span><span class="s">manipulator</span><span class="sh">"</span><span class="p">)</span>
+
+<span class="c1"># Define the path constraint
+</span><span class="n">constraint</span> <span class="o">=</span> <span class="n">moveit_msgs</span><span class="p">.</span><span class="n">msg</span><span class="p">.</span><span class="nc">Constraints</span><span class="p">()</span>
+<span class="n">orientation_constraint</span> <span class="o">=</span> <span class="n">moveit_msgs</span><span class="p">.</span><span class="n">msg</span><span class="p">.</span><span class="nc">OrientationConstraint</span><span class="p">()</span>
+<span class="n">orientation_constraint</span><span class="p">.</span><span class="n">link_name</span> <span class="o">=</span> <span class="sh">"</span><span class="s">end_effector_link</span><span class="sh">"</span>
+<span class="n">orientation_constraint</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">frame_id</span> <span class="o">=</span> <span class="sh">"</span><span class="s">base_link</span><span class="sh">"</span>
+<span class="n">orientation_constraint</span><span class="p">.</span><span class="n">orientation</span><span class="p">.</span><span class="n">w</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">orientation_constraint</span><span class="p">.</span><span class="n">absolute_x_axis_tolerance</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">orientation_constraint</span><span class="p">.</span><span class="n">absolute_y_axis_tolerance</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">orientation_constraint</span><span class="p">.</span><span class="n">absolute_z_axis_tolerance</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">orientation_constraint</span><span class="p">.</span><span class="n">weight</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">constraint</span><span class="p">.</span><span class="n">orientation_constraints</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">orientation_constraint</span><span class="p">)</span>
+
+<span class="c1"># Set the path constraints
+</span><span class="n">group</span><span class="p">.</span><span class="nf">set_path_constraints</span><span class="p">(</span><span class="n">constraint</span><span class="p">)</span>
+
+<span class="c1"># Plan and execute the motion
+</span><span class="n">plan</span> <span class="o">=</span> <span class="n">group</span><span class="p">.</span><span class="nf">go</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># Clean up
+</span><span class="n">moveit_commander</span><span class="p">.</span><span class="nf">roscpp_shutdown</span><span class="p">()</span>
+</code></pre></div></div>
+<p>In this example, a path constraint is defined to restrict the orientation of the end effector link, and then the <code class="language-plaintext highlighter-rouge">set_path_constraints()</code> method is called on the MoveGroupCommander object to set the path constraints. The motion is planned and executed using the specified path constraints.</p>
+
+<h2 id="here-is-an-example-code-for-using-movegroupcommanderset_num_planning_attempts-in-moveit">Here is an example code for using MoveGroupCommander.set_num_planning_attempts() in MoveIt!:</h2>
+<p>The moveit_commander.move_group.MoveGroupCommander.set_num_planning_attempts() method is used to set the number of times the motion plan is to be computed from scratch before the shortest solution is returned. The default value is 1.
+Here’s an example of how to use set_num_planning_attempts():</p>
+
+<p class="filename">MovegroupCommander_set_num_planning_attempts.py</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">moveit_commander</span>
+
+<span class="c1"># Initialize the moveit_commander
+</span><span class="n">moveit_commander</span><span class="p">.</span><span class="nf">roscpp_initialize</span><span class="p">(</span><span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">)</span>
+<span class="n">rospy</span><span class="p">.</span><span class="nf">init_node</span><span class="p">(</span><span class="sh">'</span><span class="s">move_group_python_interface</span><span class="sh">'</span><span class="p">,</span> <span class="n">anonymous</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># Instantiate a MoveGroupCommander object
+</span><span class="n">group</span> <span class="o">=</span> <span class="n">moveit_commander</span><span class="p">.</span><span class="nc">MoveGroupCommander</span><span class="p">(</span><span class="sh">"</span><span class="s">manipulator</span><span class="sh">"</span><span class="p">)</span>
+
+<span class="c1"># Set the number of planning attempts
+</span><span class="n">group</span><span class="p">.</span><span class="nf">set_num_planning_attempts</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="c1"># Plan and execute the motion
+</span><span class="n">plan</span> <span class="o">=</span> <span class="n">group</span><span class="p">.</span><span class="nf">go</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># Clean up
+</span><span class="n">moveit_commander</span><span class="p">.</span><span class="nf">roscpp_shutdown</span><span class="p">()</span>
+</code></pre></div></div>
+<h2 id="here-is-an-example-code-for-using-movegroupcommandercompute_cartesian_path-in-moveit">Here is an example code for using MoveGroupCommander.compute_cartesian_path() in MoveIt!:</h2>
+
+<p class="filename">MovegroupCommander_compute_cartesian_path.py</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">moveit_commander</span>
+
+<span class="c1"># Initialize the moveit_commander
+</span><span class="n">moveit_commander</span><span class="p">.</span><span class="nf">roscpp_initialize</span><span class="p">(</span><span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">)</span>
+<span class="n">rospy</span><span class="p">.</span><span class="nf">init_node</span><span class="p">(</span><span class="sh">'</span><span class="s">move_group_python_interface</span><span class="sh">'</span><span class="p">,</span> <span class="n">anonymous</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># Instantiate a MoveGroupCommander object
+</span><span class="n">group</span> <span class="o">=</span> <span class="n">moveit_commander</span><span class="p">.</span><span class="nc">MoveGroupCommander</span><span class="p">(</span><span class="sh">"</span><span class="s">manipulator</span><span class="sh">"</span><span class="p">)</span>
+
+<span class="c1"># Define the waypoints
+</span><span class="n">waypoints</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">group</span><span class="p">.</span><span class="nf">get_current_pose</span><span class="p">(),</span>
+    <span class="n">group</span><span class="p">.</span><span class="nf">get_random_pose</span><span class="p">(</span><span class="sh">"</span><span class="s">base_link</span><span class="sh">"</span><span class="p">),</span>
+    <span class="n">group</span><span class="p">.</span><span class="nf">get_random_pose</span><span class="p">(</span><span class="sh">"</span><span class="s">base_link</span><span class="sh">"</span><span class="p">)</span>
+<span class="p">]</span>
+
+<span class="c1"># Compute the cartesian path
+</span><span class="n">cartesian_path</span><span class="p">,</span> <span class="n">eef_step</span><span class="p">,</span> <span class="n">jump_threshold</span><span class="p">,</span> <span class="n">avoid_collisions</span><span class="p">,</span> <span class="n">path_constraints</span> <span class="o">=</span> <span class="n">group</span><span class="p">.</span><span class="nf">compute_cartesian_path</span><span class="p">(</span><span class="n">waypoints</span><span class="p">,</span> <span class="n">eef_step</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">jump_threshold</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">avoid_collisions</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># Plan and execute the motion
+</span><span class="n">plan</span> <span class="o">=</span> <span class="n">group</span><span class="p">.</span><span class="nf">go</span><span class="p">(</span><span class="n">cartesian_path</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># Clean up
+</span><span class="n">moveit_commander</span><span class="p">.</span><span class="nf">roscpp_shutdown</span><span class="p">()</span>
+</code></pre></div></div>
+<p>In this example, the compute_cartesian_path() method is used to plan a cartesian path between the current pose of the robot and two randomly generated poses. The wait=True parameter ensures that the robot waits for the motion plan to be executed before stopping.</p>
+
+<h2 id="here-is-an-example-code-for-using-movegroupcommanderallow_replanning-in-moveit">Here is an example code for using MoveGroupCommander.allow_replanning() in MoveIt!:</h2>
+<p>The moveit_commander.move_group.MoveGroupCommander.allow_replanning() method is used to enable or disable replanning during motion planning. When replanning is enabled, the motion planner will continuously recompute the motion plan as the environment changes, allowing the robot to adapt to new obstacles or constraints. Here’s an example of how to use allow_replanning():</p>
+
+<p class="filename">MovegroupCommander_compute_cartesian_path.py</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">moveit_commander</span>
+
+<span class="c1"># Initialize the moveit_commander
+</span><span class="n">moveit_commander</span><span class="p">.</span><span class="nf">roscpp_initialize</span><span class="p">(</span><span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">)</span>
+<span class="n">rospy</span><span class="p">.</span><span class="nf">init_node</span><span class="p">(</span><span class="sh">'</span><span class="s">move_group_python_interface</span><span class="sh">'</span><span class="p">,</span> <span class="n">anonymous</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># Instantiate a MoveGroupCommander object
+</span><span class="n">group</span> <span class="o">=</span> <span class="n">moveit_commander</span><span class="p">.</span><span class="nc">MoveGroupCommander</span><span class="p">(</span><span class="sh">"</span><span class="s">manipulator</span><span class="sh">"</span><span class="p">)</span>
+
+<span class="c1"># Enable replanning
+</span><span class="n">group</span><span class="p">.</span><span class="nf">allow_replanning</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># Plan and execute the motion
+</span><span class="n">plan</span> <span class="o">=</span> <span class="n">group</span><span class="p">.</span><span class="nf">go</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># Clean up
+</span><span class="n">moveit_commander</span><span class="p">.</span><span class="nf">roscpp_shutdown</span><span class="p">()</span>
+</code></pre></div></div>
+
+<h1 id="references">References</h1>
+
+<ol>
+  <li><a href="https://ros-planning.github.io/moveit_tutorials/doc/move_group_python_interface/move_group_python_interface_tutorial.html">move_group_python_interface_tutorial</a></li>
+  <li><a href="http://docs.ros.org/en/indigo/api/moveit_commander/html/classmoveit__commander_1_1move__group_1_1MoveGroupCommander.html#a51bc4850dbeecbe086a0d1e90c2981b6">MoveGroupCommanderClass</a></li>
+</ol>
+
+        </div>
+
+    </div>
+
+    <!-- Header scroll behavior -->
+    <script>
+        const header = document.getElementById("mainHeader");
+        const hoverZone = document.getElementById("hoverZone");
+        let lastScroll = 0;
+
+        window.addEventListener("scroll", () => {
+            const currentScroll = window.pageYOffset;
+
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                header.classList.add("-translate-y-full");
+            } else {
+                header.classList.remove("-translate-y-full");
+            }
+
+            lastScroll = currentScroll;
+        });
+
+        hoverZone.addEventListener("mouseenter", () => {
+            header.classList.remove("-translate-y-full");
+        });
+
+        
+    </script>
+
+    <!-- Theme Toggle -->
+    <button onclick="document.documentElement.classList.toggle('dark')"
+        class="fixed bottom-4 right-4 bg-white text-black p-3 border-4 border-gray-400 rounded-full shadow-lg text-sm font-semibold hover:bg-secondary transition-colors duration-300 dark:bg-gray-800 dark:text-white dark:border-orange-600 dark:hover:bg-secondary">
+        Toggle Theme
+    </button>
+
+</body>
+
+</html>

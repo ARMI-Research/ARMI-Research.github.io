@@ -1,6 +1,6 @@
 ---
 layout: post
-category: research
+category: blog
 title: (Multithreading C++) 8. Atomic and Threads
 snippet: This tutorial in series of Multithreading in C++.
 tags: [Multithreading C++]

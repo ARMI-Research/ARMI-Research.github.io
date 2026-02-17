@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>(Multithreading C++) 5. Mutex and Multiple Threads working with Share data (Part 2) - ARMI Research Laboratory</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+        :root {
+            --primary: #0A1A2F;
+            --secondary: #d46700;
+            --text-dark: #000000;
+            --text-light: #ffffff;
+            --bg-light: #ffffff;
+            --bg-dark: #0d1117;
+            --card-dark: #111827;
+        }
+
+        .dark {
+            color-scheme: dark;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .dark body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+        }
+
+        .card-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--bg-light);
+            border-radius: 2rem;
+            padding: 2.5rem;
+            border: 2px solid var(--primary);
+        }
+
+        .dark .card-container {
+            background-color: var(--card-dark);
+            border-color: var(--secondary);
+        }
+
+        .post-content h2 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+        }
+
+        .dark .post-content h2 {
+            color: var(--text-light);
+        }
+
+        .post-content h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--primary);
+        }
+
+        .dark .post-content h3 {
+            color: var(--text-light);
+        }
+
+        .post-content p {
+            margin-bottom: 1rem;
+            line-height: 1.75;
+        }
+
+        .post-content ul, .post-content ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .post-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .post-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        .post-content table th {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .dark .post-content table th {
+            background-color: var(--secondary);
+        }
+
+        .post-content table td {
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem;
+        }
+
+        .dark .post-content table td {
+            border-color: #374151;
+        }
+
+        .post-content table tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+
+        .dark .post-content table tr:nth-child(even) {
+            background-color: #1f2937;
+        }
+
+        .post-content code {
+            background-color: #f3f4f6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        .dark .post-content code {
+            background-color: #374151;
+        }
+
+        .post-content pre {
+            background-color: #1f2937 !important;
+            color: #f3f4f6 !important;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .post-content pre code {
+            background-color: transparent !important;
+            color: #f3f4f6 !important;
+            padding: 0;
+        }
+
+        .post-content .highlight {
+            background-color: #1f2937 !important;
+        }
+
+        .post-content .highlight pre {
+            background-color: #1f2937 !important;
+        }
+
+        .post-content .highlight code {
+            color: #f3f4f6 !important;
+        }
+
+        .post-content blockquote {
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+            margin: 1rem 0;
+            font-style: italic;
+            color: #6b7280;
+        }
+
+        .dark .post-content blockquote {
+            color: #9ca3af;
+        }
+
+        .post-content hr {
+            border: none;
+            border-top: 2px solid #e5e7eb;
+            margin: 2rem 0;
+        }
+
+        .dark .post-content hr {
+            border-top-color: #374151;
+        }
+
+        .post-content strong {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .dark .post-content strong {
+            color: var(--secondary);
+        }
+
+        .post-content a {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+
+        .post-content a:hover {
+            color: var(--primary);
+        }
+
+        .dark .post-content a:hover {
+            color: var(--text-light);
+        }
+    </style>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0A1A2F',
+                        secondary: '#e97509',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+
+    <div id="hoverZone" class="fixed top-0 left-0 w-full h-6 z-40"></div>
+
+    <header id="mainHeader" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out bg-gradient-to-b from-white to-gray-100 dark:from-gray-900 dark:to-black shadow-md">
+        <div class="relative w-full border-b-4 border-gray-500 dark:border-orange-600">
+            <div class="max-w-7xl mx-auto px-6 py-4 relative flex items-center justify-between">
+                <div class="flex gap-3">
+                    <a href="/lab/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Lab</div>
+                    </a>
+                    <a href="/blog/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Blog</div>
+
+                </div>
+                <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
+                    <img src="/images/logo.png" class="w-16 h-14 object-contain dark:brightness-90">
+                    <a href="/default/">
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-orange-500 hover:text-orange-500 dark:hover:text-orange-400 transition-colors">ARMI Lab</h1>
+                    </a>
+                </div>
+                <div class="text-sm text-gray-700 dark:text-gray-300 leading-tight">
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">A</span>utonomous</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">R</span>obotics</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">M</span>achine</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">I</span>ntelligence</div>
+                    <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">Research Laboratory</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="card-container shadow-2xl lg:p-12 transition duration-500 mt-40">
+
+        <h1 class="text-4xl font-bold mb-4 text-gray-800 dark:text-gray-100">(Multithreading C++) 5. Mutex and Multiple Threads working with Share data (Part 2)</h1>
+
+        <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+            January 05, 2023
+        </div>
+
+        
+        <div class="flex gap-2 mb-6">
+            
+            <a href="/tags/#Multithreading C++" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-secondary hover:text-white transition-colors">
+                Multithreading C++
+            </a>
+            
+        </div>
+        
+
+        <hr class="mb-8 border-gray-300 dark:border-gray-700">
+
+        <div style="margin-bottom: 2rem;">
+            <a href="/blog/" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #e97509; color: white; text-decoration: none; border-radius: 0.5rem; font-weight: 600; transition: all 0.3s;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Back
+            </a>
+        </div>
+
+        <div class="post-content">
+            <h1 id="i-timeout-and-mutexes">I. Timeout and Mutexes</h1>
+
+<p><code class="language-plaintext highlighter-rouge">std::timed_mutex</code> is a C++ class that provides a synchronization primitive that can be used to protect shared data from being simultaneously accessed by multiple threads. Here are some key points about <code class="language-plaintext highlighter-rouge">std::timed_mutex</code></p>
+<ul>
+  <li>
+    <p>It is defined in the <mutex> header and is available since C++11.</mutex></p>
+  </li>
+  <li>
+    <p>It is a time lockable object that is designed to signal when critical sections of code need exclusive access, just like a regular mutex, but additionally supporting timed try-lock requests.</p>
+  </li>
+  <li>
+    <p>It has two additional members: <code class="language-plaintext highlighter-rouge">try_lock_for</code> and <code class="language-plaintext highlighter-rouge">try_lock_until</code>, which allow for timed try-lock requests. It is guaranteed to be a standard-layout class.</p>
+  </li>
+  <li>
+    <p>All lock and unlock operations on the std::timed_mutex follow a single total order, with all visible effects synchronized between the lock operations and previous unlock operations on the same object.</p>
+  </li>
+  <li>
+    <p>It is useful for synchronizing access to shared resources in a multithreaded environment when a thread needs to wait for a certain amount of time to acquire the lock.</p>
+  </li>
+</ul>
+
+<h2 id="example-of-try_lock_for-in-c">Example of try_lock_for in C++</h2>
+
+<p><strong>Example <code class="language-plaintext highlighter-rouge">try_lock_for</code> bellow:</strong></p>
+
+<p class="filename">try_lock_for.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Example of std::timed_mutex try_lock_for() member function</span>
+<span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;mutex&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;chrono&gt;</span><span class="cp">
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">timed_mutex</span> <span class="n">the_mutex</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">task1</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Task1 trying to lock the mutex</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">the_mutex</span><span class="p">.</span><span class="n">lock</span><span class="p">();</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Task1 locks the mutex</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">5s</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Task1 unlocking the mutex</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">the_mutex</span><span class="p">.</span><span class="n">unlock</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">task2</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">500ms</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Task2 trying to lock the mutex</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+
+	<span class="c1">// Try for 1 second to lock the mutex</span>
+	<span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">the_mutex</span><span class="p">.</span><span class="n">try_lock_for</span><span class="p">(</span><span class="mx">1s</span><span class="p">))</span> <span class="p">{</span>
+		<span class="c1">// Returned false</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Task2 could not lock the mutex</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+
+		<span class="c1">// Try again on the next iteration</span>
+	<span class="p">}</span>
+
+	<span class="c1">// Returned true - the mutex is now locked</span>
+
+	<span class="c1">// Start of critical section</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Task2 has locked the mutex</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="c1">// End of critical section</span>
+
+	<span class="n">the_mutex</span><span class="p">.</span><span class="n">unlock</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr1</span><span class="p">(</span><span class="n">task1</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr2</span><span class="p">(</span><span class="n">task2</span><span class="p">);</span>
+
+	<span class="n">thr1</span><span class="p">.</span><span class="n">join</span><span class="p">();</span> <span class="n">thr2</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h2 id="example-of-try_lock_until-in-c">Example of try_lock_until in C++</h2>
+
+<p><strong>Example <code class="language-plaintext highlighter-rouge">try_lock_until</code> bellow:</strong></p>
+
+<p class="filename">try_lock_until.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Example of std::timed_mutex try_lock_until() member function</span>
+<span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;mutex&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;chrono&gt;</span><span class="cp">
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">timed_mutex</span> <span class="n">the_mutex</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">task1</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Task1 trying to get lock</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">the_mutex</span><span class="p">.</span><span class="n">lock</span><span class="p">();</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Task1 locks the mutex</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">5s</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Task1 unlocking the mutex</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">the_mutex</span><span class="p">.</span><span class="n">unlock</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">task2</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">500ms</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Task2 trying to lock the mutex</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="k">auto</span> <span class="n">deadline</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">system_clock</span><span class="o">::</span><span class="n">now</span><span class="p">()</span> <span class="o">+</span> <span class="mx">900ms</span><span class="p">;</span>
+
+	<span class="c1">// Try until "deadline" to lock the mutex</span>
+	<span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">the_mutex</span><span class="p">.</span><span class="n">try_lock_until</span><span class="p">(</span><span class="n">deadline</span><span class="p">))</span> <span class="p">{</span>
+		<span class="c1">// Returned false</span>
+		<span class="c1">// Update "deadline" and try again</span>
+		<span class="n">deadline</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">system_clock</span><span class="o">::</span><span class="n">now</span><span class="p">()</span> <span class="o">+</span> <span class="mx">900ms</span><span class="p">;</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Task2 could not lock the mutex</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="p">}</span>
+
+	<span class="c1">// Returned true - the mutex is now locked</span>
+
+	<span class="c1">// Start of critical section</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Task2 has locked the mutex</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="c1">// End of critical section</span>
+
+	<span class="n">the_mutex</span><span class="p">.</span><span class="n">unlock</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr1</span><span class="p">(</span><span class="n">task1</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr2</span><span class="p">(</span><span class="n">task2</span><span class="p">);</span>
+
+	<span class="n">thr1</span><span class="p">.</span><span class="n">join</span><span class="p">();</span> <span class="n">thr2</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="using-the-stdunique_lock-with-option-try-for">Using the std::unique_lock with option try for</h2>
+<p><strong>Example <code class="language-plaintext highlighter-rouge">unique_lock_try_for</code> bellow:</strong></p>
+
+<p class="filename">unique_lock_try_for.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Example of std::unique_lock's try_lock_for() member function</span>
+<span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;mutex&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;chrono&gt;</span><span class="cp">
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">timed_mutex</span> <span class="n">the_mutex</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">task1</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Task1 trying to lock the mutex</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">timed_mutex</span><span class="o">&gt;</span> <span class="n">lck_guard</span><span class="p">(</span><span class="n">the_mutex</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Task1 locks the mutex</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">5s</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Task1 unlocking the mutex</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">task2</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">500ms</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Task2 trying to lock the mutex</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+
+	<span class="n">std</span><span class="o">::</span><span class="n">unique_lock</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">timed_mutex</span><span class="o">&gt;</span> <span class="n">uniq_lck</span><span class="p">(</span><span class="n">the_mutex</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">defer_lock</span><span class="p">);</span>
+
+	<span class="c1">// Try for 1 second to lock the mutex</span>
+	<span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">uniq_lck</span><span class="p">.</span><span class="n">try_lock_for</span><span class="p">(</span><span class="mx">1s</span><span class="p">))</span> <span class="p">{</span>
+		<span class="c1">// Returned false</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Task2 could not lock the mutex</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+
+		<span class="c1">// Try again on the next iteration</span>
+	<span class="p">}</span>
+
+	<span class="c1">// Returned true - the mutex is now locked</span>
+
+	<span class="c1">// Start of critical section</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Task2 has locked the mutex</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="c1">// End of critical section</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr1</span><span class="p">(</span><span class="n">task1</span><span class="p">);</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr2</span><span class="p">(</span><span class="n">task2</span><span class="p">);</span>
+
+	<span class="n">thr1</span><span class="p">.</span><span class="n">join</span><span class="p">();</span> <span class="n">thr2</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The C++ <chrono> library provides several clock types that can be used to measure time in various ways. Here are some key points about the clocks: The <chrono> library defines three main types of clocks: system_clock, steady_clock, and high_resolution_clock.</chrono></chrono></p>
+
+<ul>
+  <li>
+    <p><strong>System_clock measures</strong> Unix Time, which is the time since 00:00:00 Coordinated Universal Time (UTC), Thursday, 1 January 1970, not counting leap seconds. It is the system-wide real-time clock (wall-clock) and has the auxiliary functions to_time_t and from_time_t to convert time points into dates.</p>
+  </li>
+  <li>
+    <p><strong>Steady_clock</strong> provides a monotonic clock that will never be adjusted. It goes at a uniform rate and is the preferred clock to wait for a time duration or until a time point.</p>
+  </li>
+  <li>
+    <p><strong>High_resolution_clock</strong> provides the smallest possible tick period and is useful for measuring short durations.</p>
+  </li>
+</ul>
+
+<p>All clock classes provide access to the current time_point.</p>
+
+<h1 id="ii-mutiple-reader-and-single-writer">II. Mutiple Reader and Single Writer</h1>
+<p>Multiple Reader and Single Writer (MRSW) is a common problem in concurrent programming that can be found in many real-world applications. Here are some examples of MRSW in financial and audio/video buffer and database:</p>
+<ul>
+  <li><strong>Financial:</strong>
+In a financial system, multiple clients may need to read data from the same database table while only one client can write to it. This is a classic example of MRSW. In a financial trading system, multiple threads may need to read market data while only one thread can write to it.</li>
+  <li><strong>Audio/Video Buffer:</strong>
+In an audio or video streaming application, multiple threads may need to read data from the buffer while only one thread can write to it. This is another example of MRSW. In an Icecast audio streaming application, a buffer is always necessary to handle the packet-switched nature of networks</li>
+  <li><strong>Database:</strong>
+In a database system, multiple clients may need to read data from the same table while only one client can write to it. This is a classic example of MRSW. In a database system, table buffer performance can be improved by optimizing the buffer size and reducing the number of table accesses.</li>
+</ul>
+
+<p>In a database system, multiple threads may need to read data from the buffer while only one thread can write to it.</p>
+
+<h1 id="iiishared-mutexes">III.Shared Mutexes</h1>
+<p><code class="language-plaintext highlighter-rouge">std::shared_mutex</code> is a C++ class that provides a synchronization primitive that can be used to protect shared data from being simultaneously accessed by multiple threads. Here are some key points about <code class="language-plaintext highlighter-rouge">std::shared_mutex</code>:</p>
+<ul>
+  <li>
+    <p>It is defined in the <code class="language-plaintext highlighter-rouge">shared_mutex</code> header and is available since C++17.</p>
+  </li>
+  <li>
+    <p>It is a type of mutex that allows multiple threads to share ownership of a mutex for non-exclusive access.
+It provides two levels of access: shared and exclusive. Multiple threads can acquire shared access, but only one thread can hold exclusive access.</p>
+  </li>
+  <li>
+    <p>It is useful for synchronizing access to shared resources in a multithreaded environment when multiple threads need to read the shared resource, but only one thread can write to it.</p>
+  </li>
+  <li>
+    <p>It has several member functions, <code class="language-plaintext highlighter-rouge">lock()</code> and <code class="language-plaintext highlighter-rouge">unlock()</code> are used for <strong>exclusive</strong> access, while <code class="language-plaintext highlighter-rouge">lock_shared()</code> and <code class="language-plaintext highlighter-rouge">unlock_shared()</code> are used for <strong>shared</strong> access, <code class="language-plaintext highlighter-rouge">try_lock()</code> and <code class="language-plaintext highlighter-rouge">try_lock_shared()</code> are used to attempt to lock the mutex without blocking.</p>
+  </li>
+  <li>
+    <p>All lock and unlock operations on the <code class="language-plaintext highlighter-rouge">std::shared_mutex</code> follow a single total order, with all visible effects synchronized between the lock operations and previous unlock operations on the same object.</p>
+  </li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Share_mutex usage</span>
+<span class="n">std</span><span class="o">::</span><span class="n">shared_mutex</span> <span class="n">sharemut</span><span class="p">;</span>
+<span class="kt">void</span> <span class="nf">write</span><span class="p">(){</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span> <span class="n">guard</span><span class="p">(</span><span class="n">sharemut</span><span class="p">);</span> <span class="c1">//Write thread with exclusive block</span>
+	<span class="p">...</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">read</span><span class="p">(){</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">shared_lock</span> <span class="n">sh_lck</span><span class="p">(</span><span class="n">sharemut</span><span class="p">);</span> <span class="c1">// Read thread with share block</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h2 id="share-mutex">Share mutex</h2>
+<p><strong>Example <code class="language-plaintext highlighter-rouge">shared_mutex.cpp</code> bellow:</strong></p>
+
+<p class="filename">shared_mutex.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Shared mutex example</span>
+<span class="c1">// Requires C++17</span>
+<span class="c1">// (for C++14, use std::shared_timed_mutex)</span>
+<span class="c1">// The write thread uses an exclusive lock</span>
+<span class="c1">// The read thread uses a shared lock</span>
+<span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;mutex&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;shared_mutex&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;chrono&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;vector&gt;</span><span class="cp">
+</span>
+<span class="n">std</span><span class="o">::</span><span class="n">shared_mutex</span> <span class="n">shmut</span><span class="p">;</span>
+
+<span class="c1">// Shared variable</span>
+<span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">write</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">shared_mutex</span><span class="o">&gt;</span> <span class="n">lck_guard</span><span class="p">(</span><span class="n">shmut</span><span class="p">);</span>
+
+	<span class="c1">// Start of critical section</span>
+	<span class="o">++</span><span class="n">x</span><span class="p">;</span>
+	<span class="c1">// End of critical section</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">read</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">shared_lock</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">shared_mutex</span><span class="o">&gt;</span> <span class="n">lck_guard</span><span class="p">(</span><span class="n">shmut</span><span class="p">);</span>
+
+	<span class="c1">// Start of critical section</span>
+	<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">100ms</span><span class="p">);</span>
+	<span class="c1">// End of critical section</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="o">&gt;</span> <span class="n">threads</span><span class="p">;</span>
+
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">20</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+		<span class="n">threads</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="p">(</span><span class="n">read</span><span class="p">));</span>
+
+	<span class="n">threads</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="p">(</span><span class="n">write</span><span class="p">));</span>
+	<span class="n">threads</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="p">(</span><span class="n">write</span><span class="p">));</span>
+
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">20</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+		<span class="n">threads</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="p">(</span><span class="n">read</span><span class="p">));</span>
+
+	<span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="n">thr</span> <span class="o">:</span> <span class="n">threads</span><span class="p">)</span>
+		<span class="n">thr</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<div class="tip">
+<b>Pros and Cons of std::shared_mutex</b>
+<ul>
+<li> <b>Use more memory than std::mutex</b> Slower than std::mutex</li>
+
+<li> <b>Recommendation</b> Reader threads greatly outnumber of writer threads, and read operations take along time  </li>
+
+</ul>
+</div>
+
+<h1 id="iv-shared-data-initialization">IV. Shared Data Initialization</h1>
+<p>Shared data can have different forms in a program:</p>
+<ul>
+  <li>Global variables can be accessed by any code in the program.</li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Global variable declaration</span>
+<span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span> <span class="c1">//Can be accessed from other files by using the extern keyword.</span>
+
+<span class="c1">// Function to print the value of the global variable</span>
+<span class="kt">void</span> <span class="nf">printGlobalVariable</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"The value of the global variable is: "</span> <span class="o">&lt;&lt;</span> <span class="n">a</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<ul>
+  <li>Static variables at namespace scope can be accessed by any code that can see their declaration.</li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Static variable declaration at namespace scope</span>
+<span class="k">static</span> <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span> <span class="c1">// Cannot be accessed from other files.</span>
+
+<span class="c1">// Function to print the value of the static variable</span>
+<span class="kt">void</span> <span class="nf">printStaticVariable</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"The value of the static variable is: "</span> <span class="o">&lt;&lt;</span> <span class="n">a</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<ul>
+  <li>A class member declared static can be accessed by any code that calls its member functions.</li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">MyClass</span> <span class="p">{</span>
+  <span class="nl">public:</span>
+    <span class="k">static</span> <span class="kt">int</span> <span class="n">staticVariable</span><span class="p">;</span>
+    <span class="k">static</span> <span class="kt">void</span> <span class="n">staticFunction</span><span class="p">()</span> <span class="p">{</span>
+      <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"The value of the static variable is: "</span> <span class="o">&lt;&lt;</span> <span class="n">staticVariable</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="n">MyClass</span><span class="o">::</span><span class="n">staticVariable</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+</code></pre></div></div>
+
+<ul>
+  <li>Local variables declared static can be accessed by any code that calls the function containing them.</li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">myFunction</span><span class="p">()</span> <span class="p">{</span>
+  <span class="c1">// Declare a static local variable</span>
+  <span class="k">static</span> <span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+  <span class="c1">// Increment the value of the static local variable</span>
+  <span class="n">count</span><span class="o">++</span><span class="p">;</span>
+
+  <span class="c1">// Print the value of the static local variable</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"The value of the static local variable is: "</span> <span class="o">&lt;&lt;</span> <span class="n">count</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="c1">// Call the function multiple times to see the effect of the static local variable</span>
+  <span class="n">myFunction</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Static local variables in C++11 have been standardized:</p>
+
+<ul>
+  <li>Only one thread can initialize the variable, and if any other thread reaches that declaration, it will be blocked.</li>
+  <li>The second thread must wait until the first thread has finished initializing the variable, and then it will use the initial value that the first thread gave to it.</li>
+  <li>All threads will see this variable as having the same initial value, and the threads are all synchronized internally by the implementation, and there is no data race.</li>
+  <li>This only applies when initializing the static variable.</li>
+  <li>If we want to modify it later on, then it is just like any other shared data, and we have to protect it to prevent a data race.</li>
+</ul>
+
+<h2 id="singleton-class">Singleton Class</h2>
+<p>The Singleton design pattern in C++ is a creational design pattern that ensures only one object of its kind exists and provides a single point of access to it for any other code. Singleton has almost the same pros and cons as global variables, and it can be recognized by a static creation method, which returns the same cached object.</p>
+
+<h3 id="classical-singleton-class---has-data-race">Classical Singleton class -&gt; has data race</h3>
+
+<p class="filename">classic_singleton.h</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Singleton class definition</span>
+<span class="cp">#ifndef SINGLETON_H
+#define SINGLETON_H
+</span>
+<span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span>
+<span class="k">class</span> <span class="nc">Singleton</span> <span class="p">{</span>
+	<span class="c1">// Pointer to unique instance</span>
+	<span class="k">static</span> <span class="n">Singleton</span> <span class="o">*</span><span class="n">single</span><span class="p">;</span>
+	
+	<span class="c1">// The constructor is private</span>
+	<span class="n">Singleton</span><span class="p">()</span> <span class="p">{</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Initializing Singleton"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;}</span>
+<span class="k">public</span><span class="o">:</span>
+	<span class="c1">// The copy and move operators are deleted</span>
+	<span class="n">Singleton</span><span class="p">(</span><span class="k">const</span> <span class="n">Singleton</span><span class="o">&amp;</span><span class="p">)</span> <span class="o">=</span> <span class="k">delete</span><span class="p">;</span>
+	<span class="n">Singleton</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">Singleton</span><span class="o">&amp;</span><span class="p">)</span> <span class="o">=</span> <span class="k">delete</span><span class="p">;</span>
+	<span class="n">Singleton</span><span class="p">(</span><span class="n">Singleton</span><span class="o">&amp;&amp;</span><span class="p">)</span> <span class="o">=</span> <span class="k">delete</span><span class="p">;</span>
+	<span class="n">Singleton</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">Singleton</span><span class="o">&amp;&amp;</span><span class="p">)</span> <span class="o">=</span> <span class="k">delete</span><span class="p">;</span>
+	
+	<span class="c1">// Static member function to obtain the Singleton object</span>
+	<span class="k">static</span> <span class="n">Singleton</span><span class="o">*</span> <span class="nf">get_Singleton</span><span class="p">();</span>
+<span class="p">};</span>
+
+<span class="cp">#endif //Singleton_H
+</span></code></pre></div></div>
+
+<p class="filename">classic_singleton.cc</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Classic Singleton class implementation</span>
+<span class="cp">#include</span> <span class="cpf">"classic_singleton.h"</span><span class="cp">
+</span>
+<span class="c1">// Static member function to obtain the Singleton object</span>
+<span class="n">Singleton</span><span class="o">*</span> <span class="n">Singleton</span><span class="o">::</span><span class="n">get_Singleton</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">single</span> <span class="o">==</span> <span class="nb">nullptr</span><span class="p">)</span>
+        <span class="n">single</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Singleton</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">single</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p class="filename">classic_singleton_main.cc</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Test program for classic Singleton</span>
+<span class="cp">#include</span> <span class="cpf">"classic_singleton.h"</span><span class="cp">
+#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;vector&gt;</span><span class="cp">
+</span>
+<span class="n">Singleton</span><span class="o">*</span> <span class="n">Singleton</span><span class="o">::</span><span class="n">single</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">task</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">Singleton</span><span class="o">*</span> <span class="n">single</span> <span class="o">=</span> <span class="n">Singleton</span><span class="o">::</span><span class="n">get_Singleton</span><span class="p">();</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">single</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="o">&gt;</span> <span class="n">threads</span><span class="p">;</span>
+	
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+		<span class="n">threads</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="p">(</span><span class="n">task</span><span class="p">));</span>
+	
+	<span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="n">thr</span> <span class="o">:</span> <span class="n">threads</span><span class="p">)</span>
+		<span class="n">thr</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="c11-singleton-class---good-practice">C++11 Singleton Class -&gt; Good practice</h3>
+
+<p class="filename">cpp11_singleton.h</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Singleton class definition</span>
+<span class="cp">#ifndef SINGLETON_H
+#define SINGLETON_H
+</span>
+<span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span>
+<span class="k">class</span> <span class="nc">Singleton</span> <span class="p">{</span>
+  <span class="nl">public:</span>
+	<span class="c1">// The copy and move operators are deleted</span>
+	<span class="n">Singleton</span><span class="p">(</span><span class="k">const</span> <span class="n">Singleton</span><span class="o">&amp;</span><span class="p">)</span> <span class="o">=</span> <span class="k">delete</span><span class="p">;</span>
+	<span class="n">Singleton</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">Singleton</span><span class="o">&amp;</span><span class="p">)</span> <span class="o">=</span> <span class="k">delete</span><span class="p">;</span>
+	<span class="n">Singleton</span><span class="p">(</span><span class="n">Singleton</span><span class="o">&amp;&amp;</span><span class="p">)</span> <span class="o">=</span> <span class="k">delete</span><span class="p">;</span>
+	<span class="n">Singleton</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">Singleton</span><span class="o">&amp;&amp;</span><span class="p">)</span> <span class="o">=</span> <span class="k">delete</span><span class="p">;</span>
+	
+	<span class="n">Singleton</span><span class="p">()</span> <span class="p">{</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Initializing Singleton</span><span class="se">\n</span><span class="s">"</span><span class="p">;}</span>
+<span class="p">};</span>
+
+<span class="c1">// Function to obtain the Singleton object</span>
+<span class="n">Singleton</span><span class="o">&amp;</span> <span class="n">get_Singleton</span><span class="p">();</span>
+
+<span class="cp">#endif //SINGLETON_H
+</span></code></pre></div></div>
+
+<p class="filename">cpp11_singleton.cc</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Singleton class implementation (Meyers Singleton)</span>
+<span class="c1">// Uses C++11's guarantees about initializing static variables</span>
+<span class="cp">#include</span> <span class="cpf">"cpp11_singleton.h"</span><span class="cp">
+</span>
+<span class="c1">// Function to obtain the Singleton object</span>
+<span class="n">Singleton</span><span class="o">&amp;</span> <span class="n">get_Singleton</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">// Initialized by the first thread that executes this code</span>
+	<span class="k">static</span> <span class="n">Singleton</span> <span class="n">single</span><span class="p">;</span>
+	<span class="k">return</span> <span class="n">single</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p class="filename">cpp11_singleton_main.cc</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Test program for classic Singleton</span>
+<span class="c1">// Test program for Meyers Singleton</span>
+<span class="cp">#include</span> <span class="cpf">"cpp11_singleton.h"</span><span class="cp">
+#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;vector&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">task</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">Singleton</span><span class="o">&amp;</span> <span class="n">single</span> <span class="o">=</span> <span class="n">get_Singleton</span><span class="p">();</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">single</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="o">&gt;</span> <span class="n">threads</span><span class="p">;</span>
+	
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+		<span class="n">threads</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="p">(</span><span class="n">task</span><span class="p">));</span>
+	
+	<span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="n">thr</span> <span class="o">:</span> <span class="n">threads</span><span class="p">)</span>
+		<span class="n">thr</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h1 id="v-thread-local-variable-lifetimes">V. Thread-local variable lifetimes</h1>
+<h2 id="thread-local-variable">Thread-local variable</h2>
+<p>In C++, thread-local variables are variables that have thread storage duration, meaning that each thread that accesses a thread-local variable has its own, independently initialized copy of the variable.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Global and namespace scope
+- Always constructed at or befor the first use in a translation unit
+- It is safe to use them in dynamic libraries (DLLs)
+
+Local variables
+- Initialized in the same way as static local variables
+
+In all cases
+- Destroyed when the thread completes its execution
+</code></pre></div></div>
+
+<h2 id="example">Example</h2>
+<p>We can make a random number engine thread-local, this ensures that each thread generates the same sequence -&gt; Useful for testing.</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//Thread-local random number engine</span>
+<span class="n">std</span><span class="o">::</span><span class="k">thread_local</span> <span class="n">mt19937</span> <span class="n">mt</span><span class="p">;</span>
+<span class="kt">void</span> <span class="nf">func</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">uniform_real_distribution</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="n">dist</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span> <span class="c1">//Double in range 0 to 1</span>
+	<span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span><span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>						<span class="c1">//Generate 10 numbers</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">out</span> <span class="o">&lt;&lt;</span> <span class="n">dist</span><span class="p">(</span><span class="n">mt</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">", "</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>Thread-local random number engine <code class="language-plaintext highlighter-rouge">thread_local.cpp</code> bellow:</strong></p>
+
+<p class="filename">thread_local.cpp</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Thread-local random number engine</span>
+<span class="c1">// Ensures that each thread generates the same sequence</span>
+<span class="c1">// (Useful for testing)</span>
+<span class="cp">#include</span> <span class="cpf">&lt;random&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span>
+<span class="c1">// Thread-local random number engine</span>
+<span class="k">thread_local</span> <span class="n">std</span><span class="o">::</span><span class="n">mt19937</span> <span class="n">mt</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">func</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">uniform_real_distribution</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">dist</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>   <span class="c1">// Doubles in the range 0 to 1</span>
+
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>                         <span class="c1">// Generate 10 random numbers</span>
+		<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">dist</span><span class="p">(</span><span class="n">mt</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">", "</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Thread 1's random values:</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr1</span><span class="p">(</span><span class="n">func</span><span class="p">);</span>
+	<span class="n">thr1</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\n</span><span class="s">Thread 2's random values:</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+	<span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">thr2</span><span class="p">(</span><span class="n">func</span><span class="p">);</span>
+	<span class="n">thr2</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+	<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="sc">'\n'</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h1 id="vi-lazy-initialization">VI. Lazy Initialization</h1>
+<p>Lazy initialization is a technique that delays the creation of an object or the calculation of a value until the first time it is needed. It is useful when the creation of the object is expensive, and you want to defer it as late as possible, or even skip it entirely.</p>
+<h1 id="vii-double-checked-locking">VII. Double-checked Locking</h1>
+<p>Double-checked locking is used to reduce the overhead of acquiring a lock by testing the locking criteria first and acquiring the lock only if the check indicates that locking is required. It is commonly used for lazy initialization, which is a tactic for delaying the object initialization until the first time it is accessed. In multi-threaded environments, initialization is usually not thread-safe, so locking is required to protect the critical section. Since only the first access requires locking, double-checked locking is used to avoid locking overhead of subsequent accesses</p>
+
+<h1 id="references">References</h1>
+<ol>
+  <li>https://en.cppreference.com/w/cpp/thread/timed_mutex</li>
+  <li>https://cplusplus.com/reference/mutex/timed_mutex/</li>
+  <li>https://en.cppreference.com/w/cpp/thread/timed_mutex/try_lock_until</li>
+  <li>James Raynard, Learn Multithreading with Modern C++ Udemy.</li>
+  <li>https://en.cppreference.com/w/cpp/chrono/system_clock</li>
+  <li>https://en.cppreference.com/w/cpp/chrono</li>
+  <li>https://en.cppreference.com/w/cpp/thread/shared_mutex</li>
+  <li>https://en.cppreference.com/w/cpp/thread/shared_mutex/lock</li>
+  <li>https://refactoring.guru/design-patterns/singleton/cpp/example</li>
+  <li>https://en.wikipedia.org/wiki/Lazy_initialization</li>
+</ol>
+
+
+        </div>
+
+    </div>
+
+    <!-- Header scroll behavior -->
+    <script>
+        const header = document.getElementById("mainHeader");
+        const hoverZone = document.getElementById("hoverZone");
+        let lastScroll = 0;
+
+        window.addEventListener("scroll", () => {
+            const currentScroll = window.pageYOffset;
+
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                header.classList.add("-translate-y-full");
+            } else {
+                header.classList.remove("-translate-y-full");
+            }
+
+            lastScroll = currentScroll;
+        });
+
+        hoverZone.addEventListener("mouseenter", () => {
+            header.classList.remove("-translate-y-full");
+        });
+
+        
+    </script>
+
+    <!-- Theme Toggle -->
+    <button onclick="document.documentElement.classList.toggle('dark')"
+        class="fixed bottom-4 right-4 bg-white text-black p-3 border-4 border-gray-400 rounded-full shadow-lg text-sm font-semibold hover:bg-secondary transition-colors duration-300 dark:bg-gray-800 dark:text-white dark:border-orange-600 dark:hover:bg-secondary">
+        Toggle Theme
+    </button>
+
+</body>
+
+</html>

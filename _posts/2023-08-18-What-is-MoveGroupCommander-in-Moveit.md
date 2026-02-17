@@ -1,6 +1,6 @@
 ---
 layout: post
-category: research
+category: blog
 title: What is the MoveGroupCommander in Moveit
 snippet: Explain the MoveGroupCommander in Moveit and python code.
 tags: [robotics, ROS, python]

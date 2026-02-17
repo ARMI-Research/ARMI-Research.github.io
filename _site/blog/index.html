@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARMI Research Laboratory: Autonomous Robotics & Machine Intelligence Laboratory</title>
+    <title>Blog - ARMI Research Laboratory</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Configure Tailwind for Inter font and a modern color palette -->
@@ -29,7 +29,7 @@
             color-scheme: dark;
         }
 
-        
+
         body {
             font-family: 'Inter', sans-serif;
             transition: background-color 0.3s, color 0.3s;
@@ -51,65 +51,91 @@
             background-color: var(--bg-light);
             border-radius: 2rem;
             padding: 2.5rem;
-            border: 2px solid var(--primary); /* subtle dark blue frame */
+            border: 2px solid var(--primary);
         }
 
         .dark .card-container {
             background-color: var(--card-dark);
-            border-color: var(--secondary); /* red outline in dark mode */
+            border-color: var(--secondary);
         }
 
         /* ------------------------------
-        PROJECT CARDS
+        POST CARDS
         ------------------------------ */
-        .project-card {
+        .post-card {
             display: flex;
             flex-direction: column;
             border-radius: 1rem;
             overflow: hidden;
             height: 100%;
             transition: all 0.3s ease;
-            border: 1px solid rgba(10, 26, 47, 0.15); /* Dark blue tint */
+            border: 1px solid rgba(10, 26, 47, 0.15);
+            background-color: var(--bg-light);
+            padding: 1.5rem;
         }
 
-        .project-card:hover {
+        .dark .post-card {
+            background-color: var(--card-dark);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .post-card:hover {
             transform: translateY(-6px);
             box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
-            border-color: var(--secondary); /* highlight with red */
+            border-color: var(--secondary);
         }
 
-        /* ------------------------------
-        LINK ICON
-        ------------------------------ */
-        .link-icon {
-            @apply inline-block ml-2 transition;
+        .post-title {
             color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: color 0.3s;
         }
 
-        .link-icon:hover {
+        .dark .post-title {
+            color: var(--text-light);
+        }
+
+        .post-title:hover {
             color: var(--secondary);
         }
 
-        /* ------------------------------
-        VIDEO WRAPPER
-        ------------------------------ */
-        .video-wrapper {
-            position: relative;
-            padding-bottom: 56.25%;
-            height: 0;
-            overflow: hidden;
-            max-width: 100%;
-            background: #000000; /* pure black for video frame */
-            border: 2px solid var(--primary);
-            border-radius: 1rem;
+        .post-meta {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
         }
 
-        .video-wrapper video {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+        .dark .post-meta {
+            color: #9ca3af;
+        }
+
+        .post-snippet {
+            color: var(--text-dark);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-top: 1rem;
+        }
+
+        .dark .post-snippet {
+            color: var(--text-light);
+        }
+
+        .tag-link {
+            color: var(--secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.3s;
+        }
+
+        .tag-link:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        .dark .tag-link:hover {
+            color: var(--text-light);
         }
 
     </style>
@@ -121,8 +147,8 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#0A1A2F',     // Black
-                        secondary: '#e97509',   // Dark Blue
+                        primary: '#0A1A2F',
+                        secondary: '#e97509',
                         black: '#000000',
                         gray: {
                             DEFAULT: '#6b7280',
@@ -144,6 +170,8 @@
 
     </script>
 
+</head>
+
 <body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
 
     <div id="hoverZone" class="fixed top-0 left-0 w-full h-6 z-40"></div>
@@ -155,8 +183,8 @@
                     <a href="/lab/">
                         <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Lab</div>
                     </a>
-                    <a href="/research/">
-                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Research</div>
+                    <a href="/blog/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Blog</div>
                     </a>
                 </div>
                 <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
@@ -179,626 +207,1161 @@
     <div class="card-container shadow-2xl lg:p-12 transition duration-500 mt-40">
 
         <h2 class="text-4xl font-bold mb-8 text-gray-800 dark:text-gray-100 border-l-4 border-secondary pl-4">
-            About Us
+            Blog
         </h2>
 
-        <!-- Header and Lab Identity -->
-        <header class="mb-12 border-b-4 pb-8 border-primary dark:border-gray-200">
-            <p class="mt-4 text-xl leading-relaxed text-gray-700 dark:text-gray-300">
-                <strong class="font-semibold text-secondary"> The <strong class="text-gray-800 dark:text-gray-200">ARMI Laboratory</strong> is a research and innovation center in autonomous robots and machine intelligence at the <strong class="text-gray-800 dark:text-gray-200">Mechatronics Engineer Program (MEC)</strong>, Cluster 3, <strong class="text-gray-800 dark:text-gray-200">Vietnamese German University</strong> (VGU), Vietnam.<br><br><strong class="text-gray-800 dark:text-gray-200">ARMI Lab</strong> is dedicated to advancing autonomous robotics, digital twin technologies, and machine learning to solve complex, real-world industrial challenges. Our mission is to develop intelligent robotic systems that not only perceive and understand their environment, but also adapt, learn, and optimize their behavior autonomously in an industrial context.
-            </p>
-        </header>
+        <hr class="mb-8 border-gray-300 dark:border-gray-700">
 
-        <!-- Core Responsibilities (Adapted from original template section) -->
-       <ul class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-5 text-lg text-gray-700 dark:text-gray-300">
-
-    <!-- Algorithm Development -->
-    <li class="flex items-start">
-        <span class="text-secondary mr-3 mt-1">&#x25AA;</span>
-        <p>
-            <strong class="text-primary dark:text-gray-500">Manipulation Research:</strong>
-            Develop and optimize algorithms for
-            <strong>Imitation Learning</strong> (ACT, Diffusion),
-            advanced <strong>motion planning</strong> (RRT, trajectory optimization),
-            <strong>inverse kinematics</strong>,
-            and <strong>AI-driven perception</strong> including SLAM and multimodal sensor fusion.
-        </p>
-    </li>
-     <!-- Machine Learning -->
-    <li class="flex items-start">
-        <span class="text-secondary mr-3 mt-1">&#x25AA;</span>
-        <p>
-            <strong class="text-primary dark:text-gray-500">Machine Learning &amp; AI Models:</strong>
-            Build and deploy machine learning models for predictive maintenance,
-            anomaly detection, object recognition, pose estimation, and task automation.
-            Utilize modern AI pipelines including deep learning, transformers,
-            reinforcement learning, and foundation models tailored for robotics applications.
-        </p>
-    </li>
-    <!-- Simulation & Digital Twin -->
-    <li class="flex items-start">
-        <span class="text-secondary mr-3 mt-1">&#x25AA;</span>
-        <p>
-            <strong class="text-primary dark:text-gray-500">Simulation &amp; Digital Twin:</strong>
-            Configure high-fidelity <strong>Digital Twin</strong> environments to validate robotic behaviors,
-            system stability, control robustness, and full mission workflows from simulation to deployment.
-        </p>
-    </li>
-
-     <!-- System Design -->
-    <li class="flex items-start">
-        <span class="text-secondary mr-3 mt-1">&#x25AA;</span>
-        <p>
-            <strong class="text-primary dark:text-gray-500">System Design:</strong>
-            Architect robotics software systems using middleware like
-            <span class="font-mono bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">ROS/ROS2</span>,
-            integrated with simulation tools such as Gazebo, IsaacSim, and high-fidelity Digital Twin pipelines.
-        </p>
-    </li>
-
-    
-
-    <!-- Mobile Robotics -->
-    <li class="flex items-start">
-        <span class="text-secondary mr-3 mt-1">&#x25AA;</span>
-        <p>
-            <strong class="text-primary dark:text-gray-500">Mobile Robotics:</strong>
-            Develop autonomous navigation stacks, including mapping, localization,
-            obstacle avoidance, and path planning for AMRs, AGVs, and outdoor UGV platforms.
-            Integrate sensor suites such as LiDAR, GPS, IMU, and stereo/depth cameras
-            to achieve robust autonomy in dynamic industrial environments.
-        </p>
-    </li>
-
-   <!-- Integration -->
-    <li class="flex items-start">
-        <span class="text-secondary mr-3 mt-1">&#x25AA;</span>
-        <p>
-            <strong class="text-primary dark:text-gray-500">Integration:</strong>
-            Interface specialized hardware with industrial robots
-             UR and key components
-            (LiDAR, depth cameras, actuators, embedded systems)
-            via middleware such as ROS/ROS 2 and real-time communication bridges.
-        </p>
-    </li>
-
-</ul>
-<br>
-
-
-        <!-- Research Experiences -->
-        <!-- Research Experiences -->
-<section id="research" class="mb-12">
-    <h2 class="text-4xl font-bold mb-8 text-gray-800 dark:text-gray-100 border-l-4 border-secondary pl-4">
-        Selected Research Publications
-    </h2>
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-10">
-
-        <!-- Digital Twin -->
-        <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md flex flex-col h-full">
-            <a href="#" data-video-url="/images/fulls/DT_Unity.mp4"
-               class="video-trigger block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="/images/thumbs/digitaltwin.png"
-                     class="w-full h-full object-cover transition-all duration-300 hover:opacity-80">
-            </a>
-
-            <div class="p-6 flex flex-col flex-1">
-                <h3 class="text-xl font-bold text-primary dark:text-orange-400 mb-2">
-                    ROS based Digital Twin Framework for Collaboration Robot
-                </h3>
-                <h6 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">
-                    Tri Bien Minh*, Phu Do, Hung Q. Nguyen, Khang H. V. Nguyen, Thao T.T Phan  
-                    — Proceedings of the International Conference on Sustainable Energy Technologies
-                </h6>
-                <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">
-                    This paper presents a real-time machine health monitoring digital twin (DT) framework 
-                    for robot machine-tending based on ISO 23247. The system integrates OPC UA and ROS 
-                    for seamless communication between physical and cyber layers.
-                </p>
-                <p class="text-sm mt-auto dark:text-gray-100">
-                    <a href="https://link.springer.com/chapter/10.1007/978-981-97-1868-9_74" target="_blank" class="link-icon dark:text-orange-500" >Springer Link</a> •
-                    <a href="https://www.researchgate.net/publication/382224667_A_Digital_Twin_Implementation_Framework_for_a_Collaborative_Robot_Based_on_Iso_23247" target="_blank" class="link-icon dark:text-orange-500">Preprint</a> •
-                    <a href="https://github.com/TriKnight/unity_universal_robots" target="_blank" class="link-icon dark:text-orange-500" >Code</a>
-                </p>
+        <!-- Search Bar -->
+        <div class="mb-8">
+            <div class="relative max-w-2xl mx-auto">
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search publications..."
+                    class="w-full px-6 py-3 pl-12 text-lg border-2 border-gray-400 rounded-lg focus:outline-none focus:border-secondary transition-colors duration-300 bg-white text-gray-800 dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:focus:border-orange-400"
+                />
+                <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
             </div>
-        </article>
-
-        <!-- PBVS Dual UR -->
-        <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md flex flex-col h-full">
-            <a href="#" data-video-url="/images/fulls/UR_dual.mp4"
-               class="video-trigger block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="/images/thumbs/PBVS_UR_play.png"
-                     class="w-full h-full object-cover transition-all duration-300 hover:opacity-80">
-            </a>
-
-            <div class="p-6 flex flex-col flex-1">
-                <h3 class="text-xl font-bold text-primary dark:text-orange-400 mb-2">
-                    Position-based Visual Servoing with Dual Manipulators
-                </h3>
-                <h6 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">
-                    Tri Bien Minh*
-                </h6>
-                <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">
-                    The PBVS system uses a Realsense D435 camera to track ARTag trajectories from a collaborative UR10e robot. 
-                    Joint velocity control enables real-time trajectory tracking using visual feedback.
-                </p>
-                <p class="text-sm mt-auto dark:text-gray-100">
-                    <a href="#" data-video-url="/images/fulls/UR_dual.mp4" class="video-trigger link-icon dark:text-orange-500">Video</a> •
-                    <a href="/images/fulls/PBVS-UR.pdf" target="_blank" class="link-icon dark:text-orange-500">Preprint</a>
-                </p>
-            </div>
-        </article>
-
-        <!-- Reactive Motion Control -->
-        <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md flex flex-col h-full">
-            <a href="#" data-video-url="/images/fulls/Reactive_motion.mp4"
-               class="video-trigger block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="/images/thumbs/Thumb_Reactive.png"
-                     class="w-full h-full object-cover transition-all duration-300 hover:opacity-80">
-            </a>
-
-            <div class="p-6 flex flex-col flex-1">
-                <h3 class="text-xl font-bold text-primary dark:text-orange-400 mb-2">
-                    Optimisation Algorithm for Reactive Motion Control Manipulator
-                </h3>
-                <h6 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">
-                    Tri Bien Minh*
-                </h6>
-                <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">
-                    Designs a reactive optimization-based controller that avoids static and dynamic obstacles 
-                    while driving the robot toward a target pose.
-                </p>
-                <p class="text-sm mt-auto dark:text-gray-100">
-                    <a href="#" data-video-url="/images/fulls/Reactive_motion.mp4" class="video-trigger link-icon dark:text-orange-500">Video</a>
-                </p>
-            </div>
-        </article>
-
-        <!-- LiDAR DBSCAN -->
-        <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md flex flex-col h-full">
-            <a href="#" data-video-url="/images/fulls/3DLidar.mp4"
-               class="video-trigger block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="/images/thumbs/Lidar_play.png"
-                     class="w-full h-full object-cover transition-all duration-300 hover:opacity-80">
-            </a>
-
-            <div class="p-6 flex flex-col flex-1">
-                <h3 class="text-xl font-bold text-primary dark:text-orange-400 mb-2">
-                    LiDAR-based Vehicle Detection using DBSCAN
-                </h3>
-                <h6 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">
-                    Tri Bien Minh*, Hien Vo Bich — ICCRI 2023
-                </h6>
-                <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">
-                    A LiDAR-based embedded detection system using DBSCAN clustering on Jetson TX2 
-                    for real-time object detection in road environments.
-                </p>
-                <p class="text-sm mt-auto dark:text-gray-100">
-                    <a href="#" data-video-url="/images/fulls/3DLidar.mp4" class="video-trigger link-icon dark:text-orange-500">Video</a> •
-                    <a href="/images/fulls/Tri_2023_PrePrint.pdf" target="_blank" class="link-icon dark:text-orange-500">Preprint</a>
-                </p>
-            </div>
-        </article>
-
-        <!-- Robot Gesture Control -->
-        <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md flex flex-col h-full">
-            <a href="#" data-video-url="/images/fulls/Robot_Gesture_Control.mp4"
-               class="video-trigger block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="/images/thumbs/Robot_gesture_play.png"
-                     class="w-full h-full object-cover transition-all duration-300 hover:opacity-80">
-            </a>
-
-            <div class="p-6 flex flex-col flex-1s">
-                <h3 class="text-xl font-bold text-primary dark:text-orange-400 mb-2">
-                    Robot Gesture Control Using Multi-Tracking System
-                </h3>
-                <h6 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">
-                    Khang Hoang Vinh Nguyen, Tri Bien Minh, Van Chi Le, Phu Xuan Do — AETA 2022
-                </h6>
-                <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">
-                    A wireless gesture-controlled robot system using Vicon motion capture for real-time control
-                    without onboard computing or wearable electronics.
-                </p>
-                <p class="text-sm mt-auto dark:text-gray-100">
-                    <a href="#" data-video-url="/images/fulls/Robot_Gesture_Control.mp4" class="video-trigger link-icon dark:text-orange-500">Video</a> •
-                    <a href="/images/fulls/Robot Gesture Control Using Online Feedback Data with Multi-Tracking Capture System.pdf" target="_blank" class="link-icon dark:text-orange-500">Preprint</a>
-                </p>
-            </div>
-        </article>
-
-        <!-- MiniRos UGV -->
-        <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
-            <a href="https://www.youtube.com/watch?v=ZCQJhtsWnWg" target="_blank"
-               class="block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="/images/fulls/miniros.gif"
-                     class="w-full h-full object-cover transition-all duration-300 hover:opacity-80">
-            </a>
-
-            <div class="p-6 flex-grow">
-                <h3 class="text-xl font-bold text-primary dark:text-orange-400 mb-2">
-                    MiniRos: an autonomous UGV robot
-                </h3>
-                <h6 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">
-                    Tri Bien Minh*, Hua Thanh Luan, Do Xuan Phu — ICSSE 2021
-                </h6>
-                <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">
-                    A ROS-based autonomous mobile robot for education and research with 2D SLAM, navigation, and outdoor capabilities.
-                </p>
-            </div>
-        </article>
-
-        <!-- Octocopter -->
-        <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
-            <a href="/images/fulls/Octocopter-Testbed.png"
-               class="block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="/images/thumbs/octocopter.png"
-                     class="w-full h-full object-cover transition-all duration-300 hover:opacity-80">
-            </a>
-
-            <div class="p-6 flex-grow">
-                <h3 class="text-xl font-bold text-primary dark:text-orange-400 mb-2">
-                    V-frame Octocopter: Design & Simulation
-                </h3>
-                <h6 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">
-                    Tri Bien Minh*, Hien Vo, Hua Thanh Luan — IJ Intelligent Unmanned Systems, 2023
-                </h6>
-                <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">
-                    A novel V-frame octocopter with FEM validation and Simulink PID tuning using Ziegler-Nichols method.
-                </p>
-            </div>
-        </article>
-
-        <!-- Exoskeleton Control -->
-        <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
-            <a href="/images/fulls/Upper_robot.png"
-               class="block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="/images/thumbs/Upper_robot.png"
-                     class="w-full h-full object-cover transition-all duration-300 hover:opacity-80">
-            </a>
-
-            <div class="p-6 flex-grow">
-                <h3 class="text-xl font-bold text-primary dark:text-orange-400 mb-2">
-                    Adaptive Optimal Control for Upper Exoskeleton
-                </h3>
-                <h6 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">
-                    Do Xuan Phu, Tri Bien Minh — ICMT 2021
-                </h6>
-                <p class="text-sm text-gray-600 dark:text-gray-300">
-                    A novel saturation-function-based optimal controller for upper-extremity exoskeletons, validated in simulation.
-                </p>
-            </div>
-        </article>
-
-        <!-- Additional Research Publications-->
-        <!--
-        <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md flex flex-col h-full">
-            <a href="#" data-video-url="/images"
-               class="video-trigger block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="/images/"
-                     class="w-full h-full object-cover transition-all duration-300 hover:opacity-80">
-            </a>
-
-            <div class="p-6 flex flex-col flex-1s">
-                <h3 class="text-xl font-bold text-primary dark:text-orange-400 mb-2">
-                    Publication's Name
-                </h3>
-                <h6 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">
-                    Contributors
-                </h6>
-                <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">
-                    Content
-                </p>
-                <p class="text-sm mt-auto dark:text-gray-100">
-                    <a href="#" data-video-url="/images/" class="video-trigger link-icon dark:text-orange-500"></a>
-                </p>
-            </div>
-        </article>
-        -->
-
-    </div>
-</section>
-
-
-
-
-        <!-- Robotics Projects -->
-       <!-- Robotics Projects -->
-<section id="projects" class="mb-12">
-    <h2 class="text-4xl font-bold mb-8 text-gray-800 dark:text-gray-100 border-l-4 border-secondary pl-4">
-        Robotics Project Portfolio
-    </h2>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-
-        <!-- Project 1: Upper body humanoid robot design -->
-        <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
-            <a href="/images/fulls/Upper_full.JPG" class="block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="/images/thumbs/Upper1.JPG"
-                     alt="Upper body humanoid robot design"
-                     class="w-full h-full object-cover">
-            </a>
-            <div class="p-6 flex-grow">
-                <h3 class="text-xl font-bold mb-2 text-primary dark:text-orange-400">Upper body humanoid robot design (14 DOF)</h3>
-                <p class="text-sm text-gray-600 dark:text-gray-300">
-                    14DOF humanoid upper body robot (6-DOF head + 2× 4-DOF arms), integrated with a depth camera. Designed for 3D printing or laser cutting — for research & education.
-                </p>
-            </div>
-            <div class="p-6 pt-0 border-t border-gray-200 dark:border-gray-700 dark:text-gray-100">
-                <br>
-                <a href="https://grabcad.com/library/upper-body-humanoid-robot-1" target="_blank" class="link-icon dark:text-orange-500">3D File (GrabCAD)</a>
-            </div>
-        </article>
-
-        <!-- Project 2: Autonomous Service Robot -->
-        <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
-            <a href="https://youtu.be/kqwAIAZnEu0" target="_blank"
-               class="block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700 cursor-pointer">
-                <img src="/images/thumbs/Saviman_thumb.jpg"
-                     alt="Autonomous Service Robot"
-                     class="w-full h-full object-cover">
-            </a>
-            <div class="p-6 flex-grow">
-                <h3 class="text-xl font-bold mb-2 text-primary dark:text-orange-400">Autonomous Service Robot</h3>
-                <p class="text-sm text-gray-600 dark:text-gray-300">
-                    ROS-based service robot using 2D Lidar, embedded computer, and multiple sensors. Supports indoor SLAM and autonomous navigation for restaurants, hotels, and hospitals.
-                </p>
-            </div>
-            <div class="p-6 pt-0 border-t border-gray-200 dark:border-gray-700 dark:text-gray-100">
-                <br>
-                <a href="https://youtu.be/kqwAIAZnEu0" target="_blank" class="link-icon dark:text-orange-500">Video</a>
-            </div>
-        </article>
-
-        <!-- Project 3: Docking and Locking for Electric Bike -->
-        <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
-            <a href="/images/thumbs/Bosch_Docking_Locking_White_3.JPG"
-               class="block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="/images/thumbs/Bosch_Docking_Locking_White_3.JPG"
-                     alt="Docking and Locking System"
-                     class="w-full h-full object-cover">
-            </a>
-            <div class="p-6 flex-grow">
-                <h3 class="text-xl font-bold mb-2 text-primary dark:text-orange-400">Docking & Locking for Electric Bike</h3>
-                <p class="text-sm text-gray-600 dark:text-gray-300">
-                    Award-winning charger docking and locking system for electric motorbikes — developed for the Bosch Green Challenge. Recognized for innovation in industrial design.
-                </p>
-            </div>
-            <div class="p-6 pt-0 border-t border-gray-200 dark:border-gray-700 dark:text-gray-100">
-                <br>
-                <a href="https://grabcad.com/library/docking-and-locking-pole-for-electric-bike-1"
-                   class="link-icon dark:text-orange-500" target="_blank">3D File (GrabCAD)</a>
-            </div>
-        </article>
-
-        <!-- Project 4: Ant-like robot -->
-        <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
-            <a href="/images/fulls/Ant_full.JPG"
-               class="block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700">
-                <img src="/images/thumbs/Nice_Ant_robot.jpg"
-                     alt="Ant-like robot"
-                     class="w-full h-full object-cover">
-            </a>
-            <div class="p-6 flex-grow">
-                <h3 class="text-xl font-bold mb-2 text-primary dark:text-orange-400">Ant-like Robot (23 DOF)</h3>
-                <p class="text-sm text-gray-600 dark:text-gray-300">
-                    A six-legged, 23-DOF biomimetic robot with 3 DOF per leg. Uses servo motors and a lightweight frame — ideal for STEM education and locomotion research.
-                </p>
-            </div>
-            <div class="p-6 pt-0 border-t border-gray-200 dark:border-gray-700 dark:text-gray-100">
-                <br>
-                <a href="https://grabcad.com/library/ant-like-robot-1" target="_blank" class="link-icon dark:text-orange-500">3D File (GrabCAD)</a>
-            </div>
-        </article>
-
-        <!-- Project 5: 19-DOF RC Humanoid -->
-        <article class="project-card bg-gray-50 dark:bg-gray-800 shadow-md">
-            <a href="https://youtu.be/RDtGJLPC5hI" target="_blank"
-               class="block overflow-hidden h-48 bg-gray-200 dark:bg-gray-700 cursor-pointer">
-                <img src="/images/thumbs/Humanoid0.JPG"
-                     alt="RC Humanoid Robot 19 DOF"
-                     class="w-full h-full object-cover">
-            </a>
-            <div class="p-6 flex-grow">
-                <h3 class="text-xl font-bold mb-2 text-primary dark:text-orange-400">RC Humanoid Robot (19 DOF)</h3>
-                <p class="text-sm text-gray-600 dark:text-gray-300">
-                    A remote-controlled 19-DOF humanoid built for mechanical engineering and robotics education. Designed to be easy to manufacture via 3D printing or laser cutting.
-                </p>
-            </div>
-            <div class="p-6 pt-0 border-t border-gray-200 dark:border-gray-700 dark:text-gray-100">
-                <br>
-                <a href="https://grabcad.com/library/humanoid-rc-robot-1" target="_blank" class="link-icon dark:text-orange-500">3D File (GrabCAD)</a> • 
-                <a href="https://youtu.be/RDtGJLPC5hI" target="_blank" class="link-icon dark:text-orange-500">Video</a>
-            </div>
-        </article>
-
-    </div>
-</section>
-
-
-        <!-- Technical Capabilities -->
-        <section id="capabilities" class="mb-12 p-8 bg-gray-50 dark:bg-gray-800 rounded-2xl shadow-inner">
-    <h2 class="text-4xl font-bold mb-6 text-gray-800 dark:text-gray-100 border-l-4 border-secondary pl-4">
-        Technical Capabilities
-    </h2>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        
-        <!-- Programming Skills -->
-        <div>
-            <h3 class="text-2xl font-semibold mb-3 text-primary whitespace-nowrap dark:text-orange-400">Programming & Frameworks</h3>
-            <p class="text-lg text-gray-700 dark:text-gray-300 mb-4">
-                Core development in low-level and high-level languages for robotics and AI.
-            </p>    
-            <br><br>
-            <p align="left">
-                <img src="https://skillicons.dev/icons?i=python,cpp,ros,pytorch,git,latex"
-                     alt="Skills: Python, C++, ROS, PyTorch, Git, LaTeX"
-                     class="w-full h-auto"/>
-            </p>
         </div>
-        
-        <!-- Lab Tutorials / Teaching -->
-        <div>
-            <h3 class="text-2xl font-semibold mb-3 text-primary dark:text-orange-400">Lab Tutorials & Curriculum</h3>
-            <ul class="space-y-2 text-base text-gray-700 dark:text-gray-300 list-disc pl-5">
-                <li>Robotics and Autonomous Systems (ROS, Pytorch)</li>
-                <li>Embedded Intelligent System (ROS, OpenCV)</li>
-                <li>Microcontroller / Digital Signal Processing</li>
-                <li>Robotics Workshop (CAD and PCB Design)</li>
-            </ul>   
+
+        <!-- Research Posts Grid -->
+        <div class="grid grid-cols-1 gap-6">
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2024-02-15-What-is-SORA-AI-Model/" class="post-title">
+                            What is SORA AI Model from OpenAI
+                        </a>
+
+                        <div class="post-meta">
+                            <span>February 15, 2024</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                AI
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                Sora is an AI model developed by OpenAI that can create realistic and imaginative scenes from text instructions
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2024-01-11-Reach-package-quantitatively-reach-analysis/" class="post-title">
+                            Evaluate the reach capability of a robot system
+                        </a>
+
+                        <div class="post-meta">
+                            <span>January 11, 2024</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                robotics
+                            </span>
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                ROS
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                A tool that allows users to visualize and quantitatively evaluate the reach capability of a robot system for a given workpiece.
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2024-01-10-Intrinsic-and-extrinsic-parameters-of-pinhole-camera/" class="post-title">
+                            What are intrinsic and extrinsic parameters of pinhole camera? and How to using it in camera calibration?
+                        </a>
+
+                        <div class="post-meta">
+                            <span>January 10, 2024</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                robotics
+                            </span>
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                math
+                            </span>
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                vision
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                Learn more about  intrinsic and extrinsic parameters and calibration camera
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2023-08-31-Trajectory-Generation-in-Robotics/" class="post-title">
+                            Trajectory Generation in Robotics
+                        </a>
+
+                        <div class="post-meta">
+                            <span>August 31, 2023</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                robotics
+                            </span>
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                math
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                Learn Trajectory Generation in robotics
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2023-08-20-What-is-Descartes-planning/" class="post-title">
+                            What is the Descartes path planning
+                        </a>
+
+                        <div class="post-meta">
+                            <span>August 20, 2023</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                robotics
+                            </span>
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                ROS
+                            </span>
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                C++
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                Explain and tutorial the Descartes path planning
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2023-08-19-What-is-Null-space-motion/" class="post-title">
+                            What is the Null space motion
+                        </a>
+
+                        <div class="post-meta">
+                            <span>August 19, 2023</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                robotics
+                            </span>
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                ROS
+                            </span>
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                python
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                Explain the Null space motion.
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2023-08-19-What-is-Inverse-Kinematic/" class="post-title">
+                            What is the Inverse Kinematic (IK) in robotics
+                        </a>
+
+                        <div class="post-meta">
+                            <span>August 19, 2023</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                robotics
+                            </span>
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                python
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                Explain the Inverse Kinematic (IK) and Python code example
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2023-08-18-What-is-MoveGroupCommander-in-Moveit/" class="post-title">
+                            What is the MoveGroupCommander in Moveit
+                        </a>
+
+                        <div class="post-meta">
+                            <span>August 18, 2023</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                robotics
+                            </span>
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                ROS
+                            </span>
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                python
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                Explain the MoveGroupCommander in Moveit and python code.
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2023-08-17-What-is-Pilz-Industrial-Motion-Planner/" class="post-title">
+                            What is the Pilz Industrial Motion Planner?
+                        </a>
+
+                        <div class="post-meta">
+                            <span>August 17, 2023</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                robotics
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                Explain the PiLZ Industrial Motion Planner and use cases.
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2023-08-15-Augmented-Lagrangian-AuLa-method/" class="post-title">
+                            Augmented Lagrangian (AuLa) method
+                        </a>
+
+                        <div class="post-meta">
+                            <span>August 15, 2023</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                python
+                            </span>
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                math
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                Explain the Augmented Lagrangian (AuLa) method in Python with visualization.
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2023-08-14-RRT-Rapidly-Exploring-Random-Tree/" class="post-title">
+                            Rapidly-Exploring Random Tree (RRT)
+                        </a>
+
+                        <div class="post-meta">
+                            <span>August 14, 2023</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                robotics
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                Explain the RRT and some variations, code example RRT and RRT* in Python with visualization.
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2023-08-12-Advanced-tips-Python/" class="post-title">
+                            Advanced tips for Python
+                        </a>
+
+                        <div class="post-meta">
+                            <span>August 12, 2023</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                python
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                This tutorials will show some advanced tips when using python, which includes,  @property in Python , assert, and try-except in Python, The -> symbol in python,..
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2023-07-30-3D-Rigid-Body-Motion-Eigen-in-C++/" class="post-title">
+                            3D Rigid Body Motion by using Eigen in C++
+                        </a>
+
+                        <div class="post-meta">
+                            <span>July 30, 2023</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                C++
+                            </span>
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                robotics
+                            </span>
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                math
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                Learn the rigid body geometry in 3D and Eigen library in matrix and geometry module.
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2023-07-27-motion-planning-robotics/" class="post-title">
+                            Motion Planning in Robotics
+                        </a>
+
+                        <div class="post-meta">
+                            <span>July 27, 2023</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                papers
+                            </span>
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                robotics
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                Some good resources for learning motion planning in robotic manipulators.
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2023-07-20-Microcontroller/" class="post-title">
+                            Microcontroller Lab Experiments with AVR STK600 Kit
+                        </a>
+
+                        <div class="post-meta">
+                            <span>July 20, 2023</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                microcontroller
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2023-01-08-Multithreading-C++-8-Atomic/" class="post-title">
+                            (Multithreading C++) 8. Atomic and Threads
+                        </a>
+
+                        <div class="post-meta">
+                            <span>January 08, 2023</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                Multithreading C++
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                This tutorial in series of Multithreading in C++.
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2023-01-08-Multithreading-C++-8-Asynchronous-Programming/" class="post-title">
+                            (Multithreading C++) 9. Asynchronous Programming
+                        </a>
+
+                        <div class="post-meta">
+                            <span>January 08, 2023</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                Multithreading C++
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                This tutorial in series of Multithreading in C++.
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2023-01-07-Multithreading-C++-7-Thread-synchronization/" class="post-title">
+                            (Multithreading C++) 7. Thread Synchronization
+                        </a>
+
+                        <div class="post-meta">
+                            <span>January 07, 2023</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                Multithreading C++
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                This tutorial in series of Multithreading in C++.
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2023-01-06-Multithreading-C++-6-Multiple-Thread-Share-data-3/" class="post-title">
+                            (Multithreading C++) 6. Deadlock and Livelock
+                        </a>
+
+                        <div class="post-meta">
+                            <span>January 06, 2023</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                Multithreading C++
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                This tutorial in series of Mutex and Multiple Threads working with Share data.
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2023-01-05-Multithreading-C++-5-Multiple-Thread-Share-data-2/" class="post-title">
+                            (Multithreading C++) 5. Mutex and Multiple Threads working with Share data (Part 2)
+                        </a>
+
+                        <div class="post-meta">
+                            <span>January 05, 2023</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                Multithreading C++
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                This tutorial in series of Mutex and Multiple Threads working with Share data.
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2023-01-04-Multithreading-C++-4-Multiple-Thread-Share-data-1/" class="post-title">
+                            (Multithreading C++) 4. Mutex and Multiple Threads working with Share data (Part 1)
+                        </a>
+
+                        <div class="post-meta">
+                            <span>January 04, 2023</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                Multithreading C++
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                This tutorial introduce the Multithreading C+
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2023-01-03-Multithreading-C++-3-Multiple-Threads/" class="post-title">
+                            (Multithreading C++) 3. Multiple Threads
+                        </a>
+
+                        <div class="post-meta">
+                            <span>January 03, 2023</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                Multithreading C++
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                This tutorial introduce the Multithreading C+
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2023-01-02-Multithreading-C++-2-Getting-Started-Threads-copy/" class="post-title">
+                            (Multithreading C++) 2. Getting Started with Threads
+                        </a>
+
+                        <div class="post-meta">
+                            <span>January 02, 2023</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                Multithreading C++
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                This tutorial introduce the Multithreading C+
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2023-01-01-Multithreading-C++-1-Introduction-Concurrency/" class="post-title">
+                            (Multithreading C++) 1. Introduction Concurrency
+                        </a>
+
+                        <div class="post-meta">
+                            <span>January 01, 2023</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                Multithreading C++
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                This tutorial introduce the Multithreading C+
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2022-12-11-Algorithms-C++-2-Lambda-Expressions-Introduction/" class="post-title">
+                            (Algorithms C++) 2. Lambda Expressions in C++
+                        </a>
+
+                        <div class="post-meta">
+                            <span>December 11, 2022</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                Algorithms C++
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                This tutorial following the algorithms in C++
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2022-12-10-Algorithms-C++-1-Algorithms-Overview/" class="post-title">
+                            (Algorithms C++) 1. Algorithms Overview C++
+                        </a>
+
+                        <div class="post-meta">
+                            <span>December 10, 2022</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                Algorithms C++
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                This tutorial following the algorithms in C++
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2022-10-14-Modern-C++-5-Array-Vector-String/" class="post-title">
+                            (Modern C++) 5. Array, Vector and String
+                        </a>
+
+                        <div class="post-meta">
+                            <span>October 14, 2022</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                Modern C++
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                This tutorial following the basic C++ course
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2022-10-13-Modern-C++-4-Pointer-Memory/" class="post-title">
+                            (Modern C++) 4. Pointer and Memory
+                        </a>
+
+                        <div class="post-meta">
+                            <span>October 13, 2022</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                Modern C++
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                This tutorial following the basic C++ course
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2022-10-12-Modern-C++-3-Classes/" class="post-title">
+                            (Modern C++) 3. Classes in C++
+                        </a>
+
+                        <div class="post-meta">
+                            <span>October 12, 2022</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                Modern C++
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                This tutorial following the basic C++ course
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2022-10-11-Modern-C++-2-Value-Reference-Semantics/" class="post-title">
+                            (Modern C++) 2. Value and Reference Semantic in C++
+                        </a>
+
+                        <div class="post-meta">
+                            <span>October 11, 2022</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                Modern C++
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                This tutorial following the basic C++ course
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2022-10-10-Modern-C++-1-Pass-Arguments-to-function-in-C++/" class="post-title">
+                            (Modern C++) 1. How to pass arguments to functions in C++
+                        </a>
+
+                        <div class="post-meta">
+                            <span>October 10, 2022</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                Modern C++
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                This tutorial following the basic C++ course
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2022-05-12-ros-pluginlib/" class="post-title">
+                            Tutorial on ROS Pluginlib
+                        </a>
+
+                        <div class="post-meta">
+                            <span>May 12, 2022</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                C++
+                            </span>
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                robotics
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                How to actually write a plugin in ROS
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2022-03-23-header-only-catkin-package/" class="post-title">
+                            Header-only catkin package
+                        </a>
+
+                        <div class="post-meta">
+                            <span>March 23, 2022</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                C++
+                            </span>
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                robotics
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                How to setup and use a header-only catkin package
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2021-08-22-ROS-DDS/" class="post-title">
+                            ROS2 and DDS
+                        </a>
+
+                        <div class="post-meta">
+                            <span>August 22, 2021</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                C++
+                            </span>
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                robotics
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                How to setup and export multiple libraries and executable from one package
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2021-08-21-ROS-multiple-nodes-in-one-package/" class="post-title">
+                            Building multiple ROS nodes in one package
+                        </a>
+
+                        <div class="post-meta">
+                            <span>August 21, 2021</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                C++
+                            </span>
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                robotics
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                How to setup and export multiple libraries and executable from one package
+                            </div>
+                        
+                    </article>
+                
+            
+                
+                    <article class="post-card bg-gray-50 dark:bg-gray-800 shadow-md">
+                        <a href="/blog/2020-07-31-How-to-build-a-C++-project-with-CMake/" class="post-title">
+                            How to build a C++ project with CMake
+                        </a>
+
+                        <div class="post-meta">
+                            <span>July 31, 2020</span>
+                        </div>
+
+                        
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            
+                            <span class="post-tag px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full">
+                                C++
+                            </span>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="post-snippet">
+                                This tutorial shows how to build a simple C++ project with CMake
+                            </div>
+                        
+                    </article>
+                
+            
         </div>
-        
-        <!-- Hands-on Hardware Experience -->
-        <div>
-            <h3 class="text-2xl font-semibold mb-3 text-primary dark:text-orange-400">Hands-on Hardware Experience</h3>
-            <ul class="space-y-2 text-base text-gray-700 dark:text-gray-300 list-disc pl-5">
-                <li>Robot Platforms: UR10e, Kuka Youbot, Turtlebot 3, NAO, DJI Drone.</li>
-                <li>Sensors: Velodyne VLP-16, IMU-Xsens Mti-30, Intel Realsense, SICK Lidar.</li>
-                <li>Embedded Computers: Nvidia Jetson family, Raspberry Pi, NUC, Arduino.</li>
-                <li>Actuators: Servo motors, linear actuators, motor drivers.</li>
-            </ul>
-        </div>
-        
-    </div>
-    
-    <!-- V Research-->
-  <div class="mt-10">
-    <h3 class="text-2xl font-semibold mb-3 text-primary dark:text-orange-400">ARMI V-Research Model</h3>
-
-    <p class="text-base text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
-        The ARMI V-Research Model is a modern adaptation of the classical V-Model, 
-        redesigned for autonomous robotics and machine intelligence workflows. 
-        It aligns <span class="font-semibold text-secondary">verification</span> (left side) with 
-        <span class="font-semibold text-blue-500">validation</span> (right side), ensuring that 
-        every research activity—from requirements, system design, perception algorithms, ML model pipelines, 
-        to field testing—is tested against measurable criteria. 
-        This model guides ARMI Lab in developing safe, reliable, and high-performance robotic systems using 
-        digital twins, simulation-driven development, ML lifecycle management, and continuous 
-        sim-to-real improvement.
-    </p>
-
-    <a href="/images/fulls/V_Diagram.webp" 
-       class="block overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition duration-300">
-        <img src="/images/fulls/V_Diagram.webp" 
-             alt="ARMI V-Research Model Diagram"
-             class="w-full h-auto object-cover">
-    </a>
-
-    <p class="text-base text-gray-700 dark:text-gray-100 mt-6 leading-relaxed">
-        The model emphasizes four key principles:
-    </p>
-
-    <ul class="list-disc pl-6 text-gray-700 dark:text-gray-300 space-y-2 text-base">
-        <li>
-            <span class="font-semibold text-orange-500">Simulation-first development</span> using digital twins 
-            (Unity, Isaac Sim, Gazebo) for safe testing, rapid iteration, and synthetic data generation.
-        </li>
-        <li>
-            <span class="font-semibold text-orange-500">Integrated ML lifecycle</span> driving perception, 
-            planning, and decision-making modules through continuous training, monitoring, and model validation.
-        </li>
-        <li>
-            <span class="font-semibold text-orange-500">Hardware-in-the-loop (HIL)</span> and 
-            <span class="text-blue-500 font-semibold dark:text-blue-300">system-in-the-loop</span> validation to ensure robust 
-            sim-to-real transfer and safety-critical performance.
-        </li>
-        <li>
-            <span class="font-semibold text-orange-500">Full verification & validation alignment</span> so that 
-            research requirements, algorithms, and system behaviors always map to measurable real-world tests, 
-            acceptance KPIs, and field trials.
-        </li>
-    </ul>
-
-    <p class="text-base text-gray-700 dark:text-gray-300 mt-6 leading-relaxed">
-        This V-Research framework ensures that ARMI Lab produces scalable robotic technologies 
-        with strong scientific rigor, repeatability, and industrial-grade robustness — from 
-        early concept development to deployment in real autonomous robots.
-    </p>
-</div>
-
-
-</section>
-
-
 
     </div>
-   
-        <!-- ==================== VIDEO MODAL (SINGLE, FINAL) ===================== -->
-    <!-- Video Modal -->
-    <div id="video-modal"
-        class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 hidden z-50">
 
-        <div class="w-full max-w-4xl bg-black rounded-xl overflow-hidden relative"
-            onclick="event.stopPropagation()">
-
-            <button onclick="closeVideoModal()"
-                class="absolute top-3 right-3 text-white text-3xl hover:text-red-500">&times;</button>
-
-            <div class="video-wrapper">
-                <video id="video-player" controls playsinline></video>
-            </div>
-
-        </div>
-    </div>
-
-
-    <!-- ====================== AUTOPLAY MODAL SCRIPT ========================= -->
+    <!-- Header scroll behavior -->
     <script>
-
-        const modal = document.getElementById("video-modal");
-        const player = document.getElementById("video-player");
-
-        // Open modal + autoplay
-        function openVideoModal(url) {
-            player.src = url;
-            modal.classList.remove("hidden");
-
-            setTimeout(() => {
-                player.play().catch(err => console.log("Autoplay blocked:", err));
-            }, 100);
-        }
-
-        // Close modal + stop video
-        function closeVideoModal() {
-            modal.classList.add("hidden");
-            player.pause();
-            player.currentTime = 0;
-            player.removeAttribute("src");
-        }
-
-        // Close when clicking background
-        modal.addEventListener("click", closeVideoModal);
-
-        // Detect clicks on articles
-        document.querySelectorAll(".video-trigger").forEach(el => {
-            el.addEventListener("click", e => {
-                e.preventDefault();
-                openVideoModal(el.dataset.videoUrl);
-            });
-        });
         const header = document.getElementById("mainHeader");
+        const hoverZone = document.getElementById("hoverZone");
         let lastScroll = 0;
 
         window.addEventListener("scroll", () => {
-        const currentScroll = window.pageYOffset;
+            const currentScroll = window.pageYOffset;
 
-        if (currentScroll > lastScroll && currentScroll > 100) {
-            // scrolling down → hide
-            header.classList.add("-translate-y-full");
-        } else {
-            // scrolling up → show
-            header.classList.remove("-translate-y-full");
-        }
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                header.classList.add("-translate-y-full");
+            } else {
+                header.classList.remove("-translate-y-full");
+            }
 
-        lastScroll = currentScroll;
+            lastScroll = currentScroll;
         });
-        const hoverZone = document.getElementById("hoverZone");
 
         hoverZone.addEventListener("mouseenter", () => {
             header.classList.remove("-translate-y-full");
         });
 
+        // Search functionality
+        const searchInput = document.getElementById("searchInput");
+        const postCards = document.querySelectorAll(".post-card");
+
+        if (searchInput && postCards.length > 0) {
+            searchInput.addEventListener("input", function() {
+                const searchTerm = this.value.toLowerCase().trim();
+
+                postCards.forEach(card => {
+                    const title = card.querySelector(".post-title")?.textContent.toLowerCase() || "";
+                    const snippet = card.querySelector(".post-snippet")?.textContent.toLowerCase() || "";
+
+                    // Get all tags
+                    const tagElements = card.querySelectorAll(".post-tag");
+                    const tags = Array.from(tagElements).map(tag => tag.textContent.toLowerCase()).join(" ");
+
+                    const searchableText = title + " " + snippet + " " + tags;
+
+                    if (searchTerm === "" || searchableText.includes(searchTerm)) {
+                        card.style.display = "flex";
+                    } else {
+                        card.style.display = "none";
+                    }
+                });
+            });
+        }
     </script>
 
     <!-- Theme Toggle -->

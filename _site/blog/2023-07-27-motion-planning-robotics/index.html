@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motion Planning in Robotics - ARMI Research Laboratory</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+        :root {
+            --primary: #0A1A2F;
+            --secondary: #d46700;
+            --text-dark: #000000;
+            --text-light: #ffffff;
+            --bg-light: #ffffff;
+            --bg-dark: #0d1117;
+            --card-dark: #111827;
+        }
+
+        .dark {
+            color-scheme: dark;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .dark body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+        }
+
+        .card-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--bg-light);
+            border-radius: 2rem;
+            padding: 2.5rem;
+            border: 2px solid var(--primary);
+        }
+
+        .dark .card-container {
+            background-color: var(--card-dark);
+            border-color: var(--secondary);
+        }
+
+        .post-content h2 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+        }
+
+        .dark .post-content h2 {
+            color: var(--text-light);
+        }
+
+        .post-content h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--primary);
+        }
+
+        .dark .post-content h3 {
+            color: var(--text-light);
+        }
+
+        .post-content p {
+            margin-bottom: 1rem;
+            line-height: 1.75;
+        }
+
+        .post-content ul, .post-content ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .post-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .post-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        .post-content table th {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .dark .post-content table th {
+            background-color: var(--secondary);
+        }
+
+        .post-content table td {
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem;
+        }
+
+        .dark .post-content table td {
+            border-color: #374151;
+        }
+
+        .post-content table tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+
+        .dark .post-content table tr:nth-child(even) {
+            background-color: #1f2937;
+        }
+
+        .post-content code {
+            background-color: #f3f4f6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        .dark .post-content code {
+            background-color: #374151;
+        }
+
+        .post-content pre {
+            background-color: #1f2937 !important;
+            color: #f3f4f6 !important;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .post-content pre code {
+            background-color: transparent !important;
+            color: #f3f4f6 !important;
+            padding: 0;
+        }
+
+        .post-content .highlight {
+            background-color: #1f2937 !important;
+        }
+
+        .post-content .highlight pre {
+            background-color: #1f2937 !important;
+        }
+
+        .post-content .highlight code {
+            color: #f3f4f6 !important;
+        }
+
+        .post-content blockquote {
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+            margin: 1rem 0;
+            font-style: italic;
+            color: #6b7280;
+        }
+
+        .dark .post-content blockquote {
+            color: #9ca3af;
+        }
+
+        .post-content hr {
+            border: none;
+            border-top: 2px solid #e5e7eb;
+            margin: 2rem 0;
+        }
+
+        .dark .post-content hr {
+            border-top-color: #374151;
+        }
+
+        .post-content strong {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .dark .post-content strong {
+            color: var(--secondary);
+        }
+
+        .post-content a {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+
+        .post-content a:hover {
+            color: var(--primary);
+        }
+
+        .dark .post-content a:hover {
+            color: var(--text-light);
+        }
+    </style>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0A1A2F',
+                        secondary: '#e97509',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+
+    <div id="hoverZone" class="fixed top-0 left-0 w-full h-6 z-40"></div>
+
+    <header id="mainHeader" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out bg-gradient-to-b from-white to-gray-100 dark:from-gray-900 dark:to-black shadow-md">
+        <div class="relative w-full border-b-4 border-gray-500 dark:border-orange-600">
+            <div class="max-w-7xl mx-auto px-6 py-4 relative flex items-center justify-between">
+                <div class="flex gap-3">
+                    <a href="/lab/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Lab</div>
+                    </a>
+                    <a href="/blog/">
+                        <div class="px-6 py-2 bg-white border-2 rounded-lg border-gray-400 text-center text-lg font-semibold shadow-sm transition-all duration-200 hover:bg-secondary hover:border-orange-500 hover:text-white dark:bg-gray-800 dark:text-white dark:border-orange-500 dark:hover:bg-secondary">Blog</div>
+
+                </div>
+                <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
+                    <img src="/images/logo.png" class="w-16 h-14 object-contain dark:brightness-90">
+                    <a href="/default/">
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-orange-500 hover:text-orange-500 dark:hover:text-orange-400 transition-colors">ARMI Lab</h1>
+                    </a>
+                </div>
+                <div class="text-sm text-gray-700 dark:text-gray-300 leading-tight">
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">A</span>utonomous</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">R</span>obotics</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">M</span>achine</div>
+                    <div class="font-medium"><span class="text-orange-600 dark:text-orange-500 font-bold">I</span>ntelligence</div>
+                    <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">Research Laboratory</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="card-container shadow-2xl lg:p-12 transition duration-500 mt-40">
+
+        <h1 class="text-4xl font-bold mb-4 text-gray-800 dark:text-gray-100">Motion Planning in Robotics</h1>
+
+        <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+            July 27, 2023
+        </div>
+
+        
+        <div class="flex gap-2 mb-6">
+            
+            <a href="/tags/#papers" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-secondary hover:text-white transition-colors">
+                papers
+            </a>
+            
+            <a href="/tags/#robotics" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full hover:bg-secondary hover:text-white transition-colors">
+                robotics
+            </a>
+            
+        </div>
+        
+
+        <hr class="mb-8 border-gray-300 dark:border-gray-700">
+
+        <div style="margin-bottom: 2rem;">
+            <a href="/blog/" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: #e97509; color: white; text-decoration: none; border-radius: 0.5rem; font-weight: 600; transition: all 0.3s;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Back
+            </a>
+        </div>
+
+        <div class="post-content">
+            <p>There are many books and papers on robotics motion planning. Please dive deep into motion planning by some questions below.</p>
+
+<h3 id="q1-what-is-motion-planning">Q1. What is motion planning?</h3>
+
+<p>Motion planning robotics arm is the process of finding a collision-free path for a robotic arm to move from its starting configuration to its goal configuration while avoiding obstacles. It is an essential component of robotics that enables robots to perform tasks autonomously and safely. Motion planning robotics arm involves finding the optimal path for the robot arm to move from its starting configuration to its goal configuration while avoiding obstacles and minimizing some objective function. The objective function can be related to energy consumption, time, or other performance metrics.</p>
+
+<h3 id="q2-path-planning-versus-motion-planning">Q2. Path planning versus motion planning?</h3>
+<p>The path planning problem is a
+subproblem of the general motion planning problem. Path planning is the
+purely geometric problem of finding a collision-free path q(s), s ∈ [0, 1],
+from a start configuration q(0) = q(start) to a goal configuration q(1) = q(goal) ,
+without concern for the dynamics, the duration of motion, or constraints
+on the motion or on the control inputs. It is assumed that the path
+returned by the path planner can be time scaled to create a feasible tra-
+jectory. This problem is sometimes called the piano mover’s
+problem, emphasizing the focus on the geometry of cluttered spaces. <a href="http://modernrobotics.org">Modern Robotics</a></p>
+
+<h3 id="q3-what-are-some-common-motion-planning-algorithms-used-for-robotic-arms">Q3. What are some common motion planning algorithms used for robotic arms?</h3>
+
+<p>Some common motion planning algorithms used for robotic arms include:</p>
+
+<ol>
+  <li><strong>Rapidly-Exploring Random Tree (RRT)</strong>: RRT is a popular algorithm for motion planning in robotics. It generates a tree of random configurations and expands it towards the
+goal configuration, exploring the configuration space efficiently<a href="https://dl.acm.org/doi/10.5555/1209344">1</a></li>
+  <li><strong>Probabilistic Roadmap (PRM)</strong>: PRM is another widely used algorithm that constructs a roadmap of valid configurations and connects them to form a graph. It then searches for a path on this graph to reach the goal configuration<a href="https://dl.acm.org/doi/10.5555/1209344">1</a></li>
+  <li><strong>Potential Field Methods</strong>: Potential field methods use attractive and repulsive forces to guide
+the robot arm towards the goal configuration while avoiding obstacles.
+The robot arm moves along the gradient of the potential field to find a
+collision-free path<a href="https://control.com/technical-articles/common-control-concepts-used-in-robot-motion-planning/">2</a>.</li>
+  <li><strong>Sampling-Based Methods</strong>: Sampling-based methods, such as the Monte Carlo method, randomly sample the configuration space and check for collision-free paths. These
+methods are efficient for high-dimensional spaces and can handle complex robot arm configurations<a href="https://link.springer.com/chapter/10.1007/978-981-16-4803-8_7">3</a>.</li>
+  <li><strong>Optimization-Based Methods</strong>: Optimization-based methods formulate the motion planning problem as an optimization problem and use optimization algorithms, such as the
+Newton-Raphson method or the Levenberg-Marquardt algorithm, to find the
+optimal path or trajectory for the robot arm<a href="https://www.cs.cmu.edu/~venkatrn/papers/icra14.pdf">4</a>.</li>
+  <li><strong>Particle Swarm Optimization (PSO)</strong>: PSO is a population-based optimization algorithm inspired by the behavior of bird flocking. It can be used for trajectory planning and
+optimization of robot arm movements<a href="https://www.sciencedirect.com/science/article/abs/pii/S095219762300283X">5</a>.</li>
+  <li><strong>Motion planning with dynamic system:</strong> 
+A dynamic system approach to motion planning is a  framework that uses dynamical systems to generate and re-plan trajectories for robots in real-time. Dynamical systems are mathematical models that describe how systems change over time. In the context of robotics, they can be used to 
+generate motion and force for contact tasks. This approach is useful because it allows robots to react to changes in their environment and adjust their trajectories accordingly. For example, if a robot is moving towards an object and the object moves, the robot can use a dynamic system approach to re-plan  its trajectory and still reach the object <a href="https://www.roboticsproceedings.org/rss15/p21.pdf">6</a></li>
+</ol>
+
+<hr />
+<h1 id="resources">Resources</h1>
+<h2 id="rapidly-exploring-random-tree-rrt">Rapidly-Exploring Random Tree (RRT):</h2>
+<ul>
+  <li>
+    <p><strong>RRT</strong>: Rapidly-Exploring Random Tree, which is an algorithm designed to efficiently search nonconvex, high-dimensional spaces by randomly building a space-filling tree. The tree is constructed incrementally from samples drawn randomly from the search space and is inherently biased to grow towards large unsearched areas of the problem. RRTs were developed by Steven M. LaValle and James J. Kuffner Jr <a href="http://msl.cs.uiuc.edu/~lavalle/papers/Lav98c.pdf">pdf</a></p>
+  </li>
+  <li>
+    <p><strong>RRT-Connect</strong>:  a variation of the Rapidly-Exploring Random Tree (RRT) algorithm that is used for single-query path planning in high-dimensional configuration spaces. It is an efficient approach that aims to find a path from a start configuration to a goal configuration by growing two trees simultaneously, one from the start and one from the goal, until they meet <a href="https://www.cs.cmu.edu/afs/cs/academic/class/15494-s12/readings/kuffner_icra2000.pdf">pdf</a></p>
+  </li>
+</ul>
+
+<h2 id="opimization-based-method">Opimization-Based Method:</h2>
+
+<ul>
+  <li>
+    <p><strong>CHOMP</strong>: Covariant Hamiltonian Optimization for Motion Planning, which is a gradient-based trajectory optimization procedure for robotic motion planning. It uses functional gradient techniques to iteratively improve the quality of an initial trajectory, optimizing a functional that trades off between a smoothness cost and a collision cost. 
+<a href="https://www.ri.cmu.edu/pub_files/2013/5/CHOMP_IJRR.pdf">pdf</a></p>
+  </li>
+  <li>
+    <p><strong>STOMP</strong>: Stochastic Trajectory Optimization for Motion Planning, which is an approach to motion planning that utilizes a stochastic trajectory optimization framework. The goal of STOMP is to find a smooth trajectory that minimizes costs associated with collisions and constraints. Unlike deterministic optimization methods, STOMP generates noisy trajectories and uses them to explore the search space. By incorporating randomness into the trajectory generation process, STOMP can efficiently find solutions for motion planning problems, even for robots with a high degree of freedom. <a href="http://ros.fei.edu.br/roswiki/attachments/Papers(2f)ICRA2011_Kalakrishnan/kalakrishnan_icra2011.pdf">pdf</a></p>
+  </li>
+  <li>
+    <p><strong>TrajOpt</strong>: TrajOpt planning is a trajectory optimization framework for generating robot trajectories by local optimization. It models the path planning problem as an optimization problem and uses Sequential Quadratic Programming (SQP) to find the optimal trajectory. TrajOpt is a sequential convex optimization algorithm for motion planning problems where the non-convex, non-affine equality, and non-equality constraints are handled by linearizing them around the current trajectory <a href="http://joschu.net/docs/trajopt-paper.pdf">pdf</a></p>
+  </li>
+  <li>
+    <p><strong>NEO</strong>: Novel Expeditious Optimisation Algorithm is a reactive motion controller for manipulators that can avoid static and dynamic obstacles while moving toward the desired goal. It is a fast and purely reactive motion controller that uses optimization techniques to generate smooth and collision-free trajectories in real-time. NEO is designed to be used as a local controller in conjunction with a global motion planner for more complex scenes <a href="https://arxiv.org/pdf/2010.08686.pdf">pdf</a></p>
+  </li>
+</ul>
+
+<h2 id="moveit-qa">Moveit Q&amp;A</h2>
+
+<h3 id="q1-what-are-differences-between-joint-space-and-cartesian-space-in-moveit">Q1. What are differences between joint space and cartesian space in Moveit?</h3>
+<p>The differences between joint space and Cartesian space in MoveIt are as follows:
+Joint space:</p>
+
+<ul>
+  <li>Joint space refers to the space of all possible joint configurations of the robot<a href="https://robotics.stackexchange.com/questions/2422/is-configuration-space-same-as-joint-space">6</a>.</li>
+  <li>It is defined by the values of the robot’s joint angles, which determine the position of each joint.</li>
+  <li>Joint space planning involves specifying exact joint positions to achieve a desired end-effector position or trajectory<a href="https://picknik.ai/cartesian%20planners/moveit/motion%20planning/2021/01/07/guide-to-cartesian-planners-in-moveit.html">3</a>.</li>
+  <li>Joint space planning is useful for precise control of the robot’s motion and can be used for tasks such as pick-and-place
+operations<a href="https://www.sciencedirect.com/science/article/pii/S0736584523000352">1</a>.</li>
+</ul>
+
+<p>Cartesian space:</p>
+
+<ul>
+  <li>Cartesian space refers to the space of all possible end-effector positions and orientations of the robot<a href="https://picknik.ai/cartesian%20planners/moveit/motion%20planning/2021/01/07/guide-to-cartesian-planners-in-moveit.html">3</a>.</li>
+  <li>It is defined by the position and orientation of the robot’s end-effector in three-dimensional space.</li>
+  <li>Cartesian space planning involves specifying a desired end-effector position or trajectory to achieve a task<a href="https://picknik.ai/cartesian%20planners/moveit/motion%20planning/2021/01/07/guide-to-cartesian-planners-in-moveit.html">3</a>.</li>
+  <li>Cartesian space planning is useful for tasks that
+require the robot to follow a specific path or trajectory, such as
+painting or welding<a href="https://picknik.ai/cartesian%20planners/moveit/motion%20planning/2021/01/07/guide-to-cartesian-planners-in-moveit.html">3</a>.</li>
+</ul>
+
+<p>In MoveIt, depending on the planning problem, the planner
+ can choose between joint space and Cartesian space for problem 
+representation <a href="https://ros-planning.github.io/moveit_tutorials/doc/move_group_interface/move_group_interface_tutorial.html">2</a>. Joint space planning involves specifying exact joint positions, while 
+Cartesian space planning involves specifying desired end-effector 
+positions or trajectories <a href="https://picknik.ai/cartesian%20planners/moveit/motion%20planning/2021/01/07/guide-to-cartesian-planners-in-moveit.html">3</a>. The choice between joint space and Cartesian space depends on the 
+specific task requirements and the level of control needed over the 
+robot’s motion.</p>
+<h3 id="q2-can-rrt-be-used-for-planning-in-both-joint-space-and-cartesian-space-in-ompl">Q2. Can RRT be used for planning in both joint space and cartesian space in OMPL?</h3>
+<p>RRT (Rapidly-exploring Random Tree) in OMPL can be used in both joint space and Cartesian space<a href="https://books.google.com/books?dq=rrt+in+ompl+can+be+used+in+both+joint+space+and+cartesian+space.+ompl+provides+planners+for+both+joint+space+and+cartesian+space%2C+including+rrt%2C+allowing+users+to+choose+the+appropriate+space+for+their+planning+problem.&amp;hl=en&amp;id=SyO7BQAAQBAJ&amp;lpg=PA539&amp;ots=proUR9lrl4&amp;pg=PA539&amp;sa=X&amp;sig=ACfU3U08bTea0f2uT-meImF80DFucBx3eA&amp;source=bl&amp;ved=2ahUKEwiA8oexxcKAAxVoRjABHYCbCPkQ6AF6BAgAEAE">1</a><a href="https://ros-planning.github.io/moveit_tutorials/doc/ompl_interface/ompl_interface_tutorial.html">2</a><a href="https://ompl.kavrakilab.org/classompl_1_1geometric_1_1RRT.html">4</a><a href="http://docs.ros.org/en/melodic/api/moveit_tutorials/html/doc/ompl_interface/ompl_interface_tutorial.html">5</a>.
+ OMPL provides planners for both joint space and Cartesian space, 
+including RRT, allowing users to choose the appropriate space for their 
+planning problem<a href="https://books.google.com/books?dq=rrt+in+ompl+can+be+used+in+both+joint+space+and+cartesian+space.+ompl+provides+planners+for+both+joint+space+and+cartesian+space%2C+including+rrt%2C+allowing+users+to+choose+the+appropriate+space+for+their+planning+problem.&amp;hl=en&amp;id=SyO7BQAAQBAJ&amp;lpg=PA539&amp;ots=proUR9lrl4&amp;pg=PA539&amp;sa=X&amp;sig=ACfU3U08bTea0f2uT-meImF80DFucBx3eA&amp;source=bl&amp;ved=2ahUKEwiA8oexxcKAAxVoRjABHYCbCPkQ6AF6BAgAEAE">1</a>.
+ The implementation of RRT in OMPL is built on top of the Open Motion 
+Planning Library, which allows the user to define a custom state space 
+and control space<a href="https://books.google.com/books?dq=rrt+in+ompl+can+be+used+in+both+joint+space+and+cartesian+space.+ompl+provides+planners+for+both+joint+space+and+cartesian+space%2C+including+rrt%2C+allowing+users+to+choose+the+appropriate+space+for+their+planning+problem.&amp;hl=en&amp;id=SyO7BQAAQBAJ&amp;lpg=PA539&amp;ots=proUR9lrl4&amp;pg=PA539&amp;sa=X&amp;sig=ACfU3U08bTea0f2uT-meImF80DFucBx3eA&amp;source=bl&amp;ved=2ahUKEwiA8oexxcKAAxVoRjABHYCbCPkQ6AF6BAgAEAE">1</a>.
+ Therefore, RRT in OMPL can be used in both joint space and Cartesian 
+space, depending on the specific planning problem and the user’s 
+preference.</p>
+
+<h3 id="q3-rrt-for-planning-in-joint-space-versus-cartesian-space-in-ompl">Q3. RRT for planning in joint space versus cartesian space in OMPL</h3>
+<p>Advantages and disadvantages of using RRT for planning in joint space versus Cartesian space in OMPL are:
+Advantages of using RRT in joint space:</p>
+
+<ul>
+  <li>Joint space planning is useful for precise control of the robot’s motion, and RRT can provide a feasible path to achieve a
+desired end-effector position or trajectory<a href="https://books.google.com/books?dq=rrt+in+ompl+can+be+used+in+both+joint+space+and+cartesian+space.+ompl+provides+planners+for+both+joint+space+and+cartesian+space%2C+including+rrt%2C+allowing+users+to+choose+the+appropriate+space+for+their+planning+problem.&amp;hl=en&amp;id=SyO7BQAAQBAJ&amp;lpg=PA539&amp;ots=proUR9lrl4&amp;pg=PA539&amp;sa=X&amp;sig=ACfU3U08bTea0f2uT-meImF80DFucBx3eA&amp;source=bl&amp;ved=2ahUKEwiA8oexxcKAAxVoRjABHYCbCPkQ6AF6BAgAEAE">1</a><a href="https://answers.ros.org/question/53745/cartesian-rrt-or-sbpl-motion-planning-for-non-pr2/">2</a>.</li>
+  <li>Joint space planning can be faster than Cartesian space planning, especially for low-dimensional robots<a href="https://answers.ros.org/question/53745/cartesian-rrt-or-sbpl-motion-planning-for-non-pr2/">2</a>.</li>
+  <li>Joint space planning can handle complex constraints, such as joint limits, singularities, and collisions<a href="https://answers.ros.org/question/53745/cartesian-rrt-or-sbpl-motion-planning-for-non-pr2/">2</a>.</li>
+</ul>
+
+<p>Disadvantages of using RRT in joint space:</p>
+
+<ul>
+  <li>Joint space planning can be computationally expensive for high-dimensional robots<a href="https://answers.ros.org/question/53745/cartesian-rrt-or-sbpl-motion-planning-for-non-pr2/">2</a>.</li>
+  <li>Joint space planning may not be suitable for tasks
+that require the robot to follow a specific path or trajectory in
+Cartesian space<a href="https://kavrakilab.org/iros2011/IROS_2011_MP_Tutorial.pdf">3</a>.</li>
+  <li>Joint space planning may require a good initial guess for the joint angles to find a feasible path<a href="https://answers.ros.org/question/53745/cartesian-rrt-or-sbpl-motion-planning-for-non-pr2/">2</a>.</li>
+</ul>
+
+<p>Advantages of using RRT in Cartesian space:</p>
+
+<ul>
+  <li>Cartesian space planning can handle tasks that
+require the robot to follow a specific path or trajectory in Cartesian
+space, such as painting or welding<a href="https://kavrakilab.org/iros2011/IROS_2011_MP_Tutorial.pdf">3</a>.</li>
+  <li>Cartesian space planning can be more intuitive for users who are not familiar with the robot’s joint angles<a href="https://kavrakilab.org/iros2011/IROS_2011_MP_Tutorial.pdf">3</a>.</li>
+  <li>Cartesian space planning can be faster for high-dimensional robots with complex kinematics<a href="https://answers.ros.org/question/53745/cartesian-rrt-or-sbpl-motion-planning-for-non-pr2/">2</a>.</li>
+</ul>
+
+<p>Disadvantages of using RRT in Cartesian space:</p>
+
+<ul>
+  <li>Cartesian space planning can be computationally expensive, especially for high-dimensional robots<a href="https://answers.ros.org/question/53745/cartesian-rrt-or-sbpl-motion-planning-for-non-pr2/">2</a>.</li>
+  <li>Cartesian space planning may not be able to handle complex constraints, such as joint limits, singularities, and collisions<a href="https://answers.ros.org/question/53745/cartesian-rrt-or-sbpl-motion-planning-for-non-pr2/">2</a>.</li>
+  <li>Cartesian space planning may require a good initial guess for the end-effector position to find a feasible path<a href="https://answers.ros.org/question/53745/cartesian-rrt-or-sbpl-motion-planning-for-non-pr2/">2</a>.</li>
+</ul>
+
+<p>Overall, the choice between joint space and Cartesian 
+space planning with RRT in OMPL depends on the specific planning problem
+ and the user’s preference. Joint space planning is suitable for precise
+ control of the robot’s motion, while Cartesian space planning is 
+suitable for tasks that require the robot to follow a specific path or 
+trajectory in Cartesian space.</p>
+
+<hr />
+<h1 id="references">References</h1>
+
+<ol>
+  <li>Bruno Siciliano and Oussama Khatib. 2007. Springer Handbook of Robotics. Springer-Verlag, Berlin, Heidelberg.</li>
+  <li>
+    <p>Common Control Concepts Used in Robot Motion Planning, April 16, 2021, Anish Devasia https://control.com/technical-articles/common-control-concepts-used-in-robot-motion-planning/</p>
+  </li>
+  <li>
+    <p>Liu, S., Liu, P. (2021). A Review of Motion Planning Algorithms for Robotic Arm Systems. In: Chew, E., et al. RiTA 2020. Lecture Notes in Mechanical Engineering. Springer, Singapore. https://doi.org/10.1007/978-981-16-4803-8_7</p>
+  </li>
+  <li>
+    <p>K. Gochev, V. Narayanan, B. Cohen, A. Safonova and M. Likhachev, “Motion planning for robotic manipulators with independent wrist joints,” 2014 IEEE International Conference on Robotics and Automation (ICRA), Hong Kong, China, 2014, pp. 461-468, doi: 10.1109/ICRA.2014.6906896.</p>
+  </li>
+  <li>
+    <p>Özge Ekrem, Bekir Aksoy,”Trajectory planning for a 6-axis robotic arm with particle swarm optimization algorithm”,
+Engineering Applications of Artificial Intelligence,
+Volume 122,2023,106099,ISSN 0952-1976,
+https://doi.org/10.1016/j.engappai.2023.106099.</p>
+  </li>
+  <li>
+    <p>Amanhoud, Walid, Mahdi Khoramshahi and Aude Billard. “A Dynamical System Approach to Motion and Force Generation in Contact Tasks.” Robotics: Science and Systems XV (2019)</p>
+  </li>
+  <li>Matt Zucker, <a href="https://www.nathanratliff.com/pedagogy/mathematics-for-intelligent-systems">Nathan Ratliff</a> , Dragan AD, et al. “CHOMP: Covariant Hamiltonian optimization for motion planning.” The International Journal of Robotics Research. 2013;32(9-10):1164-1193. doi:10.1177/0278364913488805</li>
+</ol>
+
+<h3 id="ompl-tutorial">OMPL Tutorial</h3>
+<ol>
+  <li>https://theairlab.org/summer2020/,  <a href="https://bitbucket.org/castacks/core_planning_tutorial/raw/c8da578242cf8313aafbb986e5f265a9823ad6c1/doc/planning_presentation.pdf">Motion Planning Tutorial</a></li>
+  <li>https://bitbucket.org/castacks/core_planning_tutorial/src/master/</li>
+  <li>https://ompl.kavrakilab.org/geometricPlanningSE3.html</li>
+</ol>
+
+        </div>
+
+    </div>
+
+    <!-- Header scroll behavior -->
+    <script>
+        const header = document.getElementById("mainHeader");
+        const hoverZone = document.getElementById("hoverZone");
+        let lastScroll = 0;
+
+        window.addEventListener("scroll", () => {
+            const currentScroll = window.pageYOffset;
+
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                header.classList.add("-translate-y-full");
+            } else {
+                header.classList.remove("-translate-y-full");
+            }
+
+            lastScroll = currentScroll;
+        });
+
+        hoverZone.addEventListener("mouseenter", () => {
+            header.classList.remove("-translate-y-full");
+        });
+
+        
+    </script>
+
+    <!-- Theme Toggle -->
+    <button onclick="document.documentElement.classList.toggle('dark')"
+        class="fixed bottom-4 right-4 bg-white text-black p-3 border-4 border-gray-400 rounded-full shadow-lg text-sm font-semibold hover:bg-secondary transition-colors duration-300 dark:bg-gray-800 dark:text-white dark:border-orange-600 dark:hover:bg-secondary">
+        Toggle Theme
+    </button>
+
+</body>
+
+</html>

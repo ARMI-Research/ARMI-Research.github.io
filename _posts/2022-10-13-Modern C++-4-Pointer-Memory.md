@@ -1,6 +1,6 @@
 ---
 layout: post
-category: research
+category: blog
 title: (Modern C++) 4. Pointer and Memory
 snippet: This tutorial following the basic C++ course
 tags: [Modern C++]

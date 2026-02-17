@@ -1,6 +1,6 @@
 ---
 layout: post
-category: research
+category: blog
 title: Path Planning in Robotics
 snippet: Learn Path Planning in robotics
 tags: [robotics, math]

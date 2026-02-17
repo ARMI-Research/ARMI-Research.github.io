@@ -1,6 +1,6 @@
 ---
 layout: post
-category: research
+category: blog
 title: What is the Null space motion
 snippet: Explain the Null space motion.
 tags: [robotics, ROS, python]

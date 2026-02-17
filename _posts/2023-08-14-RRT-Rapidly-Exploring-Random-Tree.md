@@ -1,6 +1,6 @@
 ---
 layout: post
-category: research
+category: blog
 title: Rapidly-Exploring Random Tree (RRT)
 snippet: Explain the RRT and some variations, code example RRT and RRT* in Python with visualization.
 tags: [robotics]
