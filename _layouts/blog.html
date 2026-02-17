@@ -309,9 +309,9 @@ permalink: /blog/
                     const tagElements = card.querySelectorAll(".post-tag");
                     const tags = Array.from(tagElements).map(tag => tag.textContent.trim().toLowerCase());
 
-                    // Post must match ALL search terms (by tag or title)
+                    // Post must match ALL search terms (exact tag match or title substring)
                     const match = searchTerms.every(term =>
-                        tags.some(tag => tag.includes(term)) || title.includes(term)
+                        tags.some(tag => tag === term) || title.includes(term)
                     );
 
                     if (searchTerms.length === 0 || match) {
