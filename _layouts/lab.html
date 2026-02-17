@@ -104,7 +104,8 @@ permalink: /lab/
         SOCIAL ICONS
         ------------------------------ */
         .social-icon {
-            @apply inline-block transition;
+            display: inline-block;
+            transition: color 0.3s ease;
             color: var(--primary);
         }
 
@@ -179,7 +180,7 @@ permalink: /lab/
                 <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
                     <img src="/images/logo.png" class="w-16 h-14 object-contain dark:brightness-90">
                     <a href="/default/">
-                        <h1 class="text-3xl font-bold text-gray-900 dark:text-orange-500 hover:text-orange-500 dark:hover:text-white transition-colors">ARMI Lab</h1>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white hover:text-orange-500 dark:hover:text-orange-500 transition-colors">ARMI Lab</h1>
                     </a>
                 </div>
                 <div class="text-sm text-gray-700 dark:text-gray-300 leading-tight">
@@ -208,23 +209,20 @@ permalink: /lab/
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
                 <!-- Director Card -->
-                <article class="member-card bg-gray-50 dark:bg-gray-800 shadow-md">
-                    <div class="overflow-hidden h-72 bg-gray-200 dark:bg-gray-700">
+                <article class="member-card bg-gray-50 dark:bg-gray-800 shadow-md max-w-64">
+                    <div class="overflow-hidden aspect-square bg-gray-200 dark:bg-gray-700">
                         <img src="/images/members/Tri_Bien.jpg"
                              alt="Lab Director"
                              class="member-image"
                              onerror="this.src='https://via.placeholder.com/400x400?text=Director'">
                     </div>
 
-                    <div class="p-6 flex flex-col flex-1">
+                    <div class="p-4 flex flex-col flex-1">
                         <h4 class="text-2xl font-bold text-primary dark:text-orange-400 mb-1">
                             MSc. Tri Bien Minh
                         </h4>
-                        <p class="text-sm font-semibold text-secondary mb-3">
+                        <p class="text-sm font-semibold text-secondary mb-3 dark:text-gray-300">
                             Principal Investigator & Lab Director
-                        </p>
-                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
-                            Research interests: Autonomous Robotics, Machine Learning, Motion Planning, Humanoind Robotics.
                         </p>
 
                         <!-- Social Links -->
