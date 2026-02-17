@@ -122,6 +122,13 @@ permalink: /lab/
 
     </style>
 
+    <!-- Apply saved theme immediately to prevent flash -->
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+
     <script>
 
         tailwind.config = {
@@ -543,7 +550,7 @@ permalink: /lab/
     </script>
 
     <!-- Theme Toggle -->
-    <button onclick="document.documentElement.classList.toggle('dark')"
+    <button onclick="document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light')"
         class="fixed bottom-4 right-4 bg-white text-black p-3 border-4 border-gray-400 rounded-full shadow-lg text-sm font-semibold hover:bg-secondary transition-colors duration-300 dark:bg-gray-800 dark:text-white dark:border-orange-600 dark:hover:bg-secondary">
         Toggle Theme
     </button>
