@@ -4,8 +4,8 @@ subtitle: Robotics Lab Blog for everyone
 
 google_analytics: "G-JZ3ZRCD0LR"
 
-url:
-baseurl:
+url: "https://armi-research.github.io"
+baseurl: ""
 
 footer_url:
 footer_text: "Copyright © 2023 RobotLabX.com | Contact: robotlabvn@gmail.com"
