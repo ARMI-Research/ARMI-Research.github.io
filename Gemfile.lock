@@ -114,6 +114,7 @@ PLATFORMS
 DEPENDENCIES
   jekyll
   kramdown-math-katex
+  webrick
 
 BUNDLED WITH
    2.6.9
