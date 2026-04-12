@@ -16,7 +16,7 @@ katex: True
 
 Robotics isn't just about making things move; it's about the convergence of perception, planning, and control. This roadmap breaks down that journey into four distinct layers of expertise.
 
-{% include image.html url="/assets/4Year_research_roadmap.png" description="ARMI Research Lab: A 4-Year Multi-Branch Robotics Research Roadmap" width="80%" %}
+{% include image.html url="/assets/4Year_research_roadmap.png" description="ARMI Research Lab: A 4-Year Multi-Branch Robotics Research Roadmap" width="100%" %}
 
 
 | Year | Layer | Role | Focus |
