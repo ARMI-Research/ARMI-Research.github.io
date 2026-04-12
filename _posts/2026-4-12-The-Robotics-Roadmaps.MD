@@ -1,7 +1,7 @@
 ---
 layout: post
 category: research
-title: "The Robotics Roadmaps: A 4-Year Multi-Branch Research Roadmap"
+title: "ARMI Research Lab: A 4-Year Multi-Branch Robotics Research Roadmap"
 snippet: From building components to publishing Q1 journals—a comprehensive guide for the modern robotics scientist.
 tags: [robotics, research, roadmap, machine-learning, dynamics]
 katex: True
@@ -15,6 +15,9 @@ katex: True
 ## I. The 4-Year Evolution
 
 Robotics isn't just about making things move; it's about the convergence of perception, planning, and control. This roadmap breaks down that journey into four distinct layers of expertise.
+
+{% include image.html url="/assets/4Year_research_roadmap.png" description="ARMI Research Lab: A 4-Year Multi-Branch Robotics Research Roadmap" width="80%" %}
+
 
 | Year | Layer | Role | Focus |
 | :--- | :--- | :--- | :--- |
