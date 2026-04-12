@@ -18,9 +18,6 @@ The Rotary Inverted Pendulum consists of a horizontal arm that rotates in the ho
 
 {% include image.html url="/assets/tutorials/inverted_pendulum.png" description="The Rotary Inverted Pendulum system: $\theta$ represents the arm angle and $\alpha$ represents the pendulum angle." width="60%" %}
 
-https://www.st.com/content/dam/AME/2019/Educational%20Curriculums/motor-control/Introduction_to_Integrated_Rotary_Inverted_Pendulum_v2.pdf
-
-
 ### The Mathematical Challenge
 Unlike a standard pendulum, this system is **underactuated** (one motor for two degrees of freedom) and **non-linear**. To balance it, we must linearize the system around the upright equilibrium point.
 
