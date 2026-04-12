@@ -1,6 +1,6 @@
 ---
 layout: post
-category: robotics
+category: research
 title: "Project Roadmap: Rotary Inverted Pendulum for Beginners"
 snippet: A comprehensive guide for 1st-year students to build and control a Furuta Pendulum using Arduino and Python.
 tags: [robotics, arduino, python, control-theory]
