@@ -25,10 +25,10 @@ Understanding when and how to use each of these is fundamental for building scal
   <div class="col">
     {% include image.html url="https://docs.ros.org/en/foxy/_images/Topic-SinglePublisherandSingleSubscriber.gif" description="ROS Topic publish-subscribe communication" width="100%" %}
   </div>
-  
+ </div>  
 
 
-
+https://docs.ros.org/en/foxy/_images/Action-SingleActionClient.gif
 ---
 
 ## 1. Topics (Publish / Subscribe)
@@ -36,12 +36,12 @@ Understanding when and how to use each of these is fundamental for building scal
   <div class="col">
     {% include image.html url="https://docs.ros.org/en/foxy/_images/Topic-SinglePublisherandSingleSubscriber.gif" description="ROS Topic publish-subscribe communication" width="100%" %}
   </div>
-
+ </div>
 <div class="row">
   <div class="col">
     {% include image.html url="https://docs.ros.org/en/foxy/_images/Topic-MultiplePublisherandMultipleSubscriber.gif" description="ROS Topic publish-subscribe communication" width="100%" %}
   </div>
-  
+   </div>
 
 ### Concept
 
@@ -109,7 +109,6 @@ rclpy.spin(node)
   <div class="col">
     {% include image.html url="https://docs.ros.org/en/foxy/_images/Service-SingleServiceClient.gif" description="ROS Service request-response model" width="100%" %}
   </div>
-</div>
 
 ### Concept
 
