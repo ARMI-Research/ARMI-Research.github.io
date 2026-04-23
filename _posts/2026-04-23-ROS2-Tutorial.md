@@ -169,9 +169,7 @@ rclpy.spin(node)
 
 
 <div class="row">
-  <div class="col">
     {% include image.html url="https://docs.ros.org/en/foxy/_images/Action-SingleActionClient.gif" description="ROS Action communication with feedback loop" width="60%" %}
-  </div>
 </div>
 
 ### Concept
