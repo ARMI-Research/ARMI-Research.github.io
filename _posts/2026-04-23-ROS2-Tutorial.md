@@ -1,10 +1,10 @@
 ---
 layout: post
 category: blog
-title: ROS 2 Communication: Topics, Services, and Actions Explained
-snippet: A detailed explanation of ROS 2 communication mechanisms including Topics, Services, and Actions with examples and diagrams.
+title: "ROS 2 Communication: Topics, Services, and Actions Explained"
+snippet: "A detailed explanation of ROS 2 communication mechanisms including Topics, Services, and Actions with examples and diagrams."
 tags: [robotics, ros2]
-katex: True
+katex: true
 ---
 
 ## Introduction
