@@ -1,9 +1,11 @@
+
 ---
 layout: post
 category: blog
 title: ROS 2 Communication: Topics, Services, and Actions Explained
 snippet: A detailed explanation of ROS 2 communication mechanisms including Topics, Services, and Actions with examples and diagrams.
 tags: [robotics, ros2]
+katex: True
 ---
 
 ## Introduction
@@ -263,3 +265,5 @@ A well-designed ROS 2 system typically uses:
 - Actions for planning and execution
 
 Understanding these patterns will make your robotic applications more scalable, responsive, and maintainable.
+
+---
