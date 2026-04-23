@@ -23,22 +23,25 @@ Understanding when and how to use each of these is fundamental for building scal
 
 <div class="row">
   <div class="col">
-    {% include image.html url="https://upload.wikimedia.org/wikipedia/commons/8/8e/ROS_topics.png" description="ROS Topic publish-subscribe communication" width="100%" %}
+    {% include image.html url="https://docs.ros.org/en/foxy/_images/Topic-SinglePublisherandSingleSubscriber.gif" description="ROS Topic publish-subscribe communication" width="100%" %}
   </div>
-  <div class="col">
-    {% include image.html url="https://docs.ros.org/en/foxy/_images/service.png" description="ROS Service request-response model" width="100%" %}
-  </div>
-</div>
+  
 
-<div class="row">
-  <div class="col">
-    {% include image.html url="https://docs.ros.org/en/foxy/_images/action.png" description="ROS Action communication with feedback loop" width="60%" %}
-  </div>
-</div>
+
 
 ---
 
 ## 1. Topics (Publish / Subscribe)
+<div class="row">
+  <div class="col">
+    {% include image.html url="https://docs.ros.org/en/foxy/_images/Topic-SinglePublisherandSingleSubscriber.gif" description="ROS Topic publish-subscribe communication" width="100%" %}
+  </div>
+
+<div class="row">
+  <div class="col">
+    {% include image.html url="https://docs.ros.org/en/foxy/_images/Topic-MultiplePublisherandMultipleSubscriber.gif" description="ROS Topic publish-subscribe communication" width="100%" %}
+  </div>
+  
 
 ### Concept
 
@@ -103,6 +106,10 @@ rclpy.spin(node)
 ---
 
 ## 2. Services (Request / Response)
+  <div class="col">
+    {% include image.html url="https://docs.ros.org/en/foxy/_images/Service-SingleServiceClient.gif" description="ROS Service request-response model" width="100%" %}
+  </div>
+</div>
 
 ### Concept
 
@@ -160,6 +167,13 @@ rclpy.spin(node)
 ---
 
 ## 3. Actions (Goal / Feedback / Result)
+
+
+<div class="row">
+  <div class="col">
+    {% include image.html url="https://docs.ros.org/en/foxy/_images/Action-SingleActionClient.gif" description="ROS Action communication with feedback loop" width="60%" %}
+  </div>
+</div>
 
 ### Concept
 
