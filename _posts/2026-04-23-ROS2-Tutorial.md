@@ -27,8 +27,6 @@ Understanding when and how to use each of these is fundamental for building scal
   </div>
  </div>  
 
-
-https://docs.ros.org/en/foxy/_images/Action-SingleActionClient.gif
 ---
 
 ## 1. Topics (Publish / Subscribe)
