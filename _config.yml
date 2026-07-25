@@ -11,7 +11,7 @@ footer_url:
 footer_text: "Copyright © 2023 RobotLabX.com | Contact: robotlabvn@gmail.com"
 
 profile-picture: assets/robotlablogo.png
-favicon_location:
+favicon_location: favicon.ico
 
 permalink: /:categories/:year-:month-:day-:title/
 sass:
